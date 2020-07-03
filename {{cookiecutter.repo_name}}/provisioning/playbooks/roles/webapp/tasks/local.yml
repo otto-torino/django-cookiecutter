@@ -1,0 +1,15 @@
+{% raw %}
+##
+# Setup of the local webapp envorinment
+# - requirements installation
+# - db initial migration
+# - repository initialization
+# - sass compiler installation
+##
+---
+    - name: Install requirements
+      pip: requirements={{ base_dir }}/{{ repo_name }}/requirements/{{ provisioning }}.txt virtualenv={{ base_dir }}/../venv virtualenv_command="/usr/bin/python3 -m venv"
+
+    - name: install sass compiler
+      action: command chdir={{ base_dir }} gem install sass
+{% endraw %}

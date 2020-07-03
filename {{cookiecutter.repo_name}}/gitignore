@@ -1,0 +1,13 @@
+*.swp
+*.pyc
+{{ cookiecutter.repo_name }}/.env
+.virtualenv
+{{ cookiecutter.repo_name }}/media
+{{ cookiecutter.repo_name }}/static
+provisioning/ansible_remote_variables
+provisioning/ansible_remote_inventory
+provisioning/playbooks/roles/webapp/templates/env
+releases
+logs
+tags
+.gutctags

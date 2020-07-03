@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+
+  db:
+    image: mysql:latest
+    container_name: {{cookiecutter.repo_name}}_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: "db_{{ cookiecutter.repo_name }}"
+    ports:
+      - '3307:3306'
+    volumes:
+      - db-data:/var/lib/mysql
+
+  app:
+    image: {{cookiecutter.repo_name}}_app
+    container_name: {{cookiecutter.repo_name}}_app
+    build:
+      context: ./
+      dockerfile: ./compose/app/Dockerfile.local
+    restart: unless-stopped
+    working_dir: /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}}
+    env_file:
+      - ./{{ cookiecutter.repo_name }}/.env
+    command: bash -c "source ../../venv/bin/activate && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - app:/home/app/{{cookiecutter.repo_name}}
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+
+volumes:
+
+  db-data:
+    driver: local
+  app:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}
+      o: bind

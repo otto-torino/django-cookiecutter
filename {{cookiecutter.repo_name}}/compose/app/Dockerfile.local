@@ -1,0 +1,14 @@
+FROM ubuntu:{{ cookiecutter.ubuntu_version }}
+
+RUN apt-get update && \
+    apt-get install -y \
+        ansible \
+        python3 \
+	locales
+
+RUN localedef -f UTF-8 -i en_US en_US.utf8
+
+COPY . ./home/app/{{cookiecutter.repo_name}}
+WORKDIR /home/app/{{cookiecutter.repo_name}}
+
+RUN ./bin/ansible_local

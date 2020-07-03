@@ -1,0 +1,12 @@
+{% raw %}
+##
+# Db creation
+##
+---
+    - name: Make sure pymysql is present
+      become: true
+      become_method: sudo
+      pip:
+        name: pymysql
+        state: present
+{% endraw %}

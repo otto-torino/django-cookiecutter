@@ -1,0 +1,27 @@
+{
+    "_copy_without_render": [
+        "*.scss",
+        "*.css",
+        "*.js",
+        "*debug_toolbar/base.html"
+    ],
+    "project_name": "My New Project",
+    "project_description": "My New Project description",
+    "repo_name": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
+    "core_name": "core",
+    "admin": ["django-baton", "default", "django-suit", "django-grappelli"],
+    "use_filer": "n",
+    "use_disqus": "n",
+    "language_code": "en-us",
+    "timezone": "Europe/Rome",
+    "author": "otto",
+    "email": "web.sites.logs@gmail.com",
+    "ubuntu_version": ["18.04", "16.04", "latest"],
+    "remote_user": "{{ cookiecutter.repo_name }}",
+    "remote_password": "",
+    "remote_root_mysql_pwd": "",
+    "domain": "example.com",
+    "db_user": "{{ cookiecutter.repo_name }}",
+    "db_user_pwd": "",
+    "webapp_dir": "/home/{{ cookiecutter.remote_user }}/www/{{ cookiecutter.repo_name }}"
+}
