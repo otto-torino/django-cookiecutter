@@ -12,3 +12,7 @@ COPY . ./home/app/{{cookiecutter.repo_name}}
 WORKDIR /home/app/{{cookiecutter.repo_name}}
 
 RUN ./bin/ansible_local
+
+ssh-keyscan {{cookiecutter.domain}} >> ~/.ssh/known_hosts
+
+
