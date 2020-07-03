@@ -11,10 +11,45 @@ Yet another django cookiecutter template.
 
 ## Features
 
-- local environment running inside 2 docker containers, one for the app and one for the database
-- development ready django project with all packages installed and database created and ready to go
-- set of bin commands to perform common tasks
-- set of production bin commands to perform machine setup (ansible) and deploy (fabric)
+- Local environment running inside 2 docker containers, one for the app and one for the database.
+- Development ready django project with all packages installed and database created and ready to go.
+- Set of bin commands to perform common tasks.
+- Set of production bin commands to perform machine setup (ansible) and deploy (fabric).
+- Git repository initialized and ready.
+
+Project details:
+
+- django db settings managed with environment variables
+- some must-have (in my opinion) packages installed:
+    - [django-pipeline](https://github.com/cyberdelia/django-pipeline)
+    - [django-ckeditor](https://github.com/django-ckeditor/django-ckeditor)
+    - [django-cleanup](https://github.com/un1t/django-cleanup)
+    - [django-constance](https://github.com/jazzband/django-constance)
+    - [django-user_agents](https://github.com/selwin/django-user_agents)
+    - [django-extensions](https://github.com/django-extensions/django-extensions)
+    - [django-simple-captcha](https://github.com/mbi/django-simple-captcha)
+    - [django-subject-imagefield](https://github.com/otto-torino/django-subject-imagefield)
+    - [django-taggit](https://github.com/alex/django-taggit)
+    - [easy-thumbnails](https://github.com/SmileyChris/easy-thumbnails)
+    - [django-debug-toolbar](https://github.com/django-debug-toolbar/django-debug-toolbar)
+    - [django-baton](https://github.com/otto-torino/django-baton) (optional)
+    - [django-suit](http://djangosuit.com/) (optional)
+    - [django-grappelli](https://github.com/sehmaschine/django-grappelli) (optional)
+    - [django-filer](https://github.com/stefanfoulis/django-filer) (optional)
+    - [django-disqus](https://github.com/arthurk/django-disqus) (optional)
+    - pages with integrated ckeditor
+
+### Frontend
+
+#### Vendor
+
+- jQuery
+- moment.js
+- Bootstrap/Semantic UI
+- FontAwesome 4.7.0
+- air-datepicker
+- Swiper
+- Tocca
 
 ## Getting started
 
@@ -86,3 +121,8 @@ $ echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
 $ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
 ```
 
+## TODO
+
+- Write fabric scripts for python3.
+- Integrate bootstrap branch as a cookiecutter option
+- Update all dependencies
