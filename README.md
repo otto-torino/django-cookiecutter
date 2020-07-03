@@ -2,7 +2,7 @@
 
 Yet another django cookiecutter template.
 
-> It provides a fully working dev environment in a docker container with volume binding in order to have changes to the codebase immediately be reflected in the container. Ansible commands to setup the remote machine and fabric scripts with many deploy utilities.
+> It provides a fully working dev environment in a docker container, a convinient cli with autocompletion to perfom common tasks, an ansible command to setup the remote machine and fabric scripts with many deploy utilities.
 
 ## Dependencies
 
@@ -34,27 +34,27 @@ $ cookiecutter https://github.com/otto-torino/django-cookiecutter
 
 Then you should answer some questions:
 
-| Question | Type | Default | Description |
-|----------|------|---------|-------------|
-| Project Name | String | My New Project | The project name, site title |
-| Project Description | String | My New Project description | The project description, site meta description |
-| Repo Name | String | `{{cookiecutter.project_name\|lower\|replace(' ', '-')}}` | The repository name |
-| Core Name | String | core | Name of the main application module |
-| Admin | Enum<br>django-baton \| default \| django-suit \| django-grappelli | django-baton | The admin application |
-| Use filer | Boolean<br>y/n | n | Whether to install django-filer or not |
-| Use disqus | Boolean<br>y/n | n | Whether to install django-disqus or not |
-| Language Code | String | en | The language code django setting |
-| Timezone | String | Europe/Rome | The timezone django setting |
-| Author | String | otto | The application author |
-| Email | String | web.sites.logs@gmail.com | The admin e-mail used to send erro e-mails with trace |
-| Ubuntu Version | Enum<br>16.04 \| 18.04 \| latest  | 18.04 | The ubuntu version used for the docker container |
-| Remote User | String | `{{cookiecutter.repo_name}}` | The remote user used during deploy |
-| Remote Password | String | | The remote user password |
-| Remote Root MySQL Password | String | | The root password for the remote MySQL installation |
-| Domain | String | | The domain of the deployed application |
-| Db User | String | `{{cookiecutter.repo_name}}` | Remote database user used by the application |
-| Db User Password | String | | Remote database user password |
-| Web App Dir | String | `/home/{{ cookiecutter.remote_user }}/www/{{ cookiecutter.repo_name }}` | Deploy path of the application |
+| Question | Type | Description |
+|----------|------|-------------|
+| Project Name | String | The project name, site title |
+| Project Description | String | The project description, site meta description |
+| Repo Name | String | The repository name |
+| Core Name | String | Name of the main application module |
+| Admin | Enum<br>django-baton \| default \| django-suit \| django-grappelli | The admin application |
+| Use filer | Boolean<br>y/n | Whether to install django-filer or not |
+| Use disqus | Boolean<br>y/n | Whether to install django-disqus or not |
+| Language Code | String | The language code django setting |
+| Timezone | String | The timezone django setting |
+| Author | String | The application author |
+| Email | String | The admin e-mail used to send erro e-mails with trace |
+| Ubuntu Version | Enum<br>16.04 \| 18.04 \| latest  | The ubuntu version used for the docker container |
+| Remote User | String | The remote user used during deploy |
+| Remote Password | String | The remote user password |
+| Remote Root MySQL Password | String | The root password for the remote MySQL installation |
+| Domain | String | The domain of the deployed application |
+| Db User | String | Remote database user used by the application |
+| Db User Password | String | Remote database user password |
+| Web App Dir | String | Deploy path of the application |
 
 ## CLI
 
