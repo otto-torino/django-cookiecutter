@@ -60,7 +60,7 @@ Then you should answer some questions:
 
 ### Autocompletion
 
-The provided cli supports autocompletion through [argcomplete](https://github.com/kislyuk/argcomplete). You need to install it on your machine and activate it globally.
+The provided cli supports autocompletion through [argcomplete](https://github.com/kislyuk/argcomplete). If you want to benefit of it (not mandatory), you need to install it on your machine and activate it globally.
 
 #### Ubuntu
 

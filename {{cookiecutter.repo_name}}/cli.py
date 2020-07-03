@@ -45,10 +45,25 @@ if __name__ == "__main__":
         required=False,
         help='executes the given management command')
 
+    parser.add_argument(
+        '--remote',
+        dest='remote_command',
+        required=False,
+        help='executes remote commands',
+        choices=('setup', 'deploy', 'rollback', 'reload', 'dump_db_snapshot', 'load_db_snapshot', ),)
+
     if complete_enabled:
         argcomplete.autocomplete(parser)
     args = vars(parser.parse_args())
 
+    # functions
+    def manage_remote_command(cmd):
+        if cmd == 'setup':
+            os.system("docker-compose -f docker-compose.yml exec app bash -c \"../bin/ansible_remote\"")
+        else: # fabric stuff
+            os.system("docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && fab production %s\"" % cmd)
+
+    # options parsing
     if args['start']:
         os.system("docker-compose -f docker-compose.yml up")
     elif args['open_shell']:
@@ -59,3 +74,5 @@ if __name__ == "__main__":
         os.system(
             "docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && python manage.py %s\"" % args['management_command']
         )
+    elif args['remote_command']:
+        manage_remote_command(args['remote_command'])
