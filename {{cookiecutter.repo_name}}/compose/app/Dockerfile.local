@@ -4,7 +4,8 @@ RUN apt-get update && \
     apt-get install -y \
         ansible \
         python3 \
-	locales
+	    locales \
+        openssh-client
 
 RUN localedef -f UTF-8 -i en_US en_US.utf8
 
@@ -13,6 +14,7 @@ WORKDIR /home/app/{{cookiecutter.repo_name}}
 
 RUN ./bin/ansible_local
 
-ssh-keyscan {{cookiecutter.domain}} >> ~/.ssh/known_hosts
+RUN mkdir /root/.ssh && chmod 0700 /root/.ssh
+RUN ssh-keyscan {{cookiecutter.domain}} >> ~/.ssh/known_hosts
 
 
