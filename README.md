@@ -4,8 +4,8 @@ Yet another django cookiecutter template.
 
 ## Dependencies
 
-* cookiecutter
-* docker-compose
+* [cookiecutter](https://github.com/cookiecutter/cookiecutter)
+* [docker-compose](https://docs.docker.com/)
 
 ## Features
 
