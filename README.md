@@ -2,7 +2,7 @@
 
 Yet another django cookiecutter template.
 
-> It provides a fully working dev environment in a docker container, a convinient cli with autocompletion to perfom common tasks, an ansible command to setup the remote machine and fabric scripts with many deploy utilities.
+> It provides a fully working dev environment in a docker container, a convenient cli with autocompletion to perform common tasks, an ansible command to set up the remote machine and fabric scripts with many deploy utilities.
 
 ## Dependencies
 
