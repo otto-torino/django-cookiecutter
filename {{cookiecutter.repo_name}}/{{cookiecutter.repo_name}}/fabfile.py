@@ -385,7 +385,7 @@ def reloadServer(ctx):
 
 
 @task
-def restart_uwsgi(ctx):
+def restartUwsgi(ctx):
     """ Restart uWSGI """
     print_("Restarting uWSGI...", 'INFO')
     c = get_connection(ctx)
@@ -403,5 +403,5 @@ def restart(ctx):
     print_("Running task 'restart'", 'HEADER')
     print("Restarts the application layer and reloads the web server")
     print("...")
-    restart_uwsgi(ctx)
+    restartUwsgi(ctx)
     reloadServer(ctx)
