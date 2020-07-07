@@ -101,7 +101,7 @@ Your new cool installation comes with a command line interface you can use to la
 | `--start` | Starts the development environment |
 | `--clean` | Removes containers and volumes |
 | `--shell` | Opens a shell in the app container |
-| `--createsuperuser` | Creates an admin:admin superuser account |
+| `--createsuperuser` | Creates a superuser account |
 | `--manage [command]` | Executes `python manage.py [command]` in the app container |
 | `--remote [command]` | Executes a command in the remote production server |
 
