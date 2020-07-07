@@ -154,6 +154,5 @@ $ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
 
 ## TODO
 
-- Write fabric scripts for python3.
 - Integrate bootstrap branch as a cookiecutter option
 - Update all dependencies
