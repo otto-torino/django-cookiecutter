@@ -93,6 +93,37 @@ Then you should answer some questions:
 
 ## CLI
 
+Your new cool installation comes with a command line interface you can use to launch commands that will be executed in the docker container.
+
+| Command | Description |
+|---------|-------------|
+| `--help` | Prints the help summary |
+| `--start` | Starts the development environment |
+| `--clean` | Removes containers and volumes |
+| `--shell` | Opens a shell in the app container |
+| `--createsuperuser` | Creates an admin:admin superuser account |
+| `--manage [command]` | Executes `python manage.py [command]` in the app container |
+| `--remote [command]` | Executes a command in the remote production server |
+
+Let's see in the detail the remote commands:
+
+| Remote command | Description |
+|----------------|-------------|
+| `setup` | Executes the setup of the remote machine (install necessary packages, creates users, folders and db) |
+| `createReleaseArchive` | Craetes a release archive in the `releases` folder |
+| `deploy` | Performs a deploy in production |
+| `rollback` | Rollbacks to the previous release in production |
+| `getRemoteRevision` | Returns the current revision deployed in production |
+| `dumpDbSnapshot` | Dumps and downloads a production db snapshot |
+| `loadDbSnapshot` | Dumps and downloads a production db snapshot and loads it in the local db |
+| `loadDb` | Loads the current production db already downloaded in the local db |
+| `offline` | Puts the site in maintenance mode |
+| `online` | Removes the maintenance mode |
+| `reloadServer` | Reloads the web server |
+| `restartUwsgi` | Restarts uWSGI service |
+| `restart` | Restarts services and reloads the web server |
+
+
 ### Autocompletion
 
 The provided cli supports autocompletion through [argcomplete](https://github.com/kislyuk/argcomplete). If you want to benefit of it (not mandatory), you need to install it on your machine and activate it globally.
