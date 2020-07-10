@@ -79,6 +79,7 @@ if __name__ == "__main__":
         os.system("docker container rm {{cookiecutter.repo_name}}_mysql")
         os.system("docker volume rm {{cookiecutter.repo_name}}_app")
         os.system("docker volume rm {{cookiecutter.repo_name}}_db-data")
+        os.system("docker volume rm {{cookiecutter.repo_name}}_virtualenv")
     elif args['open_shell']:
         os.system("docker-compose -f docker-compose.yml exec app bash")
     elif args['createsuperuser']:

@@ -4,3 +4,5 @@
 django-debug-toolbar==1.11
 Werkzeug==0.15.5
 sqlparse==0.2.4
+fabric==2.5.0
+patchwork==1.0.1

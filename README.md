@@ -9,6 +9,8 @@ Yet another django cookiecutter template.
 * [cookiecutter](https://github.com/cookiecutter/cookiecutter)
 * [docker-compose](https://docs.docker.com/)
 
+> Please follow [this article](https://www.jujens.eu/posts/en/2017/Jul/02/docker-userns-remap/) in order to use Linux user namespaces to fix permissions in docker volumes.
+
 ## Features
 
 - Local environment running inside 2 docker containers, one for the app and one for the database.

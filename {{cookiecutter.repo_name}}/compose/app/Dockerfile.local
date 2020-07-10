@@ -5,7 +5,8 @@ RUN apt-get update && \
         ansible \
         python3 \
 	    locales \
-        openssh-client
+        openssh-client \
+        git
 
 RUN localedef -f UTF-8 -i en_US en_US.utf8
 

@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
 
@@ -26,9 +26,12 @@ services:
       - ./{{ cookiecutter.repo_name }}/.env
     command: bash -c "source ../../venv/bin/activate && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - app:/home/app/{{cookiecutter.repo_name}}
+      - .:/home/app/{{cookiecutter.repo_name}}
+      - virtualenv:/home/app/venv
+      - ~/.ssh:/root/.ssh
     ports:
       - '8000:8000'
+      - '8001:8001' # to run pdb
     depends_on:
       - db
 
@@ -36,9 +39,9 @@ volumes:
 
   db-data:
     driver: local
-  app:
+  virtualenv:
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}
+      device: ${PWD}/.virtualenv
       o: bind

@@ -28,4 +28,5 @@ if context['admin'] != 'django-baton':
 
 shutil.move('gitignore', '.gitignore')
 # os.system('docker-compose -f docker-compose.yml build --no-cache')
+os.system('mkdir .virtualenv')
 os.system('docker-compose -f docker-compose.yml up')
