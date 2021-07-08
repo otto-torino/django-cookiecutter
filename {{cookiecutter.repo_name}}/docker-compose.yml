@@ -27,7 +27,7 @@ services:
     working_dir: /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}}
     env_file:
       - ./{{ cookiecutter.repo_name }}/.env
-    command: bash -c "source ../../venv/bin/activate && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "source ../../venv/bin/activate && pip install -r requirements/local.txt && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/home/app/{{cookiecutter.repo_name}}
       - virtualenv:/home/app/venv

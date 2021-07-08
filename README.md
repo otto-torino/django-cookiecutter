@@ -156,6 +156,29 @@ $ echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
 $ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
 ```
 
+## Starting from cloned project
+
+- Create the `.virtualenv` directory into the root directory
+- Create the `logs` directory into the root directory
+- Create a `.env` file in the `root/project-name/project-name` directory with the following content:
+  ```
+    DJANGO_SETTINGS_MODULE=core.settings.local
+    DB_NAME=...
+    DB_HOST=db
+    DB_PORT=5432
+    DB_USER=...
+    DB_PASSWORD=...
+    PYTHONUNBUFFERED=true
+    LC_ALL=en_US.UTF-8
+    REMOTE_USER=...
+    REMOTE_USER_PWD=...
+    REMOTE_DB=...
+    REMOTE_DB_USER=...
+    REMOTE_DB_PASSWORD=...
+    SECRET_KEY=...
+  ```
+- Launch `./cli.py --start`
+
 ## TODO
 
 - Add bootstrap 5 as cookiecutter option
