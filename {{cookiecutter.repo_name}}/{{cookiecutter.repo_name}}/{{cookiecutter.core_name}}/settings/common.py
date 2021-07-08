@@ -6,6 +6,7 @@ Django settings for {{ cookiecutter.project_name }} project.
 from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 load_dotenv()
 
@@ -31,6 +32,8 @@ EMAIL_PORT = 25
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+        'HOST': getenv('DB_HOST'),
+        'PORT': getenv('DB_PORT'),
         'NAME': getenv('DB_NAME'),
         'USER': getenv('DB_USER'),
         'PASSWORD': getenv('DB_PASSWORD'),
@@ -72,12 +75,18 @@ INSTALLED_APPS = (
     'pipeline',
     {% if cookiecutter.use_filer == 'y' %}
     'filer',
+    'easy_thumbnails',
     {% endif %}
     'django_cleanup',
+    {% if cookiecutter.use_simple_captcha == 'y' %}
     'captcha',
+    {% endif %}
+    {% if cookiecutter.use_subject_imagefield == 'y' %}
     'subject_imagefield',
-    'easy_thumbnails',
+    {% endif %}
+    {% if cookiecutter.use_sorl_thumbnail == 'y' %}
     'sorl.thumbnail',
+    {% endif %}
     {% if cookiecutter.use_disqus == 'y' %}'disqus',{% endif %}
     'taggit',
     'mptt',
@@ -171,18 +180,16 @@ CONSTANCE_CONFIG_FIELDSETS = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'pipeline.finders.PipelineFinder',
 )
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Uploaded files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 # ADMIN
@@ -353,7 +360,6 @@ LOGGING = {
             'level': 'DEBUG',
             'formatter': 'verbose',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': here('..', '..', '..', os.path.join('logs', 'debug.log')), # noqa
             'when':     'midnight',
         },
 

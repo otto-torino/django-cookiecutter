@@ -3,11 +3,13 @@
 '''
 from .common import *
 
-import os
-
 DEBUG = True
 ALLOWED_HOSTS = []
-INTERNAL_IPS = ('127.0.0.1', )  # debug toolbar
+INTERNAL_IPS = ('127.0.0.1', )  # debug toolbar and tailwind
+
+STATIC_ROOT = BASE_DIR / 'static'
+MEDIA_ROOT = BASE_DIR / 'media'
+LOGGING['handlers']['file']['filename'] = BASE_DIR / '../logs/{{cookiecutter.repo_name}}.log'
 
 INSTALLED_APPS += (
     'debug_toolbar',

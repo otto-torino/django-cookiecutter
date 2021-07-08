@@ -4,12 +4,10 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.sites.models import Site
 from django.db import models
 from django.urls import get_script_prefix
-from django.utils.encoding import iri_to_uri, python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from taggit.managers import TaggableManager
 
 
-@python_2_unicode_compatible
 class Page(models.Model):
     DRAFT = 1
     PUBLISHED = 2

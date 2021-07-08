@@ -74,9 +74,9 @@ if __name__ == "__main__":
         os.system("docker-compose -f docker-compose.yml up")
     elif args['clean']:
         os.system("docker container stop {{cookiecutter.repo_name}}_app")
-        os.system("docker container stop {{cookiecutter.repo_name}}_mysql")
+        os.system("docker container stop {{cookiecutter.repo_name}}_postgres")
         os.system("docker container rm {{cookiecutter.repo_name}}_app")
-        os.system("docker container rm {{cookiecutter.repo_name}}_mysql")
+        os.system("docker container rm {{cookiecutter.repo_name}}_postgres")
         os.system("docker volume rm {{cookiecutter.repo_name}}_app")
         os.system("docker volume rm {{cookiecutter.repo_name}}_db-data")
         os.system("docker volume rm {{cookiecutter.repo_name}}_virtualenv")

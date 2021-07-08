@@ -8,9 +8,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: "{{ cookiecutter.db_user }}"
-      POSTGRES_PASSWORD: "{{ cookiecutter.db_password }}"
-      POSTGRES_DB: "{{ cookiecutter.db_password }}"
-      MYSQL_DATABASE: "db{{ cookiecutter.repo_name }}"
+      POSTGRES_PASSWORD: "{{ cookiecutter.db_user_pwd }}"
+      POSTGRES_DB: "db{{ cookiecutter.repo_name }}"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
     ports:
       - '5433:5432'
     volumes:

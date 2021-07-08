@@ -3,19 +3,17 @@
 '''
 from .common import *
 
-import os
-
 DEBUG = False
 
 ALLOWED_HOSTS = ['{{ cookiecutter.domain }}',]
 
-STATIC_ROOT = '{{ cookiecutter.webapp_dir }}/static/'
-MEDIA_ROOT = '{{ cookiecutter.webapp_dir }}/media'
+STATIC_ROOT = '{{cookiecutter.webapp_dir}}/static'
+MEDIA_ROOT = '{{cookiecutter.webapp_dir}}/media'
+LOGGING['handlers']['file']['filename'] = '{{cookiecutter.webapp_dir}}/logs/{{cookiecutter.repo_name}}.log'
+
 # CKEDITOR
 CKEDITOR_CONFIGS['default']['contentsCss'] = [
     STATIC_URL + '{{ cookiecutter.core_name }}/css/vendor.min.css',
     STATIC_URL + '{{ cookiecutter.core_name }}/src/vendor/semantic-ui/semantic.min.css',
     STATIC_URL + '{{ cookiecutter.core_name }}/css/core.min.css',
     STATIC_URL + '{{ cookiecutter.core_name }}/src/css/ckeditor.css']
- 
-LOGGING['handlers']['file']['filename'] = here('..', '..', '..', '..', os.path.join('logs', 'debug.log'))
