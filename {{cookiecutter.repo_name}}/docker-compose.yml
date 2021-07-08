@@ -3,16 +3,18 @@ version: '3.8'
 services:
 
   db:
-    image: mysql:latest
-    container_name: {{cookiecutter.repo_name}}_mysql
+    image: postgres:latest
+    container_name: {{cookiecutter.repo_name}}_postgres
     restart: unless-stopped
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: "db_{{ cookiecutter.repo_name }}"
+      POSTGRES_USER: "{{ cookiecutter.db_user }}"
+      POSTGRES_PASSWORD: "{{ cookiecutter.db_password }}"
+      POSTGRES_DB: "{{ cookiecutter.db_password }}"
+      MYSQL_DATABASE: "db{{ cookiecutter.repo_name }}"
     ports:
-      - '3307:3306'
+      - '5433:5432'
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data:/var/lib/postgresql/data/
 
   app:
     image: {{cookiecutter.repo_name}}_app
