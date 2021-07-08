@@ -1,53 +1,44 @@
 {% raw %}
 ##
 # Db installation and creation
-# When provisioning the remote host a user is created tied to the newly created db
-#
-# The template .my.cnf is used to login to the remote mysql server
-#
 ##
 ---
-    - name: install mysql-server
+    - name: install necessary packages
       become: true
       become_method: sudo
-      apt: name=mysql-server state=present
+      apt:
+        state: present
+        update_cache: yes
+        name:
+          - postgresql
+          - postgresql-contrib
+          - libpq-dev
+          - postgresql-client
+          - postgresql-client-common
 
-    - name: install python3-mysqldb
+    - name: Install psycopg2 python package
+      pip:
+        name: psycopg2
+
+    - name: Create the db user
+      postgresql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        encrypted: True
+        state: "present"
       become: true
-      become_method: sudo
-      apt: name=python3-mysqldb state=present
-
-    - name: copy .my.cnf file with root password credentials
-      template: src=my.cnf dest=/root/.my.cnf owner=root mode=0600
-
-    # 'localhost' needs to be the last item for idempotency, see
-    # http://ansible.cc/docs/modules.html#mysql-user
-    - name: update mysql root password for all root accounts
-      mysql_user: name=root host={{ item }} password={{ mysql_root_password }}
-      with_items:
-        - "{{ ansible_hostname }}"
-        - 127.0.0.1
-        - ::1
-        - localhost
-
-    - name: delete anonymous MySQL server user for $ansible_hostname
-      action: mysql_user user="" host="{{ ansible_hostname }}" state="absent"
-
-    - name: delete anonymous MySQL server user for localhost
-      action: mysql_user user="" state="absent"
-
-    - name: remove the MySQL test database
-      action: mysql_db db=test state=absent
-
-    - name: create database
-      become: true
-      become_method: sudo
-      mysql_db:
-        name={{ db_name }}
-        encoding=utf8
+      become_user: postgres
       notify: restart db service
 
-    - name: create db user
-      mysql_user: name={{ db_user }} password={{ db_password }} priv={{ db_name }}.*:ALL state=present
+    - name: create the db
+      postgresql_db:
+        name: "{{ db_name }}"
+        owner: "{{ db_user }}"
+        template: template0
+        encoding: UTF8
+        lc_collate: 'en_US.UTF-8'
+        lc_ctype: 'en_US.UTF-8'
+      become: true
+      become_user: postgres
       notify: restart db service
 {% endraw %}
