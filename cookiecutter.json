@@ -9,7 +9,7 @@
     "project_description": "My New Project description",
     "repo_name": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
     "core_name": "core",
-    "admin": ["django-baton", "default", "django-suit", "django-grappelli"],
+    "admin": ["django-baton", "default", "django-grappelli"],
     "use_filer": "n",
     "use_disqus": "n",
     "language_code": "en-us",
