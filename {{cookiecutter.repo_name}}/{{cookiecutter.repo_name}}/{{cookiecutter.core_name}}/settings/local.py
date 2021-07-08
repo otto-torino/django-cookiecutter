@@ -6,6 +6,7 @@ from .common import *
 import os
 
 DEBUG = True
+ALLOWED_HOSTS = []
 INTERNAL_IPS = ('127.0.0.1', )  # debug toolbar
 
 INSTALLED_APPS += (

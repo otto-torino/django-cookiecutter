@@ -3,36 +3,21 @@
 Django settings for {{ cookiecutter.project_name }} project.
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+from os import getenv
+from pathlib import Path
 from dotenv import load_dotenv
-from getenv import env
 
-from django.utils.translation import ugettext_lazy as _
+load_dotenv()
 
-here = lambda *x: os.path.join(os.path.dirname( # noqa
-                               os.path.realpath(__file__)), *x)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SECRET_KEY = getenv('SECRET_KEY')
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # noqa
-
-dotenv_path = here('..', '..', '.env')
-load_dotenv(dotenv_path)
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY', '49saa%ruey1&!nveiz*f(cu$)0pje8wz7u++y-0ljd2)9r)j8h') # noqa
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-ALLOWED_HOSTS = []
-
+# ADMINS
 ADMINS = (
     ('{{ cookiecutter.author }}', '{{ cookiecutter.email }}'),
 )
 
+# AUTH USER
 AUTH_USER_MODEL = 'core.User'
 
 # SITE
@@ -42,25 +27,34 @@ SITE_ID = 1
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
+# DATABASE
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('DB_NAME', 'db{{ cookiecutter.repo_name }}'),
-        'HOST': env('DB_HOST', 'localhost'),
-        'USER': env('DB_USER', '{{ cookiecutter.repo_name }}'),
-        'PASSWORD': env('DB_PASSWORD', required=True),
-        'PORT': env('DB_PORT', 3307),
-        'OPTIONS': {
-            'init_command': 'SET default_storage_engine=InnoDB',
-        }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': getenv('DB_NAME'),
+        'USER': getenv('DB_USER'),
+        'PASSWORD': getenv('DB_PASSWORD'),
     }
 }
 
-# Application definition
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# APPLICATIONS
 INSTALLED_APPS = (
     '{{ cookiecutter.core_name }}',
     {% if cookiecutter.admin == 'django-baton' %}'baton',{% elif cookiecutter.admin == 'django-suit' %}'suit',{% elif cookiecutter.admin == 'django-grappelli' %}'grappelli',{% endif %}
@@ -215,36 +209,12 @@ BATON = {
         {'type': 'title', 'label': 'Contents',  'apps': ('pages', )},
         {'type': 'model', 'app': 'pages', 'name': 'page', 'label': 'Pages', 'icon':'fa fa-book'},
     ),
-    'COPYRIGHT': '© 2017 {{ cookiecutter.domain }}',
+    'COPYRIGHT': '© 2021 {{ cookiecutter.domain }}',
     'SUPPORT_HREF': 'mailto:stefano.contini@otto.to.it',
-    'POWERED_BY': '<a href="https://www.abidibo.net">abidibo</a>'
+    'POWERED_BY': '<a href="https://www.otto.to.it">Otto</a>'
 }
 {% elif cookiecutter.admin == 'django-grappelli' %}
 GRAPPELLI_ADMIN_TITLE = '{{ cookiecutter.project_name }} - Amministrazione'
-{% elif cookiecutter.admin == 'django-suit' %}
-SUIT_CONFIG = {
-    'ADMIN_NAME': '{{ cookiecutter.project_name }}',
-    'MENU': (
-
-        '-',
-
-        {'app': 'auth', 'label': 'Authentication', 'icon':'icon-lock'},
-        {'app': 'sites', 'label': 'Sites', 'icon':'icon-leaf'},
-        {'app': 'constance', 'label': 'Settings', 'icon':'icon-cog'},
-
-        {% if cookiecutter.use_filer == 'y' %}
-        '-',
-
-        {'app': 'filer', 'label': 'Files', 'icon':'icon-file'},
-
-        {% endif %}
-        '-',
-
-        {'app': 'treenav', 'label': 'Menu', 'icon':'icon-align-justify'},
-        {'app': 'pages', 'label': 'Pages', 'icon':'icon-book'},
-
-    )
-}
 {% endif %}
 
 # TAGGIT
