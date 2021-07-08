@@ -90,7 +90,7 @@ INSTALLED_APPS = (
     {% if cookiecutter.use_disqus == 'y' %}'disqus',{% endif %}
     'taggit',
     'mptt',
-    'treenav',
+    'lineup.apps.LineupConfig',
     'apps.SettingsConfig',
     'pages',
     'constance.backends.database',
@@ -124,7 +124,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'treenav.context_processors.treenav_active',
                 '{{ cookiecutter.core_name }}.context_processors.debug',
                 '{{ cookiecutter.core_name }}.context_processors.absurl',
             ],
@@ -210,8 +209,8 @@ BATON = {
         {'type': 'app', 'name': 'filer', 'label': 'File manager', 'icon':'fa fa-file'},
         {% endif %}
 
-        {'type': 'title', 'label': 'Navigation',  'apps': ('treenav', )},
-        {'type': 'model', 'app': 'treenav', 'name': 'menuitem', 'label': 'Menu', 'icon':'fa fa-bars'},
+        {'type': 'title', 'label': 'Navigation',  'apps': ('lineup', )},
+        {'type': 'model', 'app': 'lineup', 'name': 'menuitem', 'label': 'Menu', 'icon':'fa fa-bars'},
 
         {'type': 'title', 'label': 'Contents',  'apps': ('pages', )},
         {'type': 'model', 'app': 'pages', 'name': 'page', 'label': 'Pages', 'icon':'fa fa-book'},

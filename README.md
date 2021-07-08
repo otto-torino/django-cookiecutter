@@ -17,7 +17,6 @@ Yet another django cookiecutter template.
 - Development ready django project with all packages installed and database created and ready to go.
 - Set of bin commands to perform common tasks.
 - Set of production bin commands to perform machine setup (ansible) and deploy (fabric).
-- Git repository initialized and ready.
 
 Project details:
 

@@ -34,8 +34,6 @@ urlpatterns = [
             name='home'),
     # ckeditor uploader
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    # treenav
-    path('treenav/', include('treenav.urls')),
     {% if cookiecutter.use_filer == 'y' %}
     # filer
     path('filer/', include('filer.urls')),

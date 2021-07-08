@@ -12,6 +12,7 @@ django-pipeline==2.0.6
 django-taggit==1.5.1
 django-user-agents==0.4.0
 django-mptt==0.12.0
+django-lineup==0.3.0
 {% if cookiecutter.admin == 'django-baton' %}
 django-baton==2.2.1
 {% elif cookiecutter.admin == 'django-grappelli' %}
