@@ -19,7 +19,6 @@
     "ubuntu_version": ["18.04", "16.04", "latest"],
     "remote_user": "{{ cookiecutter.repo_name }}",
     "remote_password": "",
-    "remote_root_mysql_pwd": "",
     "domain": "example.com",
     "db_user": "{{ cookiecutter.repo_name }}",
     "db_user_pwd": "",
