@@ -33,6 +33,7 @@ Project details:
     - [django-subject-imagefield](https://github.com/otto-torino/django-subject-imagefield)
     - [django-taggit](https://github.com/alex/django-taggit)
     - [easy-thumbnails](https://github.com/SmileyChris/easy-thumbnails)
+    - [sorl-thumbnail](https://github.com/jazzband/sorl-thumbnail)
     - [django-debug-toolbar](https://github.com/django-debug-toolbar/django-debug-toolbar)
     - [django-baton](https://github.com/otto-torino/django-baton) (optional)
     - [django-suit](http://djangosuit.com/) (optional)
@@ -47,8 +48,8 @@ Project details:
 
 - jQuery
 - moment.js
-- Bootstrap/Semantic UI
-- FontAwesome 4.7.0
+- Semantic UI
+- FontAwesome
 - air-datepicker
 - Swiper
 - Tocca
@@ -80,6 +81,9 @@ Then you should answer some questions:
 | Admin | Enum<br>django-baton \| default \| django-suit \| django-grappelli | The admin application |
 | Use filer | Boolean<br>y/n | Whether to install django-filer or not |
 | Use disqus | Boolean<br>y/n | Whether to install django-disqus or not |
+| Use subject imagefield | Boolean<br>y/n | Whether to install django-subject-imagefield or not |
+| Use sorl thumbnail | Boolean<br>y/n | Whether to install sorl-thumbnail or not |
+| Use captcha | Boolean<br>y/n | Whether to install django-simple-captcha or not |
 | Language Code | String | The language code django setting |
 | Timezone | String | The timezone django setting |
 | Author | String | The application author |
@@ -87,7 +91,6 @@ Then you should answer some questions:
 | Ubuntu Version | Enum<br>16.04 \| 18.04 \| latest  | The ubuntu version used for the docker container |
 | Remote User | String | The remote user used during deploy |
 | Remote Password | String | The remote user password |
-| Remote Root MySQL Password | String | The root password for the remote MySQL installation |
 | Domain | String | The domain of the deployed application |
 | Db User | String | Remote database user used by the application |
 | Db User Password | String | Remote database user password |
@@ -156,5 +159,5 @@ $ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
 
 ## TODO
 
-- Integrate bootstrap branch as a cookiecutter option
-- Update all dependencies
+- Add bootstrap 5 as cookiecutter option
+- Add staging environment
