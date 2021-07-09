@@ -33,3 +33,12 @@ CKEDITOR_CONFIGS['default']['contentsCss'] = [
 
 # DEBUG_TOOLBAR
 JQUERY_URL = ''
+
+def show_toolbar(request):
+    if request.is_ajax():
+        return False
+    return True
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+}
