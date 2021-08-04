@@ -18,6 +18,7 @@
         name:
           - libmysqlclient-dev
           - libfreetype6-dev
+          - libssl-dev
           - zlib1g-dev
           - libjpeg-dev
           - sshpass
