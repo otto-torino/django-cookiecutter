@@ -4,7 +4,6 @@ import time
 import threading
 
 from dotenv import load_dotenv  # type: ignore
-from getenv import env  # type: ignore
 from fabric import Connection, task  # type: ignore
 from patchwork import files  # type: ignore
 from invoke import Responder  # type: ignore
@@ -150,11 +149,11 @@ def production(ctx):
     """ Production server settings """
     ctx.config.run.env['path'] = '{{ cookiecutter.webapp_dir }}'
     ctx.config.run.env['conn'] = Connection(
-        host='{{ cookiecutter.domain }}', user=env('REMOTE_USER'))
-    ctx.config.run.env['db_name'] = env('REMOTE_DB')
-    ctx.config.run.env['db_user'] = env('REMOTE_DB_USER')
-    ctx.config.run.env['db_password'] = env('REMOTE_DB_PASSWORD')
-    ctx.config.run.env['sudo_password'] = env('REMOTE_USER_PWD')
+        host='{{ cookiecutter.domain }}', user=os.getenv('REMOTE_USER'))
+    ctx.config.run.env['db_name'] = os.getenv('REMOTE_DB')
+    ctx.config.run.env['db_user'] = os.getenv('REMOTE_DB_USER')
+    ctx.config.run.env['db_password'] = os.getenv('REMOTE_DB_PASSWORD')
+    ctx.config.run.env['sudo_password'] = os.getenv('REMOTE_USER_PWD')
 
 
 @task
