@@ -90,7 +90,7 @@ def sudo_responder(ctx):
 
 def db_password_responder(ctx):
     return Responder(
-        pattern=r'Enter password',
+        pattern=r'Password',
         response=f"{get_env(ctx, 'db_password')}\n"
     )
 
@@ -140,7 +140,7 @@ def reset_db(ctx):
     """ Resets the local db """
     c = get_connection(ctx)
     print_('Flushing local db', 'INFO')
-    c.local(f"source {here('..', '.virtualenv', 'bin', 'activate')} && python manage.py flush")
+    c.local(f"source {here('..', '..', 'venv', 'bin', 'activate')} && cat ../bin/drop_database.sql | python manage.py dbshell")  # noqa
     print_('Done!', 'SUCCESS')
 
 
@@ -314,7 +314,7 @@ def dumpDbSnapshot(ctx):
     remote_tmp_file_path = '/tmp/dump_db.sql'
     c = get_connection(ctx)
     c.local(f"mkdir -p {here('..', 'backups')}")
-    c.run(f"mysqldump --user {get_env(ctx, 'db_user')} --password {get_env(ctx, 'db_name')} > {remote_tmp_file_path}",  # noqa
+    c.run(f"pg_dump --password -U {get_env(ctx, 'db_user')} {get_env(ctx, 'db_name')} > {remote_tmp_file_path}",  # noqa
           pty=True,
           watchers=[db_password_responder(ctx)])
 
@@ -342,7 +342,7 @@ def loadDb(ctx):
     """ Loads the downloaded production db snapshot in the local db """
     c = get_connection(ctx)
     print_('Loading db snapshot', 'INFO')
-    c.local(f"source {here('..', '.virtualenv', 'bin', 'activate')} && cat {get_dump_filepath(ctx, log=False)} | python manage.py dbshell")  # noqa
+    c.local(f"source {here('..', '..', 'venv', 'bin', 'activate')} && cat {get_dump_filepath(ctx, log=False)} | python manage.py dbshell")  # noqa
     print_('Done!', 'SUCCESS')
 
 
