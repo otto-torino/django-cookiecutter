@@ -22,7 +22,9 @@ MIDDLEWARE = (
 TEMPLATES[0]['OPTIONS']['debug'] = True
 
 # MAIL
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'mailhog'
+EMAIL_PORT = 1025
 
 # CKEDITOR
 CKEDITOR_CONFIGS['default']['contentsCss'] = [

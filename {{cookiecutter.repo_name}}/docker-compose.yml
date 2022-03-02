@@ -17,6 +17,14 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data/
 
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'  # disable saving logs
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+
   app:
     image: {{cookiecutter.repo_name}}_app
     container_name: {{cookiecutter.repo_name}}_app
