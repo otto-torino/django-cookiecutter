@@ -11,6 +11,7 @@
         update_cache: yes
         name:
           - libpq-dev
+          - postgresql-client
     - name: Install psycopg2 python package
       pip:
         name: psycopg2
