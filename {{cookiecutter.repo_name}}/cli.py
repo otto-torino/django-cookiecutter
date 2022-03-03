@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # functions
     def manage_remote_command(cmd):
         if cmd == 'setup':
-            os.system("docker-compose -f docker-compose.yml exec app bash -c \"../bin/ansible_remote\"")
+            os.system("docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && ../bin/ansible_remote\"")
         else: # fabric stuff
             os.system("docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && fab production %s\"" % cmd)
 
