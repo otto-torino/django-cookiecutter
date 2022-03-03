@@ -17,5 +17,6 @@ RUN ./bin/ansible_local
 
 RUN mkdir /root/.ssh && chmod 0700 /root/.ssh
 RUN ssh-keyscan {{cookiecutter.domain}} >> ~/.ssh/known_hosts
+RUN DEBIAN_FRONTEND=noninteractive TZ={{ cookiecutter.timezone }} apt-get -y install gettext
 
 
