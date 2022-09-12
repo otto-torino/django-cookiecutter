@@ -1,0 +1,16 @@
+[start]
+# working directory
+command=cd .. && ./cli.py --start
+output=terminal
+
+[deploy]
+command=cd .. && ./cli.py --remote deploy
+output=terminal
+
+[restart_prod]
+command=cd .. && ./cli.py --remote restart
+output=terminal
+
+[log]
+command=cd .. && ./cli.py --remote log
+output=terminal
