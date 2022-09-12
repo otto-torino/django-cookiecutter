@@ -56,7 +56,7 @@ if __name__ == "__main__":
         dest='remote_command',
         required=False,
         help='executes remote commands',
-        choices=('setup', 'createReleaseArchive', 'deploy', 'rollback', 'getRemoteRevision', 'dumpDbSnapshot', 'loadDbSnapshot', 'loadDb', 'offline', 'online', 'reloadServer', 'restartUwsgi', 'restart' ),)
+        choices=('setup', 'createReleaseArchive', 'log', 'deploy', 'rollback', 'getRemoteRevision', 'dumpDbSnapshot', 'loadDbSnapshot', 'loadDb', 'offline', 'online', 'reloadServer', 'restartUwsgi', 'restart' ),)
 
     if complete_enabled:
         argcomplete.autocomplete(parser)

@@ -404,3 +404,12 @@ def restart(ctx):
     print("...")
     restartUwsgi(ctx)
     reloadServer(ctx)
+
+@task
+def log(ctx):
+    """ Displays remote server logs """
+    print_("Running task 'log'", 'HEADER')
+    print("Displays remote server logs")
+    print("...")
+    c = get_connection(ctx)
+    c.run('cat %(path)s/logs/{{cookiecutter.repo_name}}.log' % get_env(ctx)) # noqa
