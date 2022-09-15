@@ -9,6 +9,7 @@ RUN apt-get update && \
         python3 \
 	    locales \
         openssh-client \
+        postgresql-client \
         git
 
 RUN localedef -f UTF-8 -i en_US en_US.utf8
