@@ -1,38 +1,38 @@
 pip>=21.2.2
-cryptography==3.3.2
+cryptography==38.0.1
 setuptools==57.1.0
-psycopg2==2.9.1
-python-dotenv==0.18.0
-Django==3.2.5
-django-ckeditor==6.1.0
-django-constance==2.8.0
-django-picklefield==3.0.1
-django-cleanup==5.2.0
-django-extensions==3.1.3
+psycopg2==2.9.5
+python-dotenv==0.21.0
+Django==4.1.2
+django-ckeditor==6.5.1
+django-constance==2.9.1
+django-picklefield==3.1
+django-cleanup==6.0.0
+django-extensions==3.2.1
 django-getenv==1.3.2
-django-pipeline==2.0.6
-django-taggit==1.5.1
+django-pipeline==2.0.8
+django-taggit==3.0.0
 django-user-agents==0.4.0
-django-mptt==0.12.0
+django-mptt==0.14.0
 django-lineup==0.3.0
 {% if cookiecutter.admin == 'django-baton' %}
-django-baton==2.2.1
+django-baton==2.4.1
 {% elif cookiecutter.admin == 'django-grappelli' %}
-django-grappelli==2.15.1
+django-grappelli==3.0.3
 {% endif %}
 {% if cookiecutter.use_disqus == 'y' %}
 django-disqus==0.5
 {% endif %}
 {% if cookiecutter.use_filer == 'y' %}
-django-filer==2.0.2
-easy-thumbnails==2.7.1
+django-filer==2.2.3
+easy-thumbnails==2.8.3
 {% endif %}
 {% if cookiecutter.use_subject_imagefield == 'y' %}
 django-subject-imagefield==0.2.6
 {% endif %}
 {% if cookiecutter.use_sorl_thumbnail == 'y' %}
-sorl-thumbnail==12.7.0
+sorl-thumbnail==12.9.0
 {% endif %}
 {% if cookiecutter.use_simple_captcha == 'y' %}
-django-simple-captcha==0.5.14
+django-simple-captcha==0.5.17
 {% endif %}
