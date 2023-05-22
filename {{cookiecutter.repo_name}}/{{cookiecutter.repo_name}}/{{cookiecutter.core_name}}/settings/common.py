@@ -358,7 +358,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'formatter': 'verbose',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'concurrent_log_handler.ConcurrentTimedRotatingFileHandler',
             'when':     'midnight',
         },
 
@@ -386,6 +386,11 @@ LOGGING = {
         },
         # http://stackoverflow.com/questions/7768027/turn-off-sql-logging-while-keeping-settings-debug
        'django.db.backends': {
+            'handlers': ['null'],  # Quiet by default!
+            'propagate': False,
+            'level':'DEBUG',
+        },
+       'sorl.thumbnail': {
             'handlers': ['null'],  # Quiet by default!
             'propagate': False,
             'level':'DEBUG',

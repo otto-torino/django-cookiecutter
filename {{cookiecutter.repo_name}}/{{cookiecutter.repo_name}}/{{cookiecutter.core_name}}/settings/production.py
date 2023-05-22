@@ -4,6 +4,7 @@
 from .common import *
 
 DEBUG = False
+THUMBNAIL_DEBUG = False
 
 ALLOWED_HOSTS = ['{{ cookiecutter.domain }}',]
 
