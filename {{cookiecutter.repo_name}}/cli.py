@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
 

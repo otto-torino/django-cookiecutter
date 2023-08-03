@@ -13,7 +13,7 @@ Yet another django cookiecutter template.
 
 ## Features
 
-- Local environment running inside 2 docker containers, one for the app and one for the database.
+- Local environment running inside 4 docker containers, one for the app, one for the database, one for the mail service and one for tailwind.
 - Development ready django project with all packages installed and database created and ready to go.
 - Set of bin commands to perform common tasks.
 - Set of production bin commands to perform machine setup (ansible) and deploy (fabric).
@@ -22,7 +22,6 @@ Project details:
 
 - django db settings managed with environment variables
 - some must-have (in my opinion) packages installed:
-    - [django-pipeline](https://github.com/cyberdelia/django-pipeline)
     - [django-ckeditor](https://github.com/django-ckeditor/django-ckeditor)
     - [django-cleanup](https://github.com/un1t/django-cleanup)
     - [django-constance](https://github.com/jazzband/django-constance)
@@ -39,19 +38,18 @@ Project details:
     - [django-grappelli](https://github.com/sehmaschine/django-grappelli) (optional)
     - [django-filer](https://github.com/stefanfoulis/django-filer) (optional)
     - [django-disqus](https://github.com/arthurk/django-disqus) (optional)
+    - [django-compressor](https://github.com/django-compressor/django-compressor)
+    - [django-tailwind](https://github.com/timonweb/django-tailwind)
     - pages with integrated ckeditor
 
 ### Frontend
 
 #### Vendor
 
-- jQuery
-- moment.js
-- Semantic UI
-- FontAwesome
 - air-datepicker
-- Swiper
-- Tocca
+- ramda
+- swiper
+- tocca
 
 ## Getting started
 
@@ -126,6 +124,8 @@ Let's see in the detail the remote commands:
 | `reloadServer` | Reloads the web server |
 | `restartUwsgi` | Restarts uWSGI service |
 | `restart` | Restarts services and reloads the web server |
+
+> After the first start, uncomment the theme app inside the settings common file.
 
 
 ### Autocompletion

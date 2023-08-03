@@ -42,7 +42,10 @@
 - start
     ```
     $ ./cli.py --start
+    
     ```
+- uncomment `theme` app in settings    
+
 - enjoy    
     ```
     $ google-chrome http://localhost:8000
