@@ -72,7 +72,10 @@ INSTALLED_APPS = (
     'ckeditor_uploader',
     'django_user_agents',
     'django_extensions',
-    'pipeline',
+    'compressor',
+    'tailwind',
+    'theme',
+    'django_browser_reload',
     {% if cookiecutter.use_filer == 'y' %}
     'filer',
     'easy_thumbnails',
@@ -136,6 +139,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = '{{ cookiecutter.core_name }}.wsgi.application'
 
+# THEME
+TAILWIND_APP_NAME = 'theme'
+NPM_BIN_PATH = '/usr/bin/npm'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -179,17 +186,21 @@ CONSTANCE_CONFIG_FIELDSETS = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'pipeline.finders.PipelineFinder',
+    'compressor.finders.CompressorFinder',
 )
 STATIC_URL = '/static/'
 
 # Uploaded files
 MEDIA_URL = '/media/'
 FILE_UPLOAD_PERMISSIONS = 0o644
+
+# Compressor
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
 
 # ADMIN
 {% if cookiecutter.admin == 'django-baton' %}
@@ -257,55 +268,6 @@ CKEDITOR_CONFIGS = {
         'extraAllowedContent': 'iframe[*]',
         'stylesSet': 'core_styles:/static/{{ cookiecutter.core_name }}/src/js/ckeditor_styles.js',
     }
-}
-
-# pipeline
-PIPELINE = {
-    'STYLESHEETS': {
-        'vendor': {
-            'source_filenames': (
-                '{{ cookiecutter.core_name }}/src/vendor/Font-Awesome/scss/font-awesome.scss', # noqa
-                'core/src/vendor/swiper/css/swiper.min.css', # noqa
-                'core/src/vendor/semantic-ui/semantic.min.css', # noqa
-            ),
-            'output_filename': '{{ cookiecutter.core_name }}/css/vendor.min.css', # noqa
-        },
-        '{{ cookiecutter.repo_name }}': { # custom
-            'source_filenames': (
-                '{{ cookiecutter.core_name }}/src/scss/styles.scss',
-            ),
-            'output_filename': '{{ cookiecutter.core_name }}/css/{{ cookiecutter.core_name }}.min.css', # noqa
-        },
-    },
-    'JAVASCRIPT': {
-        'vendor': {
-            'source_filenames': (
-                'core/src/vendor/jquery/jquery.min.js', # noqa
-                # 'core/src/vendor/jquery.form/jquery.form.js', # noqa
-                # 'core/src/vendor/jquery.formset/jquery.formset.js', # noqa
-                'core/src/vendor/tocca/tocca.min.js', # noqa
-                'core/src/vendor/semantic-ui/semantic.min.js', # noqa
-                'core/src/vendor/moment/moment-with-locales.min.js', # noqa
-            ),
-            'output_filename': '{{ cookiecutter.core_name }}/js/vendor.min.js'
-        },
-        '{{ cookiecutter.repo_name }}': {
-            'source_filenames': (
-                '{{ cookiecutter.core_name }}/src/js/{{ cookiecutter.core_name }}.js', # noqa
-            ),
-            'output_filename': '{{ cookiecutter.core_name }}/js/{{ cookiecutter.core_name }}.min.js' # noqa
-        },
-    },
-    'COMPILERS': ('pipeline.compilers.sass.SASSCompiler', ),
-    'CSS_COMPRESSOR': None,
-    'JS_COMPRESSOR': None,
-    'MIMETYPES': (
-      ('text/coffeescript', '.coffee'),
-      ('text/less', '.less'),
-      ('text/javascript', '.js'),
-      ('text/x-sass', '.sass'),
-      ('text/x-scss', '.scss')
-    )
 }
 
 {% if cookiecutter.use_disqus == 'y' %}

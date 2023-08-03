@@ -4,20 +4,22 @@ cryptography==38.0.1
 setuptools==57.1.0
 psycopg2==2.9.5
 python-dotenv==0.21.0
-Django==4.1.2
-django-ckeditor==6.5.1
+Django==4.2.4
+django-ckeditor==6.7.0
+django-compressor==4.4
 django-constance==2.9.1
 django-picklefield==3.1
-django-cleanup==6.0.0
-django-extensions==3.2.1
+django-cleanup==8.0.0
+django-extensions==3.2.3
 django-getenv==1.3.2
-django-pipeline==2.0.8
-django-taggit==3.0.0
+django-taggit==4.0.0
+django-browser-reload==1.11.0
+django-tailwind==3.6.0
 django-user-agents==0.4.0
 django-mptt==0.14.0
-django-lineup==0.3.0
+django-lineup==0.3.1
 {% if cookiecutter.admin == 'django-baton' %}
-django-baton==2.4.1
+django-baton==2.7.1
 {% elif cookiecutter.admin == 'django-grappelli' %}
 django-grappelli==3.0.3
 {% endif %}
@@ -29,11 +31,11 @@ django-filer==2.2.3
 easy-thumbnails==2.8.3
 {% endif %}
 {% if cookiecutter.use_subject_imagefield == 'y' %}
-django-subject-imagefield==0.2.6
+django-subject-imagefield==0.2.12
 {% endif %}
 {% if cookiecutter.use_sorl_thumbnail == 'y' %}
 sorl-thumbnail==12.9.0
 {% endif %}
 {% if cookiecutter.use_simple_captcha == 'y' %}
-django-simple-captcha==0.5.17
+django-simple-captcha==0.5.18
 {% endif %}
