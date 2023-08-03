@@ -177,6 +177,9 @@ def deploy(ctx, head='HEAD', requirements='requirements/production.txt'):
     print("...")
 
     c = get_connection(ctx)
+    
+    # build tailwind
+    c.local(f"source {here('..', '..', 'venv', 'bin', 'activate')} && python manage.py tailwind build")  # noqa
 
     # create archive
     createReleaseArchive(ctx)

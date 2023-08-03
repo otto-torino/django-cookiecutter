@@ -14,6 +14,14 @@ RUN apt-get update && \
 
 RUN localedef -f UTF-8 -i en_US en_US.utf8
 
+ENV NVM_DIR /usr/local/nvm
+RUN mkdir -p $NVM_DIR
+RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+ENV NODE_VERSION v18.17.0
+RUN /bin/bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
+RUN /bin/bash -c "ln -s $NVM_DIR/versions/node/v18.17.0/bin/node /usr/bin/node"
+RUN /bin/bash -c "ln -s $NVM_DIR/versions/node/v18.17.0/lib/node_modules/npm/bin/npm-cli.js /usr/bin/npm"
+
 COPY . ./home/app/{{cookiecutter.repo_name}}
 WORKDIR /home/app/{{cookiecutter.repo_name}}
 
