@@ -19,6 +19,7 @@ services:
 
   mailhog:
     image: mailhog/mailhog
+    container_name: {{cookiecutter.repo_name}}_mailhog
     logging:
       driver: 'none'  # disable saving logs
     ports:
