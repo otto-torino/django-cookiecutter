@@ -1,6 +1,6 @@
 from django.contrib import admin
 from core.admin import ArchivedModelAdmin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .forms import PageForm
 from .models import Page

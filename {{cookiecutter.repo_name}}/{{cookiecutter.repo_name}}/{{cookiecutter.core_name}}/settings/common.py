@@ -6,7 +6,7 @@ Django settings for {{ cookiecutter.project_name }} project.
 from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 load_dotenv()
 

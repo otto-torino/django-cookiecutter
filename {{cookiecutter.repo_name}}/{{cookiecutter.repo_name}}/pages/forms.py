@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 
 from .models import Page
 
@@ -27,7 +27,7 @@ class PageForm(forms.ModelForm):
         url = self.cleaned_data['url']
         if not url.startswith('/'):
             raise forms.ValidationError(
-                ugettext("URL is missing a leading slash."),
+                gettext("URL is missing a leading slash."),
                 code='missing_leading_slash',
             )
         if (settings.APPEND_SLASH and (
@@ -35,7 +35,7 @@ class PageForm(forms.ModelForm):
                 'django.middleware.common.CommonMiddleware' in settings.MIDDLEWARE_CLASSES) and # noqa
                 not url.endswith('/')):
             raise forms.ValidationError(
-                ugettext("URL is missing a trailing slash."),
+                gettext("URL is missing a trailing slash."),
                 code='missing_trailing_slash',
             )
         return url
