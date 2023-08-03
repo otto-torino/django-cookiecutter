@@ -1,5 +1,4 @@
 {% raw %}{% load static tailwind_tags compress %}
-    {% load pipeline %}
     <!DOCTYPE html>
     <html lang="{{ LANGUAGE_CODE }}">
         <head>
@@ -31,6 +30,7 @@
             {% endblock meta %}
 
 		    {% tailwind_css %}
+            {% compress css %}
             <link type="text/x-scss" href="{% static 'core/src/scss/styles.scss' %}" rel="stylesheet" media="screen" />
             {% endcompress %}
 

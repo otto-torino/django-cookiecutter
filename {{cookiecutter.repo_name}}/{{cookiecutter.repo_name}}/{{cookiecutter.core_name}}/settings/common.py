@@ -74,7 +74,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'compressor',
     'tailwind',
-    'theme',
+    # 'theme',
     'django_browser_reload',
     {% if cookiecutter.use_filer == 'y' %}
     'filer',
