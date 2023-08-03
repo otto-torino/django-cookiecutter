@@ -37,7 +37,7 @@ CKEDITOR_CONFIGS['default']['contentsCss'] = [
 JQUERY_URL = ''
 
 def show_toolbar(request):
-    if request.is_ajax():
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return False
     return True
 

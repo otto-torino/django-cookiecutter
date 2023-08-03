@@ -39,12 +39,17 @@
     $ mkdir .virtualenv
     $ mkdir logs
     ```
-- start
+
+- start the project    
     ```
-    $ ./cli.py --start
-    
+    $ ./cli.sh --start
     ```
-- uncomment `theme` app in settings    
+
+- in another terminal init tailwind:    
+    ```
+    $ ./cli.sh --manage "taiwind init"
+    ```
+- uncomment the `theme` app inside the `core/settings/common.py` file    
 
 - enjoy    
     ```

@@ -26,25 +26,6 @@ services:
       - 1025:1025 # smtp server
       - 8025:8025 # web ui
 
-  tailwind:
-    image: {{cookiecutter.repo_name}}_app
-    container_name: {{cookiecutter.repo_name}}_tailwind
-    build:
-      context: ./
-      dockerfile: ./compose/app/Dockerfile.local
-    restart: unless-stopped
-    working_dir: /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}}
-    env_file:
-      - ./{{cookiecutter.repo_name}}/.env
-    command: bash -c "source ../../venv/bin/activate && pip install -r requirements/local.txt && python manage.py tailwind init && python manage.py tailwind install && python manage.py tailwind start"
-    # Without tty, no stdin, and tailwind watcher aborts
-    # https://github.com/tailwindlabs/tailwindcss/issues/5324
-    tty: true
-    volumes:
-      - .:/home/app/{{cookiecutter.repo_name}}
-      - virtualenv:/home/app/venv
-      - ~/.ssh:/root/.ssh
-
   app:
     image: {{cookiecutter.repo_name}}_app
     container_name: {{cookiecutter.repo_name}}_app
@@ -65,7 +46,27 @@ services:
       - '8001:8001' # to run pdb
     depends_on:
       - db
-      - tailwind
+
+  tailwind:
+    image: {{cookiecutter.repo_name}}_app
+    container_name: {{cookiecutter.repo_name}}_tailwind
+    build:
+      context: ./
+      dockerfile: ./compose/app/Dockerfile.local
+    restart: unless-stopped
+    working_dir: /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}}
+    env_file:
+      - ./{{cookiecutter.repo_name}}/.env
+    command: bash -c "source ../../venv/bin/activate && pip install -r requirements/local.txt && python manage.py tailwind install && python manage.py tailwind start"
+    # Without tty, no stdin, and tailwind watcher aborts
+    # https://github.com/tailwindlabs/tailwindcss/issues/5324
+    tty: true
+    volumes:
+      - .:/home/app/{{cookiecutter.repo_name}}
+      - virtualenv:/home/app/venv
+      - ~/.ssh:/root/.ssh
+    depends_on:
+      - app
 
 volumes:
 

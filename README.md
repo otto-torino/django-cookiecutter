@@ -46,6 +46,7 @@ Project details:
 
 #### Vendor
 
+- tailwind
 - air-datepicker
 - ramda
 - swiper
@@ -92,6 +93,18 @@ Then you should answer some questions:
 | Db User | String | Remote database user used by the application |
 | Db User Password | String | Remote database user password |
 | Web App Dir | String | Deploy path of the application |
+
+After that:
+
+Start the project
+
+    $ ./cli.sh --start
+
+In another terminal init tailwind:
+
+    $ ./cli.sh --manage "taiwind init"
+
+Then uncomment the `theme` app inside the `core/settings/common.py` file
 
 ## CLI
 
