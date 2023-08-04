@@ -3,6 +3,7 @@
 Django settings for {{ cookiecutter.project_name }} project.
 """
 
+from datetime import datetime
 from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
@@ -204,6 +205,9 @@ COMPRESS_PRECOMPILERS = (
 
 # ADMIN
 {% if cookiecutter.admin == 'django-baton' %}
+
+YEAR = datetime.now().year
+
 BATON = {
     'SITE_HEADER': '{{ cookiecutter.project_name }}',
     'SITE_TITLE': '{{ cookiecutter.project_name }}',
@@ -226,7 +230,7 @@ BATON = {
         {'type': 'title', 'label': 'Contents',  'apps': ('pages', )},
         {'type': 'model', 'app': 'pages', 'name': 'page', 'label': 'Pages', 'icon':'fa fa-book'},
     ),
-    'COPYRIGHT': '© 2021 {{ cookiecutter.domain }}',
+    'COPYRIGHT': '© %d {{ cookiecutter.domain }}' % YEAR,
     'SUPPORT_HREF': 'mailto:stefano.contini@otto.to.it',
     'POWERED_BY': '<a href="https://www.otto.to.it">Otto</a>'
 }
