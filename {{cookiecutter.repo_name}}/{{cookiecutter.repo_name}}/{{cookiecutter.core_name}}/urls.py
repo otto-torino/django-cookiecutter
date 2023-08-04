@@ -25,6 +25,9 @@ from django.views import static
 from django.contrib.staticfiles.views import serve
 
 urlpatterns = [
+    # reload
+    path("__reload__/", include("django_browser_reload.urls")),
+    # admin
     path('admin/', admin.site.urls),
     {% if cookiecutter.admin == 'django-baton' %}
     path('baton/', include('baton.urls')),

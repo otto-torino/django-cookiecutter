@@ -111,6 +111,7 @@ MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'pages.middleware.PageFallbackMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
 )
 
 ROOT_URLCONF = '{{ cookiecutter.core_name }}.urls'
