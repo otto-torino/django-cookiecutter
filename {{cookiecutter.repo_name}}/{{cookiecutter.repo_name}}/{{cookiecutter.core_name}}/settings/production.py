@@ -14,7 +14,4 @@ LOGGING['handlers']['file']['filename'] = '{{cookiecutter.webapp_dir}}/logs/{{co
 
 # CKEDITOR
 CKEDITOR_CONFIGS['default']['contentsCss'] = [
-    STATIC_URL + '{{ cookiecutter.core_name }}/css/vendor.min.css',
-    STATIC_URL + '{{ cookiecutter.core_name }}/src/vendor/semantic-ui/semantic.min.css',
-    STATIC_URL + '{{ cookiecutter.core_name }}/css/core.min.css',
-    STATIC_URL + '{{ cookiecutter.core_name }}/src/css/ckeditor.css']
+    STATIC_URL + 'css/dist/styles.css']
