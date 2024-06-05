@@ -10,9 +10,7 @@
         state: present
         update_cache: yes
         name:
+          - python3-psycopg2
           - libpq-dev
           - postgresql-client
-    - name: Install psycopg2 python package
-      pip:
-        name: psycopg2
 {% endraw %}
