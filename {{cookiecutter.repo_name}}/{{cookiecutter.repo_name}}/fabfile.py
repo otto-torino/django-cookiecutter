@@ -5,9 +5,7 @@ import threading
 
 from dotenv import load_dotenv  # type: ignore
 from fabric import Connection, task  # type: ignore
-from patchwork import files  # type: ignore
 from invoke import Responder  # type: ignore
-
 
 def here(*args):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), *args)
@@ -115,11 +113,15 @@ def get_release_filepath(ctx, head='HEAD', log=True):
         os.makedirs(releases_dir)
     return '../releases/%s' % get_release_filename(ctx, head, log)
 
+# func to replace files.exists from patchwork
+def file_exists(c, path):
+    result = c.run(f"test -e {path}", warn=True, hide=True)
+    return result.ok
 
 def sync_virtualenv(ctx, virtualenv_path, requirements_path):
     """ Updates a virtualenv with requirements file """
     c = get_connection(ctx)
-    if not files.exists(c, virtualenv_path):
+    if not file_exists(c, virtualenv_path):
         c.run(f"python3 -m venv {virtualenv_path}")
 
     result = c.run(f"source {virtualenv_path}/bin/activate && pip install -r {requirements_path}", hide='stdout')  # noqa
@@ -147,9 +149,9 @@ def reset_db(ctx):
 @task
 def production(ctx):
     """ Production server settings """
-    ctx.config.run.env['path'] = '{{ cookiecutter.webapp_dir }}'
+    ctx.config.run.env['path'] = '/home/otto/www/iuli'
     ctx.config.run.env['conn'] = Connection(
-        host='{{ cookiecutter.domain }}', user=os.getenv('REMOTE_USER'))
+        host='iuli.sqrt64.it', user=os.getenv('REMOTE_USER'))
     ctx.config.run.env['db_name'] = os.getenv('REMOTE_DB')
     ctx.config.run.env['db_user'] = os.getenv('REMOTE_DB_USER')
     ctx.config.run.env['db_password'] = os.getenv('REMOTE_DB_PASSWORD')
@@ -198,7 +200,7 @@ def deploy(ctx, head='HEAD', requirements='requirements/production.txt'):
     print(f"Remote virtualenv path: {virtualenv_path}")
 
     # and upload it to the server
-    if not files.exists(c, release_dir):
+    if not file_exists(c, release_dir):
         print('Uploading package, be patient')
         with Spinner():
             c.put(get_release_filepath(ctx, head, False), remote=remote_path)
@@ -210,7 +212,7 @@ def deploy(ctx, head='HEAD', requirements='requirements/production.txt'):
 
     try:
         # if exists remove dir
-        if files.exists(c, release_dir):
+        if file_exists(c, release_dir):
             c.run(f"rm -vfr {release_dir}", hide='stdout')
         # create the remote dir
         c.run(f"mkdir -p {release_dir}")
@@ -237,13 +239,13 @@ def deploy(ctx, head='HEAD', requirements='requirements/production.txt'):
 
         print_('Setting current/previous releases', 'INFO')
         # find the previous release and move/unlink it
-        if files.exists(c, current_release_dir):
+        if file_exists(c, current_release_dir):
             previous_deploy_path = c.run(f"basename $(readlink -f {current_release_dir})", hide='stdout').stdout.rstrip()
             idx = previous_deploy_path.index('-')
             previous_version = previous_deploy_path[idx + 1:]
 
             if previous_version != current_version:
-                if files.exists(c, previous_release_dir):
+                if file_exists(c, previous_release_dir):
                     c.run(f"rm -R {previous_release_dir}")
                 c.run(f"mv {current_release_dir} {previous_release_dir}")
 
@@ -393,8 +395,8 @@ def restartUwsgi(ctx):
     c = get_connection(ctx)
     set_env(ctx, 'virtualenv_path',
             os.path.abspath(os.path.join(get_env(ctx, 'path'), '.virtualenv')))
-    c.run('kill -9 `cat /tmp/project-master_{{ cookiecutter.repo_name }}.pid`', warn=True)
-    c.run('rm /tmp/project-master_{{ cookiecutter.repo_name }}.pid /tmp/uwsgi_{{ cookiecutter.repo_name }}.sock', warn=True)  # noqa
+    c.run('kill -9 `cat /tmp/project-master_iuli.pid`', warn=True)
+    c.run('rm /tmp/project-master_iuli.pid /tmp/uwsgi_iuli.sock', warn=True)  # noqa
     c.run('cd %(path)s/releases/current; %(virtualenv_path)s/bin/uwsgi -H %(virtualenv_path)s --ini %(path)s/releases/current/uwsgi.ini' % get_env(ctx)) # noqa
     print_("Done!", 'SUCCESS')
 
@@ -415,4 +417,4 @@ def log(ctx):
     print("Displays remote server logs")
     print("...")
     c = get_connection(ctx)
-    c.run('cat %(path)s/logs/{{cookiecutter.repo_name}}.log' % get_env(ctx)) # noqa
+    c.run('cat %(path)s/logs/iuli.log' % get_env(ctx)) # noqa
