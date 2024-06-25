@@ -1,0 +1,8 @@
+<div class="p-4" style="background-color: {{ object.background_color }}">
+  {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
+  {% if object.type == 'carousel' %}
+    {% include 'pages/carousel/responsive_carousel.html' with obj=object only %}
+  {% elif object.type == 'grid' %}
+    {% include 'pages/grid/grid.html' with obj=object bootstrap=True only %}
+  {% endif %}
+</div>

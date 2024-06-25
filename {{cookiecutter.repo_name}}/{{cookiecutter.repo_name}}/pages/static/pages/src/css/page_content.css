@@ -1,0 +1,7 @@
+.field-show_name {
+    align-self: center;
+}
+
+.field-show_name input[type="checkbox"] {
+    margin-right: .5rem;
+}

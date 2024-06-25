@@ -75,6 +75,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'compressor',
     'preferences_utils',
+    'subject_imagefield',
     'tailwind',
     # 'theme',
     'django_browser_reload',
@@ -85,9 +86,6 @@ INSTALLED_APPS = (
     'django_cleanup',
     {% if cookiecutter.use_simple_captcha == 'y' %}
     'captcha',
-    {% endif %}
-    {% if cookiecutter.use_subject_imagefield == 'y' %}
-    'subject_imagefield',
     {% endif %}
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}
     'sorl.thumbnail',

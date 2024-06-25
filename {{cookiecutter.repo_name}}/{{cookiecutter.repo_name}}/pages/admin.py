@@ -1,47 +1,644 @@
-from django.contrib import admin
+import logging
+from functools import update_wrapper
+
+{% if cookiecutter.admin == 'django-baton' %}
+from baton.admin import RelatedDropdownFilter
+{% endif %}
 from core.admin import ArchivedModelAdmin
-from django.utils.translation import gettext_lazy as _
+from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import path, reverse
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
+from django.views.decorators.csrf import csrf_exempt
+from pages.admin_views import (
+    EditPageContentsView,
+    PageContentMapDrawerView,
+    SaveContentBlocksPositionView,
+)
 
-from .forms import PageForm
-from .models import Page
+from .forms import PageContentMapItemAdminForm, PageForm
+from .models import (
+    Page,
+    PageContent,
+    PageContentBoxItem,
+    PageContentBoxMenu,
+    PageContentImage,
+    PageContentMap,
+    PageContentMapItem,
+    PageContentMultiImage,
+    PageContentMultiImageItem,
+    PageContentRssFeed,
+    PageContentText,
+    PageContentTextImage,
+    PageContentVideo,
+)
+from taggit.models import TaggedItem
 
+logger = logging.getLogger(__name__)
+
+# classes which need a deep copy because they have children items 
+CLONE_NESTED_CONTENTS = [
+    PageContentMap,
+    PageContentBoxMenu,
+]
+
+CLONE_ITEM_MAP = {
+    PageContentMap: PageContentMapItem,
+    PageContentBoxMenu: PageContentBoxItem,
+}
+
+# fields which must be skipped during the copying of the object (file is here because having a double reference to a file can create issues)
+CLONE_SKIP_FIELDS = [
+    'file',
+    'id',
+    'object_id',
+    'pagecontent_ptr',
+    'block_id',
+    'page',
+]
 
 @admin.register(Page)
-class PageAdmin(ArchivedModelAdmin):
-    form = PageForm
+class PageAdmin(admin.ModelAdmin, ArchivedModelAdmin): # pyright: ignore
+    @admin.action(description=_("Clona pagine selezionate"))
+    def clone(self, request, queryset):
+        for obj in queryset:
+            if not obj.title_it:
+                title_it = obj.title_it
+            else:
+                title_it = obj.title_it + '_COPY'
+            if not obj.title_en:
+                title_en = obj.title_en
+            else:
+                title_en = obj.title_en + '_COPY'
+            if not obj.title_fr:
+                title_fr = obj.title_fr
+            else:
+                title_fr = obj.title_fr + '_COPY'
+            page = Page.objects.create(
+                status=obj.status,
+                parent=obj.parent,
+                url=obj.url[:-1] + "_COPY/",
+                title_it=title_it,
+                title_en=title_en,
+                title_fr=title_fr,
+                last_updated=obj.last_updated,
+                registration_required=obj.registration_required,
+                template_name=obj.template_name,
+                meta_title=obj.meta_title,
+                meta_description=obj.meta_description,
+                meta_keywords=obj.meta_keywords,
+            )
+            page.sites.set(obj.sites.all())
+            page.users.set(obj.users.all())
+            page.groups.set(obj.groups.all())
+            page.save()
+            for tag in obj.tags.all():
+                tag_object = TaggedItem(content_object=page, tag=tag)
+                tag_object.save()
+            for block in obj.content_blocks.all():
+                block.content_object.copy_and_assign(page)
 
-    {% if cookiecutter.admin == 'django-baton' %}
+    content_models = {}
+    form = PageForm
+    actions=['clone',]
     fieldsets = (
-        (_('Main'), {
-            'fields': ('status', 'parent', 'url', 'title', 'content', 'tags',
-                       'sites', 'enable_social_sharing', ),
-            'classes': ('baton-tabs-init', 'baton-tab-fs-seo',
-                        'baton-tab-fs-adv')
-        }),
-        (_('SEO'), {
-            'classes': ('tab-fs-seo',),
-            'fields': ('meta_title', 'meta_description', 'meta_keywords', ),
-        }),
-        (_('Advanced options'), {
-            'classes': ('tab-fs-adv',),
-            'fields': ('registration_required', 'template_name'),
-        }),
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "status",
+                    "relevance",
+                    "show_suggested",
+                    "parent",
+                    "url",
+                    "title",
+                    "thematicisms",
+                    "places",
+                    "tags",
+                    "sites",
+                    "last_updated",
+                ),
+                "classes": ("baton-tabs-init", "baton-tab-fs-seo", "baton-tab-fs-adv"),
+            },
+        ),
+        (
+            _("SEO"),
+            {
+                "classes": ("tab-fs-seo",),
+                "fields": (
+                    "meta_title",
+                    "meta_description",
+                    "meta_keywords",
+                ),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": ("registration_required", "users","groups", "template_name"),
+            },
+        ),
     )
-    {% else %}
+
+    list_display = (
+        "url",
+        "title",
+        "status",
+        "edit_contents",
+    )
+    list_editable = ("status",)
+    list_filter = (
+        {% if cookiecutter.admin == 'django-baton' %}("parent", RelatedDropdownFilter),{% endif %}
+        "registration_required",
+        "status",
+    )
+    filter_horizontal = (
+        "users",
+        "groups",
+    )
+    search_fields = ("url", "title")
+
+    @admin.display(description=_("Contents"))
+    def edit_contents(self, obj):
+        info = self.model._meta.app_label, self.model._meta.model_name
+        edit_contents_url = reverse(
+            "admin:%s_%s_edit_content" % info,
+            kwargs={"id": obj.id},
+            current_app=self.admin_site.name,
+        )
+        return mark_safe(
+            '<div style=""> <a class="btn btn-secondary btn-sm" href="%s"><i class="fa fa-pen me-2"></i> Modifica</a> </div>'
+            % edit_contents_url
+        )
+
+    def get_urls(self):
+        """
+        Add the edit contents admin view
+        """
+
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+
+            wrapper.model_admin = self # pyright: ignore
+            return update_wrapper(wrapper, view)
+
+        info = self.model._meta.app_label, self.model._meta.model_name
+        urls = super(PageAdmin, self).get_urls()
+        custom_urls = [
+            path(
+                "<int:id>/contents/",
+                wrap(self.edit_content_view),
+                name="%s_%s_edit_content" % info,
+            ),
+            path(
+                "<int:id>/contents/save-position/",
+                wrap(self.save_position),
+                name="%s_%s_save_position" % info,
+            ),
+        ]
+        return custom_urls + urls
+
+    @csrf_exempt
+    def save_position(self, request, id):
+        return SaveContentBlocksPositionView.as_view()(request, id)
+
+    def edit_content_view(self, request, id):
+        return EditPageContentsView.as_view()(request, id)
+
+    def response_post_save_add(self, request, obj):
+        """
+        If adding a new page, redirect to the content editing page
+        """
+        return redirect("admin:pages_page_edit_content", id=obj.id)
+
+    @classmethod
+    def register(cls, model):
+        """
+        All applications can register themself as providers of page content
+        On order for translations to work properly, other applications
+        should be placed after pages in installed apps
+
+        :param page_content_module PageContentModule: the specific implementation of the PageContentModule interface
+        """
+        logger.debug("Registering %s" % model.__name__)
+        cls.content_models.update({model.__name__: model})
+
+
+class PageContentAdmin(admin.ModelAdmin):
+    change_form_template = "admin/pages/page_content_change_form.html"
+
+    class Media:
+        css = {"all": ("pages/src/css/page_content.css",)}
+
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        page_id = request.GET.get("page")
+        if page_id:
+            page = get_object_or_404(Page, id=page_id)
+        elif obj:
+            page = obj.page
+        else:
+            page = None
+
+        if page is None:
+            messages.add_message(request, messages.WARNING, _("Page content block should be created starting from an already existing page."))
+            return redirect("admin:pages_page_changelist")
+
+        context.update({"show_save_and_add_another": False, "show_delete": False, "page": page})
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            page_id = request.GET.get("page")
+            page = get_object_or_404(Page, id=page_id)
+            content_type = ContentType.objects.get_for_model(self.model)
+            obj.page = page
+            obj.content_type = content_type
+            obj.position = page.content_blocks.count() # pyright: ignore
+        with transaction.atomic():  # TODO manage error
+            super().save_model(request, obj, form, change)
+            # we need to store the id inside the PageContent object_id field to be able to
+            # retrieve specific class from the base class
+            if not change:
+                obj.object_id = obj.id
+                obj.save()
+
+    def response_post_save_add(self, request, obj: PageContent):
+        """
+        If adding  a block, redirect to the content editing page
+        """
+        return redirect("admin:pages_page_edit_content", id=obj.page_id) # pyright: ignore
+
+    def response_post_save_change(self, request, obj: PageContent):
+        """
+        If saving a block, redirect to the content editing page
+        """
+        return redirect("admin:pages_page_edit_content", id=obj.page_id) # pyright: ignore
+
+    def response_delete(self, request, obj_display, obj_id):
+        """
+        If deleting a block, redirect to the content editing page
+        """
+        return redirect("admin:pages_page_edit_content", id=request.POST.get("page_id"))
+
+
+@admin.register(PageContentText)
+class PageContentTextAdmin(PageContentAdmin):
+    """Admin View for PageContentText"""
+
+    list_display = ("id",)
     fieldsets = (
-        (None, {'fields': ('url', 'parent', 'title', 'content', 'tags',
-                           'sites', 'enable_social_sharing', 'status', )}),
-        (_('SEO'), {
-            'classes': ('collapse',),
-            'fields': ('meta_title', 'meta_description', 'meta_keywords', ),
-        }),
-        (_('Advanced options'), {
-            'classes': ('collapse',),
-            'fields': ('registration_required', 'template_name'),
-        }),
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "content",
+                ),
+                "classes": ("baton-tabs-init", "baton-tab-fs-adv"),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "use_accordion",
+                    "show_name",
+                    "background_color",
+                    "url",
+                ),
+            },
+        ),
     )
-    {% endif %}
-    list_display = ('url', 'title', 'status', )
-    list_editable = ('status', )
-    list_filter = ('parent', 'sites', 'registration_required', 'status', )
-    search_fields = ('url', 'title')
+
+
+PageAdmin.register(PageContentText)
+
+
+@admin.register(PageContentImage)
+class PageContentImageAdmin(PageContentAdmin):
+    """Admin View for PageContentImage"""
+
+    list_display = ("id",)
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "image_content",
+                    "caption",
+                    "credits",
+                    "url",
+                ),
+                "classes": ("baton-tabs-init", "baton-tab-fs-adv"),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "show_captions",
+                    "show_name",
+                    "background_color",
+                ),
+            },
+        ),
+    )
+
+
+PageAdmin.register(PageContentImage)
+
+
+@admin.register(PageContentTextImage)
+class PageContentTextImageAdmin(PageContentAdmin):
+    """Admin View for PageContentTextImage"""
+
+    list_display = ("id",)
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "text",
+                    "image",
+                    "caption",
+                    "credits",
+                ),
+                "classes": ("baton-tabs-init", "baton-tab-fs-adv"),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "use_accordion",
+                    "show_name",
+                    "background_color",
+                    "image_position",
+                    "show_captions",
+                    "left_column_width",
+                ),
+            },
+        ),
+    )
+
+
+PageAdmin.register(PageContentTextImage)
+
+
+class ContentMultiImageItemInline(admin.StackedInline):
+    model = PageContentMultiImageItem
+    extra = 1
+    classes = ("collapse-entry", "expand-first")
+
+
+@admin.register(PageContentMultiImage)
+class PageContentMultiImageAdmin(PageContentAdmin):
+    """Admin View for PageContentMultiImage"""
+
+    list_display = ("id",)
+    inlines = [ContentMultiImageItemInline]
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "type",
+                ),
+                "classes": (
+                    "baton-tabs-init",
+                    "baton-tab-inline-images",
+                    "baton-tab-fs-adv",
+                ),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "height",
+                    "show_captions",
+                    "show_name",
+                    "background_color",
+                ),
+            },
+        ),
+    )
+
+
+PageAdmin.register(PageContentMultiImage)
+
+
+class ContentBoxItemInline(admin.StackedInline):
+    model = PageContentBoxItem
+    extra = 1
+    classes = ("collapse-entry", "expand-first")
+
+
+@admin.register(PageContentBoxMenu)
+class PageContentBoxMenuAdmin(PageContentAdmin):
+    """Admin View for PageContentBoxMenu"""
+
+    list_display = ("id",)
+    inlines = [ContentBoxItemInline]
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "columns",
+                    "rectangular",
+                    "shadow",
+                    "zoom",
+                    "rounding",
+                ),
+                "classes": (
+                    "baton-tabs-init",
+                    "baton-tab-inline-images",
+                    "baton-tab-fs-adv",
+                ),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "show_name",
+                    "background_color",
+                ),
+            },
+        ),
+    )
+
+
+PageAdmin.register(PageContentBoxMenu)
+
+
+@admin.register(PageContentRssFeed)
+class PageContentRssFeedAdmin(PageContentAdmin):
+    """Admin View for PageContentRssFeed"""
+
+    list_display = ("id", "rss_feed_url", "num_items")
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "rss_feed_url",
+                    "num_items",
+                ),
+                "classes": (
+                    "baton-tabs-init",
+                    "baton-tab-fs-adv",
+                ),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "show_name",
+                    "background_color",
+                ),
+            },
+        ),
+    )
+
+
+PageAdmin.register(PageContentRssFeed)
+
+
+class PageContentMapItemInline(admin.StackedInline):
+    model = PageContentMapItem
+    extra = 1
+    classes = ("collapse-entry", "expand-first")
+    form = PageContentMapItemAdminForm
+
+
+@admin.register(PageContentMap)
+class PageContentMapAdmin(PageContentAdmin):
+    """Admin View for PageContentMap"""
+
+    list_display = ("id", "name")
+    inlines = [
+        PageContentMapItemInline,
+    ]
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "text",
+                ),
+                "classes": (
+                    "baton-tabs-init",
+                    "baton-tab-inline-items",
+                    "baton-tab-fs-adv",
+                ),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "show_name",
+                    "background_color",
+                ),
+            },
+        ),
+    )
+
+    def get_urls(self):
+        """
+        Add the map drawer url
+        """
+
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+
+            wrapper.model_admin = self # pyright: ignore
+            return update_wrapper(wrapper, view)
+
+        info = self.model._meta.app_label, self.model._meta.model_name
+        urls = super(PageContentMapAdmin, self).get_urls()
+        custom_urls = [
+            path(
+                "map-drawer/",
+                wrap(self.map_drawer_view),
+                name="%s_%s_draw" % info,
+            ),
+        ]
+        return custom_urls + urls
+
+    def map_drawer_view(self, request):
+        return PageContentMapDrawerView.as_view()(request)
+
+
+PageAdmin.register(PageContentMap)
+
+
+@admin.register(PageContentVideo)
+class PageContentVideoAdmin(PageContentAdmin):
+    """Admin View for PageContentVideo"""
+
+    list_display = ("id", "name")
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "description",
+                    "credits",
+                    "platform",
+                    "video_id",
+                    "width_percent",
+                ),
+                "classes": (
+                    "baton-tabs-init",
+                    "baton-tab-fs-adv",
+                ),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "enabled",
+                    "show_name",
+                    "background_color",
+                ),
+            },
+        ),
+    )
+
+PageAdmin.register(PageContentVideo)

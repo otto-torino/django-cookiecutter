@@ -1,0 +1,40 @@
+{% load  static components %}
+                    
+<div id="{{ attributes.id }}" class="{% if not attributes.no_margin %}mt-2{% endif %}">
+    <div class="border-t border-gray-800"{% if attributes.bg %} style="background-color: {{ attributes.bg }}"{% endif %}>
+        <h2 class="mb-0" id="pageBlockHeading{{ attributes.id }}">
+            <button
+                class="group font-display relative flex w-full items-center border-0 py-4 text-left text-2xl text-corange transition [overflow-anchor:none] hover:z-[2] focus:z-[3] focus:outline-none [&:not([data-twe-collapse-collapsed])]:text-corange [&:not([data-twe-collapse-collapsed])]:shadow-border-b"
+                type="button" 
+                data-twe-collapse-init 
+                data-twe-target="#collapse{{ attributes.id }}" 
+                {% if attributes.collapsed %}
+                    data-twe-collapse-collapsed 
+                    aria-expanded="false"
+                {% else %}
+                    aria-expanded="true"
+                {% endif %}
+                aria-controls="collapse{{ attributes.id }}">
+                    {{ attributes.name }}
+                <span
+                    class="-me-1 ms-auto h-5 w-5 shrink-0 rotate-[-180deg] transition-transform duration-200 ease-in-out group-data-[twe-collapse-collapsed]:me-0 group-data-[twe-collapse-collapsed]:rotate-0 motion-reduce:transition-none [&>svg]:h-6 [&>svg]:w-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </span>
+            </button>
+        </h2>
+        <div 
+            id="collapse{{ attributes.id }}" 
+            class="!visible{% if attributes.collapsed%} hidden{% endif %}" 
+            data-twe-collapse-item 
+            {% if not attributes.collapsed %}data-twe-collapse-show{% endif %}
+            aria-labelledby="pageBlockHeading{{ attributes.id }}" 
+            data-twe-parent="#{{ attributes.id }}">
+            <div class="py-2">
+                {% render_slot slots.inner_block %}
+            </div>
+        </div>
+    </div>
+</div>

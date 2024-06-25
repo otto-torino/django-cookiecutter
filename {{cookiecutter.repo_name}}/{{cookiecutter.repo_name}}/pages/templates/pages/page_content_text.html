@@ -1,0 +1,18 @@
+{% load static components %}
+{% if obj.use_accordion %}
+  {% accordion id=obj.get_unique_id name=obj.name bg=obj.background_color %}
+    <div class="{% if obj.background_color %}px-4 py-4{% else %}py-2{% endif %} rounded-lg">
+      {{ obj.content|safe }}
+    </div>
+  {% endaccordion %}
+{% else %}
+
+  <div id="{{obj.get_unique_id}}" class="{% if obj.background_color %}px-4 py-2{% else %}py-2{% endif %}" style="background-color: {{ obj.background_color }}">
+    {% if obj.show_name %}
+      <a {% if obj.url %}href={{ obj.url }}{% endif %}>
+        <h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>
+      </a>
+    {% endif %}
+    {{ obj.content|safe }}
+  </div>
+{% endif %}

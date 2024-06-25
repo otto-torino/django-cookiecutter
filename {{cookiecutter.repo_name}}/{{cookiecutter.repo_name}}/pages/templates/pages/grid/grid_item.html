@@ -1,0 +1,7 @@
+{% load thumbnail %}
+{% thumbnail image "600x500" crop=image.file.sorl as im %}
+  <img
+    srcset="{{ im.url }}" alt="{{ image.caption }}"
+    class="block w-full rounded-lg object-cover object-center"
+  >
+{% endthumbnail %}

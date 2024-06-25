@@ -1,0 +1,15 @@
+{% load pages_tags %}
+<div class="columns-1 md:columns-2 lg:columns-3">
+    {% for entry in entries %}
+        <div class="max-w-md h-full rounded-lg overflow-hidden w-12/12 shadow-lg   transform transition duration-200 bg-beige-50 cursor-pointer mb-6">
+            {% if entry.media_thumbnail.0 %}<img src="{{ entry.media_thumbnail.0.url }}" class="w-full">{% endif %}
+<div class="px-6 py-4 ">
+    <time class="text-sm font-bold text-emerald-600 text-center block">{{ entry.published_parsed|struct2datetime|date:"DATE_FORMAT" }}</time>
+                <h5 class="text-center">
+                    <a href="{{ entry.link }}" target="_blank" class="fw-bold">{{ entry.title }}</a>
+                </h5>
+                <p class="">{{ entry.summary|safe }}</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>

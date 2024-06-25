@@ -1,0 +1,63 @@
+{% load thumbnail static components %} {# Swiper HTML Layout#}
+<div class="{{config.swiper_theme}}">
+    <div id="{{ attributes.id }}" class="swiper" {%if attributes.height%} style="height: {{attributes.height}};"{%endif%}>
+    {# Additional required wrapper #}
+    <div class="swiper-wrapper ">
+      {# Slides (each slide must be of type carousel_slide component) #}
+      {% render_slot slots.inner_block %}
+    </div>
+    {# If we need pagination. Enabled by default, pass hide_bullets attribute to hide pagination #}
+    {% if not config.hide_bullets %}
+      <div class="swiper-pagination"></div>
+    {% endif %}
+    {# If we need navigation buttons. Disabled by default, pass enable_nav_buttons attribute to enable it #}
+    {% if config.enable_nav_buttons %}
+        <span class="material-symbols-outlined swiper-prev !hidden md:!block text-white absolute top-1/2 translate-y-[-50px] !text-5xl left-7 z-10">arrow_circle_left</span>
+        <span class="material-symbols-outlined swiper-next !hidden md:!block text-white absolute top-1/2 translate-y-[-50px] !text-5xl right-7 z-10">arrow_circle_right</span>
+    {% endif %}
+
+    {# If we need scrollbar. Disabled by default, pass enable_scrollbar attribute to enable it  #}
+    {% if config.enable_scrollbar %}
+    <div class="swiper-scrollbar"></div>
+    {% endif %}
+  </div>
+  <style>
+    .swiper-pagination {
+        position: static !important;
+    }
+  </style>
+  {% if not config.bullets_color == "false" %}
+  <style>
+    .swiper-pagination-bullet-active {
+      background-color: {{config.bullets_color}} !important;
+    }
+  </style>
+{% endif %}
+</div>
+{# Initialize Swiper #}
+<script>
+  (function() {
+    const hideBullets = {{ config.hide_bullets|yesno:"true,false" }};
+    const hasNavButtons = {{ config.enable_nav_buttons|yesno:"true,false" }};
+    const hasScrollbar = {{ config.enable_scrollbar|yesno:"true,false" }};
+
+    const swiper = new Swiper('#{{ attributes.id }}', {
+      slidesPerView: {{ config.slides_per_view }},
+      direction: '{{ config.direction }}',
+      effect: '{{ attributes.effect }}',
+      loop: {{ config.loop|yesno:"true,false" }},
+      // If we need pagination
+      ...(!hideBullets && { pagination: { el: '.swiper-pagination' } }),
+
+      // Navigation arrows
+      /* ...(hasNavButtons && { */
+        navigation: {
+          nextEl: '.swiper-next',
+          prevEl: '.swiper-prev',
+        },
+      /* }), */
+      // And if we need scrollbar
+      ...(hasScrollbar && { scrollbar: { el: '.swiper-scrollbar' } }),
+    })
+  })()
+</script>

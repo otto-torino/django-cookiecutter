@@ -1,13 +1,14 @@
-{% raw %}from django.conf import settings
-from .models import Page
 from django.contrib.sites.shortcuts import get_current_site
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
-from django.shortcuts import get_object_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render
 from django.template import loader
-from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
 
-DEFAULT_TEMPLATE = 'pages/default.html'
+from pages.handlers import consume_rss_feed
+
+from .models import Page, PageContentRssFeed
+
+DEFAULT_TEMPLATE = "pages/default.html"
 
 # This view is called from PageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
@@ -30,18 +31,9 @@ def page(request, url):
         page
             `pages.page` object
     """
-    if not url.startswith('/'):
-        url = '/' + url
+    url = f"/{url.strip('/')}/"
     site_id = get_current_site(request).id
-    try:
-        p = get_object_or_404(Page, url=url, sites=site_id)
-    except Http404:
-        if not url.endswith('/') and settings.APPEND_SLASH:
-            url += '/'
-            p = get_object_or_404(Page, url=url, sites=site_id)
-            return HttpResponsePermanentRedirect('%s/' % request.path)
-        else:
-            raise
+    p = get_object_or_404(Page, url=url, sites=site_id)
     return render_page(request, p)
 
 
@@ -54,6 +46,7 @@ def render_page(request, p):
     # logged in, redirect to the login page.
     if p.registration_required and not request.user.is_authenticated:
         from django.contrib.auth.views import redirect_to_login
+
         return redirect_to_login(request.path)
     # If page is not pusblished, raise 404
     if not p.status == Page.PUBLISHED:
@@ -62,7 +55,34 @@ def render_page(request, p):
         template = loader.select_template((p.template_name, DEFAULT_TEMPLATE))
     else:
         template = loader.get_template(DEFAULT_TEMPLATE)
-
-    response = HttpResponse(template.render({'page': p}, request))
+    date = p.modified
+    for block in p.content_blocks.all():
+        if block.modified > date:
+            date = block.modified
+    response = HttpResponse(template.render({"page": p, "updated": date}, request))
     return response
-{% endraw %}
+
+
+def page_content_rss_feed_preview(request, page_content_id):
+    page_content = get_object_or_404(PageContentRssFeed, id=page_content_id)
+    feed = consume_rss_feed(page_content.rss_feed_url)
+    ctx = {
+        "entries": feed.entries[:page_content.num_items],
+    }
+    return render(
+        request,
+        "admin/pages/page_content_rss_feed/rss_feed_admin.html",
+        ctx,
+    )
+
+def page_content_rss_feed_content(request, page_content_id):
+    page_content = get_object_or_404(PageContentRssFeed, id=page_content_id)
+    feed = consume_rss_feed(page_content.rss_feed_url)
+    ctx = {
+        "entries": feed.entries[:page_content.num_items],
+    }
+    return render(
+        request,
+        "pages/page_content_rss_feed_content.html",
+        ctx,
+    )

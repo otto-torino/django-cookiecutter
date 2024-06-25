@@ -1,0 +1,47 @@
+#content-blocks-list {
+    max-width: 80rem;
+    padding: 2rem .75rem;
+    margin: 0 auto;
+}
+
+#content-blocks-list .content-block:not(:last-child) {
+    border-bottom: 0 !important;
+}
+
+.content-block-drag-handle {
+    cursor: move;
+}
+
+[data-bs-toggle="collapse"] {
+    transition: transform 200ms ease-in-out;
+}
+
+[data-bs-toggle="collapse"][aria-expanded="true"] {
+    transform: rotate(180deg);
+}
+
+.collapsing {
+  transition: height 350ms ease-in-out;
+}
+
+.block {
+    display: block;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.object-cover {
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.object-center {
+  -o-object-position: center;
+     object-position: center;
+}

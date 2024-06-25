@@ -1,0 +1,19 @@
+{% load pages_tags %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for entry in entries %}
+        <div class="col">
+            <div class="card">
+                {% if entry.media_thumbnail.0 %}<img src="{{ entry.media_thumbnail.0.url }}" class="card-img-top">{% endif %}
+                <div class="card-body">
+                    <p class="card-text text-center">
+                        <small class="text-body-secondary">{{ entry.published_parsed|struct2datetime|date:"DATE_FORMAT" }}</small>
+                    </p>
+                    <h5 class="card-title text-center">
+                        <a href="{{ entry.link }}" target="_blank" class="fw-bold">{{ entry.title }}</a>
+                    </h5>
+                    <p class="card-text">{{ entry.summary|safe }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

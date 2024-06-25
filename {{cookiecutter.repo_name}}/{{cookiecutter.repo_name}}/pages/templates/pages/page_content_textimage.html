@@ -1,0 +1,83 @@
+{% load static components %}
+<style>
+    {# handle custom column width #}
+    @media screen and (min-width: 768px) {
+        .md\:grid-cols-2-custom-{{ obj.id }} {
+            grid-template-columns: {{ obj.left_column_width }}% auto;
+        }
+    }
+</style>
+{% if obj.use_accordion %}
+  {% accordion id=obj.get_unique_id name=obj.name bg=obj.background_color %}
+  <div class="{% if obj.background_color %}px-4 py-4{% else %}py-2{% endif %} rounded-lg" >
+  <div class="grid grid-cols-1 md:grid-cols-2-custom-{{ obj.id }} gap-8">
+    <div>
+      {{ obj.text|safe }}
+    </div>
+    <div class="col-span-2 md:col-span-1 {% if obj.image_position == 'left' %} -order-1 {% endif %}">
+      <img class="w-full h-auto rounded-lg" src="{{ obj.image.url }}" onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}-image').click();">
+      {% if obj.show_captions %}
+        {% if obj.credits or obj.caption %}
+          <p class="ml-2 mt-1 italic text-center">
+            {{ obj.caption }}
+            {% if obj.credits and obj.caption %} - {% endif %}
+            {% if obj.credits %} {{ obj.credits }} {% endif %}
+          </p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+  {% endaccordion %}
+{% else %}
+<div id="{{obj.get_unique_id}}" class="{% if obj.background_color %}px-4 py-2{% else %}py-2{% endif %} rounded-lg" style="background-color: {{ obj.background_color }}">
+  {% if obj.show_name %}<h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>{% endif %}
+  <div class="grid grid-cols-1 md:grid-cols-2-custom-{{ obj.id }} gap-8">
+    <div>
+      {{ obj.text|safe }}
+    </div>
+    <div class="col-span-2 md:col-span-1 {% if obj.image_position == 'left' %} -order-1 {% endif %}">
+      <img class="w-full h-auto rounded-lg" src="{{ obj.image.url }}" onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}-image').click();">
+      {% if obj.show_captions %}
+        {% if obj.credits or obj.caption %}
+          <p class="ml-2 mt-1 italic text-center">
+            {{ obj.caption }}
+            {% if obj.credits and obj.caption %} - {% endif %}
+            {% if obj.credits %} {{ obj.credits }} {% endif %}
+          </p>
+        {% endif %}
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<div id="{{ obj.get_unique_id }}-image" class="hidden" >
+      <a href="{{obj.image.url}}" id="lightbox-{{ obj.get_unique_id }}-image" data-pswp-width="{{obj.image.width}}" data-pswp-height="{{obj.image.height}}">
+          <img src="{{obj.image.url}}" class="rounded-lg" alt="{{ obj.caption }}" />
+          {% if obj.show_captions %}
+            <span class="pswp-caption-content">
+                {% if obj.caption %}{{ obj.caption }} {% endif %} 
+                {% if obj.credits and obj.caption %} - {% endif %}
+                {% if obj.credits %}{{obj.credits}} {% endif %}
+            </span>
+          {% endif %}
+      </a>
+</div>
+<script type="text/javascript">
+  (function () {
+    var lightbox = new PhotoSwipeLightbox({
+      gallery: '#{{ obj.get_unique_id }}-image',
+      showHideAnimationType: 'fade',
+      children: 'a',
+      pswpModule: PhotoSwipe 
+    });
+    const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
+      // Plugins options, for example:
+      type: 'below',
+    });
+    lightbox.init();
+  })()
+</script>

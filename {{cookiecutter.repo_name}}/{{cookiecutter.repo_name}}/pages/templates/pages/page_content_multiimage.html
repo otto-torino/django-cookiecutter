@@ -1,0 +1,8 @@
+<div class="{% if obj.background_color %}px-4 py-4{% else %}py-2{% endif %} rounded-lg" style="background-color: {{ obj.background_color }}">
+  {% if obj.show_name %}<h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>{% endif %}
+  {% if obj.type == 'carousel' %}
+    {% include 'pages/carousel/responsive_carousel.html' with obj=obj only %}
+  {% elif obj.type == 'grid' %}
+    {% include 'pages/grid/grid.html' with obj=obj only %}
+  {% endif %}
+</div>

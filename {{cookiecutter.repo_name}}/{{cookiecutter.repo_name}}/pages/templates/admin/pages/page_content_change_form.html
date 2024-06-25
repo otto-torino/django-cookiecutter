@@ -1,0 +1,23 @@
+{% extends 'admin/change_form.html' %}
+{% load i18n static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        window.jQuery = Baton.jQuery;
+    </script>
+    <script src="{% static 'pages/src/js/osmdrawer.min.js' %}"></script>
+{% endblock extrahead %}
+
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+      &rsaquo; <a href="{% url 'admin:app_list' app_label='pages' %}">{% trans "Pages" %}</a>
+      &rsaquo; <a href="{% url 'admin:pages_page_changelist' %}">{% trans "Pagine" %}</a>
+      &rsaquo; <a href="{% url 'admin:pages_page_change' page.id %}">{{ page.title }}</a>
+      &rsaquo; <a href="{% url 'admin:pages_page_edit_content' page.id %}">{% trans "Contents" %}</a>
+      &rsaquo; {% if add %}{% blocktranslate with name=opts.verbose_name %}Add {{ name }}{% endblocktranslate %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
+    </div>
+  {% endblock %}
+{% endif %}

@@ -1,0 +1,24 @@
+{% load sorl_thumbnail %}
+<div class="{% if object.background_color %}p-4{% else %}p-2{% endif %}" style="background-color: {{ object.background_color }}">
+  {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
+  <div class="d-flex flex-column justify-content-center  flex-md-row mx-4 flex-wrap">
+    {% for im in object.images.all %}
+      <div class="d-none d-md-flex justify-content-center p-2" style="flex-basis: {{object.basis}};">
+        {% if im.file %}
+          {% thumbnail im.file "400x400" crop=im.file.sorl as cropped %}
+            <div onclick="window.location.assign('{{ im.link }}');" class="h-auto w-100   relative d-flex justify-content-center align-items-center bg-cover cursor-pointer" style="border-radius: {{object.rounding}}px; aspect-ratio : 1 / 1;{% if object.rectangular %}max-height:13rem;{% endif %} min-width: 13rem; background-image: url({{cropped.url}});">
+          {% endthumbnail %}
+        {% else %}
+          <div onclick="window.location.assign('{{ im.link }}');" class="h-auto w-100 p-3 min-w-[13rem] {% if object.rectangular %}max-h-[13rem]{% endif %} drop-shadow-md  relative flex justify-center items-center bg-cover {% if object.zoom %} transform transition duration-200 hover:scale-105 {% endif %} cursor-pointer" style="border-radius: {{object.rounding}}px; aspect-ratio : 1 / 1; background-color:{{im.bg_color}};">
+        {% endif %}
+          <div class="d-flex flex-column justify-content-center align-items-center h-100">
+            {% if im.icon %}
+              <img src="{{im.icon.url}}" class="ml-0 mb-3" style="height: 5rem; {% if object.shadow %}filter: drop-shadow(2px 4px 12px #000);{% endif %}" alt="{{im.name}}"/>
+            {% endif %}
+            <span class=" ms-0 " style="color: white;font-size: 1.875rem; line-height: 2.25rem; {% if object.shadow %}text-shadow: 2px 4px 12px #000;{% endif %}"> <p class="drop-shadow-md">{{im.name}}</p></span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

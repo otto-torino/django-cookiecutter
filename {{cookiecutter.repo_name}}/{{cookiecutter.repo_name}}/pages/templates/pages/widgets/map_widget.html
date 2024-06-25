@@ -1,0 +1,21 @@
+{% load static i18n %}
+{% include "django/forms/widgets/textarea.html" %}
+<a style="cursor: pointer" class="btn btn-sm btn-secondary ms-2" onclick="pageContentMapItemDraw()">{% trans "draw" %}</a>
+<script>
+if (!window.pageContentMapItemDraw) {
+    window.pageContentMapItemDraw = function() {
+        const itemId = Baton.jQuery(event.target).parents('.module').first().find('.field-shape select').attr('id').replace('id_items-', '').replace('-shape', '');
+        Baton.jQuery('#id_items-' + itemId + '-shape').on('change', function () {
+            Baton.jQuery('#id_items-' + itemId + '-coordinates').val('')
+        })
+        let mapModal = new Baton.Modal({
+            title: '{% trans "Draw shape" %}',
+            url: '{% url 'admin:pages_pagecontentmap_draw' %}?itemId=' + itemId,
+            size: 'lg'
+        })
+
+        mapModal.open();
+    }
+}
+</script>
+

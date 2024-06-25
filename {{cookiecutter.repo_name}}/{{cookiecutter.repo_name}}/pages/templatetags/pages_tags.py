@@ -1,9 +1,40 @@
-{% raw %}from django import template
+from datetime import datetime
+from time import mktime
+from django import template
 from django.conf import settings
 from ..models import Page
 from django.contrib.sites.shortcuts import get_current_site
 
 register = template.Library()
+
+@register.filter
+def replace(value, arg):
+    """
+    Replacing filter
+    Use `{{ "aaa"|replace:"a|b" }}`
+    """
+    if len(arg.split('|')) != 2:
+        return value
+
+    what, to = arg.split('|')
+    return value.replace(what, to)
+
+@register.filter
+def struct2datetime(struct):
+    return datetime.fromtimestamp(mktime(struct))
+
+@register.simple_tag
+def call_method(obj, method_name, *args):
+    method = getattr(obj, method_name)
+    return method(*args)
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+@register.filter
+def concat_string(value_1, value_2):
+    return str(value_1) + str(value_2)
 
 
 class PageNode(template.Node):
@@ -137,4 +168,4 @@ def get_page(parser, token):
         return PageNode(context_name, starts_with=prefix, single=True)
     else:
         raise template.TemplateSyntaxError(syntax_message)
-{% endraw %}
+

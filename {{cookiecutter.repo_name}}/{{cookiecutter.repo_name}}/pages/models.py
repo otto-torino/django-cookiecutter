@@ -1,83 +1,842 @@
 from __future__ import unicode_literals
 
+import logging
+
 from ckeditor_uploader.fields import RichTextUploadingField
+from colorfield.fields import ColorField
+from django.apps import apps
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.sites.models import Site
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.urls import get_script_prefix
-from django.utils.translation import gettext_lazy as _
-from taggit.managers import TaggableManager
+from django.urls import get_script_prefix, reverse_lazy
+from django.utils import timezone
+from django.utils.encoding import iri_to_uri
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django_extensions.db.models import TimeStampedModel
+from subject_imagefield.fields import SubjectImageField
+from taggit.managers import ContentType
+from taggit_autosuggest.managers import TaggableManager
+from .managers import PageManager
+
+User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
-class Page(models.Model):
+def generic_copy_and_assign(block, page):
+    # classes which need a deep copy because they have children items
+    NESTED_CONTENTS = [
+        # apps.get_model('pages.PageContentMap'),
+        apps.get_model("pages.PageContentBoxMenu"),
+    ]
+
+    ITEM_MAP = {
+        # apps.get_model('pages.PageContentMap'): apps.get_model('pages.PageContentMapItem'),
+        apps.get_model("pages.PageContentBoxMenu"): apps.get_model(
+            "pages.PageContentBoxItem"
+        ),
+    }
+
+    # fields which must be skipped during the copying of the object (file is here because having a double reference to a file can create issues)
+    SKIP_FIELDS = [
+        "id",
+        "object_id",
+        "pagecontent_ptr",
+        "block_id",
+        "page",
+        "file",
+        "image",
+        "image_content",
+        "caption",
+        "caption_it",
+        "caption_en",
+        "caption_fr",
+        "credits",
+        "icon",
+    ]
+
+    new_content = type(block.content_object)()
+    for field in type(block.content_object)._meta.fields:
+        if field.name not in SKIP_FIELDS:
+            setattr(new_content, field.name, getattr(block.content_object, field.name))
+    new_content.page = page
+    new_content.save()
+    new_content.object_id = new_content.id
+    new_content.save()
+    if type(block.content_object) in NESTED_CONTENTS:
+        item_model = ITEM_MAP.get(type(block.content_object), None)
+        if item_model is not None:
+            items = item_model.objects.filter(block=block)
+            for item in items:
+                new_item = item_model()
+                for field in item_model._meta.fields:
+                    if field.name not in SKIP_FIELDS:
+                        setattr(new_item, field.name, getattr(item, field.name))
+                new_item.block = new_content
+                new_item.save()
+
+
+class AccordionBlock(models.Model):
+    use_accordion = models.BooleanField(
+        default=False,
+        help_text=_("set to true if you want this block to be inside an accordion, the block name will be used inside the accordion head"),
+    )
+
+    class Meta: # pyright: ignore
+        abstract = True
+        verbose_name = _("accordion")
+        verbose_name_plural = _("accordions")
+
+
+class Page(TimeStampedModel):
     DRAFT = 1
     PUBLISHED = 2
     ARCHIVED = 3
 
     STATUS_CHOICES = (
-        (DRAFT, 'bozza'),
-        (PUBLISHED, 'pubblicato'),
-        (ARCHIVED, 'archiviato'),
+        (DRAFT, _("bozza")),
+        (PUBLISHED, _("pubblicato")),
+        (ARCHIVED, _("archiviato")),
+    )
+
+    HIGH_RELEVANCE = 1
+    MEDIUM_RELEVANCE = 2
+    LOW_RELEVANCE = 3
+
+    RELEVANCE_CHOICES = (
+        (HIGH_RELEVANCE, _("alta")),
+        (MEDIUM_RELEVANCE, _("media")),
+        (LOW_RELEVANCE, _("bassa")),
     )
 
     parent = models.ForeignKey(
-        'self',
-        verbose_name=_('parent'),
+        "self",
+        verbose_name=_("parent"),
         on_delete=models.SET_NULL,
-        related_name='children',
+        related_name="children",
         blank=True,
         null=True,
-        help_text=_('Used to compose breadcrumbs'))
-    url = models.CharField(_('URL'), max_length=100, db_index=True)
-    title = models.CharField(_('title'), max_length=200)
-    content = RichTextUploadingField(verbose_name=_('content'), blank=True)
-    tags = TaggableManager(
-        _('tags'), help_text=_('comma separated values'), blank=True)
+        help_text=_("Used to compose breadcrumbs"),
+    )
+    url = models.CharField(_("URL"), max_length=100, db_index=True)
+    title = models.CharField(_("title"), max_length=200)
+    tags = TaggableManager(_("tags"), blank=True)
     template_name = models.CharField(
-        _('template name'),
+        _("template name"),
         max_length=70,
         blank=True,
         help_text=_(
             "Example: 'pages/contact_page.html'. If this isn't provided, "
-            "the system will use 'pages/default.html'."),
+            "the system will use 'pages/default.html'."
+        ),
     )
     registration_required = models.BooleanField(
-        _('registration required'),
-        help_text=
-        _("If this is checked, only logged-in users will be able to view the page."
-          ),  # noqa
+        _("registration required"),
+        help_text=_(
+            "If this is checked, only logged-in users will be able to view the page."
+        ),  # noqa
         default=False,
     )
+    users = models.ManyToManyField(
+        User,
+        verbose_name=_("users"),
+        related_name="pages",
+        blank=True,
+        help_text=_(
+            "If registration is required and users are filled, than only this users can access the content."
+        ),
+    )
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name=_("groups"),
+        blank=True,
+        related_name="pages",
+        help_text=_(
+            "If registration is required and groups are filled, than only users belonging to these groups can access the content."
+            # noqa: E501
+        ),
+    )
     enable_social_sharing = models.BooleanField(
-        _('enable social sharing'), default=False)
-    sites = models.ManyToManyField(Site, verbose_name=_('sites'))
+        _("enable social sharing"), default=False
+    )
+    last_updated = models.BooleanField(
+        _("last updated"), default=True, help_text=_("show last updated date")
+    )
+    sites = models.ManyToManyField(Site, verbose_name=_("sites"))
     status = models.IntegerField(choices=STATUS_CHOICES, default=DRAFT)
+    relevance = models.IntegerField(verbose_name=_("rilevanza"), help_text=_("priority level for searches"), choices=RELEVANCE_CHOICES, default=2)
+    
     # seo
     meta_title = models.CharField(
-        _('meta title'),
+        _("meta title"),
         max_length=200,
         blank=True,
         null=True,
-        help_text=_('default to page title'))
+        help_text=_("default to page title"),
+    )
     meta_description = models.TextField(
-        _('meta description'),
+        _("meta description"),
         blank=True,
         null=True,
-        help_text=_('default to first 20 words of content'))
+        help_text=_("default to first 20 words of content"),
+    )
     meta_keywords = models.CharField(
-        _('meta keywords'),
+        _("meta keywords"),
         max_length=200,
         blank=True,
         null=True,
-        help_text=_('default to page tags'))
+        help_text=_("default to page tags"),
+    )
 
-    class Meta:
-        verbose_name = _('page')
-        verbose_name_plural = _('pages')
-        ordering = ('url', )
+    objects: PageManager = PageManager() # pyright: ignore
+
+    class Meta: # pyright: ignore
+        verbose_name = _("page")
+        verbose_name_plural = _("pages")
+        ordering = ("url",)
 
     def __str__(self):
         return "%s -- %s" % (self.url, self.title)
 
     def get_absolute_url(self):
         # Handle script prefix manually because we bypass reverse()
-        return iri_to_uri(get_script_prefix().rstrip('/') + self.url)
+        active_lang = get_language()
+        return iri_to_uri(
+            get_script_prefix().rstrip("/") + f"/{active_lang}/p{self.url}"
+        )
+
+    def has_map_content(self):
+        for c in self.content_blocks.filter(enabled=True): # pyright: ignore
+            if c.content_type.model == "pagecontentmap":
+                return True
+        return False
+
+    @property
+    def breadcrumbs(self):
+        p = self
+        res = []
+        while p.parent is not None:
+            res.insert(
+                0,
+                {
+                    "url": p.parent.get_absolute_url(),
+                    "label": p.parent.title,
+                },
+            )
+            p = p.parent
+        return res
+
+
+class PageContent(TimeStampedModel):
+    """This is a base class model which page content providers should extend"""
+
+    COLOR_PALETTE = [
+        ("#D0E8F3", _("blue")),
+        ("#AADAC5", _("green")),
+        ("#F0E8DB", _("beige")),
+        ("#DCD5C8", _("brown")),
+    ]
+
+    name = models.CharField(_("name"), max_length=200, blank=True, null=True)
+    show_name = models.BooleanField(_("show name"), default=False)
+    background_color = ColorField(
+        _("background color"), samples=COLOR_PALETTE, blank=True, null=True
+    )
+    page = models.ForeignKey(
+        Page, on_delete=models.CASCADE, editable=False, related_name="content_blocks"
+    )
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, editable=False
+    )
+    object_id = models.PositiveIntegerField(blank=True, null=True, editable=False)
+    content_object = GenericForeignKey("content_type", "object_id")
+    position = models.IntegerField(_("ordering"), editable=False)
+    enabled = models.BooleanField(_("block enabled"), default=True)
+
+    def save(self, *args, **kwargs):
+        if self and self.page:
+            self.page.modified = timezone.now()
+            self.page.save()
+        super(PageContent, self).save(*args, **kwargs)
+
+    def class_name(self):
+        raise NotImplementedError
+
+    def get_content_label(self):
+        raise NotImplementedError
+
+    def get_content_description(self):
+        raise NotImplementedError
+
+    def get_add_form_url(self):
+        raise NotImplementedError
+
+    def get_change_form_url(self):
+        raise NotImplementedError
+
+    def get_preview_template(self):
+        raise NotImplementedError
+
+    def get_render_template(self):
+        raise NotImplementedError
+
+    def copy_and_assign(self, page):
+        raise NotImplementedError
+
+    @property
+    def get_unique_id(self):
+        raise NotImplementedError
+
+    class Meta: # pyright: ignore
+        ordering = ["position"]
+
+
+class PageContentText(PageContent, AccordionBlock):
+    content = RichTextUploadingField(verbose_name=_("content"), blank=True)
+    url = models.CharField(_("url"), blank=True, null=True)
+    def __str__(self):
+        return f"{self.page.title}/{_('text content')}"
+
+    class Meta: # pyright: ignore
+        verbose_name = _("text content block")
+        verbose_name_plural = _("text content blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Text")
+
+    def get_content_description(self):
+        return _("Pure text content from editor")
+
+    def get_add_form_url(self):
+        url = reverse_lazy("admin:pages_pagecontenttext_add")
+        logger.info(url)
+        return reverse_lazy("admin:pages_pagecontenttext_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontenttext_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontenttext_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_text/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_text.html"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+    @property
+    def get_unique_id(self):
+        return "Text" + str(self.pk)
+
+
+class PageContentImage(PageContent):
+    image_content = models.ImageField(
+        verbose_name=_("content"), upload_to="pages/image_content"
+    )
+    show_captions = models.BooleanField(
+        _("show captions"),
+        default=True,
+        help_text=_("set to true if you want to show the captions of the images"),
+    )
+    caption = models.TextField(_("caption"), blank=True, null=True)
+    credits = models.TextField(_("credits"), blank=True, null=True)
+    url = models.CharField(_("url"), blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.page.title}/{_('image content')}"
+
+    class Meta: # pyright: ignore
+        verbose_name = _("image content block")
+        verbose_name_plural = _("image content blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Image")
+
+    def get_content_description(self):
+        return _("Full width image")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentimage_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentimage_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontentimage_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_image/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_image.html"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+    @property
+    def get_unique_id(self):
+        return "Image" + str(self.pk)
+
+
+class PageContentTextImage(PageContent, AccordionBlock):
+    CHOICES = (
+        ("left", _("Left")),
+        ("right", _("Right")),
+    )
+    text = RichTextUploadingField(verbose_name=_("text"), blank=True)
+    # specify the width of the left column in percentage
+    left_column_width = models.IntegerField(
+        _("left column width (%)"),
+        default=50,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        blank=True,
+        null=True,
+    )
+    image = models.ImageField(
+        verbose_name=_("image"), upload_to="pages/text_image_content"
+    )
+    image_position = models.CharField(
+        _("image position"), max_length=5, choices=CHOICES, default="right"
+    )
+    show_captions = models.BooleanField(
+        _("show captions"),
+        default=True,
+        help_text=_("set to true if you want to show the captions of the images"),
+    )
+    caption = models.TextField(_("caption"), blank=True, null=True)
+    credits = models.TextField(_("credits"), blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.page.title}/{_('text and image content')}"
+
+    class Meta: # pyright: ignore
+        verbose_name = _("text and image content block")
+        verbose_name_plural = _("text and image content blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Text and image")
+
+    def get_content_description(self):
+        return _("Text and image content")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontenttextimage_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontenttextimage_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontenttextimage_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_textimage/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_textimage.html"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+    @property
+    def get_unique_id(self):
+        return "TextImage" + str(self.pk)
+
+
+class PageContentMultiImage(PageContent):
+    CHOICES = (
+        ("carousel", _("Carousel")),
+        ("grid", _("Grid")),
+        # ("masonry", _("Masonry")),
+    )
+    type = models.CharField(
+        verbose_name=_("choose representation type"),
+        max_length=20,
+        choices=CHOICES,
+        default="carousel",
+    )
+    show_captions = models.BooleanField(
+        _("show captions"),
+        default=True,
+        help_text=_("set to true if you want to show the captions of the images"),
+    )
+    height = models.IntegerField(
+        _("carousel max height"),
+        default=450,
+        help_text=_("set the max height of the carousel images in pixels"),
+    )
+
+    def __str__(self):
+        return f"{self.page.title}/{_('multi image content')}"
+
+    class Meta: # pyright: ignore
+        verbose_name = _("multi image content block")
+        verbose_name_plural = _("multi image content blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Multi image")
+
+    def get_content_description(self):
+        return _("Multi image content (grid or carousel)")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentmultiimage_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentmultiimage_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontentmultiimage_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_multiimage/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_multiimage.html"
+
+    def get_carousel_id(self):
+        return f"carousel-{self.pk}"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+    @property
+    def get_unique_id(self):
+        return "MultiImage" + str(self.pk)
+
+
+class PageContentMultiImageItem(models.Model):
+    file = SubjectImageField(
+        upload_to="pages/multi_image_content",
+        verbose_name=_("file"),
+        subject_location_field="subject_location",
+    )
+    subject_location = models.CharField(
+        _("subject coordinates"), max_length=7, default="50,50"
+    )
+    position = models.IntegerField(_("order"), default=0)
+    caption = models.TextField(_("caption"), blank=True, null=True)
+    credits = models.TextField(_("credits"), blank=True, null=True)
+    block = models.ForeignKey(
+        PageContentMultiImage, on_delete=models.CASCADE, related_name="images"
+    )
+
+    class Meta: # pyright: ignore
+        verbose_name = _("image")
+        verbose_name_plural = _("images")
+        ordering = ("position",)
+
+    def __str__(self):
+        return str(self.file)
+
+
+class PageContentBoxMenu(PageContent):
+    columns = models.IntegerField(
+        _("columns"), help_text=_("maximum number of boxes per row"), default=5
+    )
+    shadow = models.BooleanField(
+        _("shadow"),
+        default=True,
+        help_text=_(
+            "set to true if you want the boxes to have a shadow on name and icon"
+        ),
+    )
+    zoom = models.BooleanField(
+        _("zoom"),
+        default=False,
+        help_text=_("set to true if you want the boxes to zoom on hover"),
+    )
+    rounding = models.IntegerField(
+        _("rounding"), default=8, help_text=_("set the rounding of the boxes in pixels")
+    )
+    rectangular = models.BooleanField(
+        _("rectangular"),
+        default=False,
+        help_text=_(
+            "set to true if you want boxes to become rectangular when they are stretched"
+        ),
+    )
+
+    def __str__(self):
+        return f"{self.page.title}/{_('Box menu content')}"
+
+    class Meta: # pyright: ignore
+        verbose_name = _("Box menu")
+        verbose_name_plural = _("Box menus")
+
+    @property
+    def basis(self):
+        return str(int(100 / self.columns)) + "%"
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Box menu")
+
+    def get_content_description(self):
+        return _("Box menu content ")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentboxmenu_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentboxmenu_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontentboxmenu_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_boxmenu/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_boxmenu.html"
+
+    def get_carousel_id(self):
+        return f"carousel-{self.pk}"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+    @property
+    def get_unique_id(self):
+        return "BoxMenu" + str(self.pk)
+
+
+class PageContentBoxItem(models.Model):
+    file = SubjectImageField(
+        _("image"),
+        upload_to="pages/box_menu_content",
+        subject_location_field="subject_location",
+        blank=True,
+        null=True,
+    )
+    subject_location = models.CharField(
+        _("subject coordinates"), max_length=7, default="50,50"
+    )
+    name = models.CharField(verbose_name=_("name"), max_length=100, blank=True)
+    link = models.CharField(
+        verbose_name=_("url"),
+        max_length=200,
+    )
+    icon = models.FileField(
+        verbose_name=_("icon"),
+        upload_to="park-life/",
+        help_text="upload an svg icon",
+        blank=True,
+        null=True,
+    )
+    position = models.IntegerField(_("order"), default=0)
+    text_color = models.CharField(
+        _("text color"),
+        max_length=7,
+        default="#f5f5f5",
+        help_text=_("set the color of box name"),
+    )
+    bg_color = models.CharField(
+        _("background color"),
+        max_length=7,
+        default="#f5f5f5",
+        help_text=_("set the color of box background"),
+    )
+    block = models.ForeignKey(
+        PageContentBoxMenu, on_delete=models.CASCADE, related_name="images"
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta: # pyright: ignore
+        verbose_name = _("Box")
+        verbose_name_plural = _("Boxes")
+        ordering = ("position",)
+
+
+class PageContentRssFeed(PageContent):
+    rss_feed_url = models.URLField(_("rss feed url"), max_length=200)
+    num_items = models.IntegerField(_("number of items"), default=5)
+
+    def __str__(self):
+        return f"{self.page.title}/{_('RSS feed')}"
+
+    class Meta: # pyright: ignore
+        verbose_name = _("RSS feed block")
+        verbose_name_plural = _("RSS feed blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("RSS feed")
+
+    def get_content_description(self):
+        return _("RSS feed articles displayed in cards")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentrssfeed_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentrssfeed_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontentrssfeed_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_rss_feed/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_rss_feed.html"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+    @property
+    def get_unique_id(self):
+        return "Rss" + str(self.pk)
+
+
+class PageContentMap(PageContent):
+    text = RichTextUploadingField(verbose_name=_("content"), blank=True)
+    height = models.IntegerField(verbose_name=_("height (px)"), default=400)
+
+    def __str__(self):
+        return f"{self.page.title}/{_('map content')}"
+
+    class Meta:
+        verbose_name = _("map content block")
+        verbose_name_plural = _("map content blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Map")
+
+    def get_content_description(self):
+        return _("Open street map, with points, polylines, polygons and circles")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentmap_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentmap_change", args=[self.id])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontentmap_delete", args=[self.id])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_map/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_map.html"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+
+class PageContentMapItem(models.Model):
+    class Shape(models.TextChoices):
+        POINT = "POINT", _("Point")
+        POLYLINE = "POLYLINE", _("Polyline")
+        POLYGON = "POLYGON", _("Polygon")
+        CIRCLE = "CIRCLE", _("Circle")
+
+    block = models.ForeignKey(
+        PageContentMap, on_delete=models.CASCADE, related_name="items"
+    )
+    shape = models.CharField(
+        max_length=16,
+        choices=Shape.choices,
+        default=Shape.POINT,
+    )
+    coordinates = models.TextField(_("coordinates"))
+    name = models.CharField(verbose_name=_("name"), max_length=255)
+    caption = models.TextField(verbose_name=_("caption"), blank=True, null=True)
+    link = models.CharField(
+        verbose_name=_("link"), max_length=255, blank=True, null=True
+    )
+    color = ColorField(_("color"), default="#000000")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("Map item")
+        verbose_name_plural = _("Map items")
+
+
+class PageContentVideo(PageContent):
+    YOUTUBE = 1
+    VIMEO = 2
+    TWITCH = 3
+
+    PLATFORM_CHOICES = (
+        (YOUTUBE, _("Youtube")),
+        (VIMEO, _("Vimeo")),
+        (TWITCH, _("Twitch")),
+    )
+
+    description = RichTextUploadingField(verbose_name=_("description"), blank=True)
+    credits = models.TextField(_("credits"), blank=True, null=True)
+    platform = models.IntegerField(
+        _("platform"), choices=PLATFORM_CHOICES, default=YOUTUBE
+    )
+    video_id = models.CharField(_("video id"), max_length=255)
+    width_percent = models.IntegerField(
+        _("width percent"), default=100, validators=[MaxValueValidator(100)]
+    )
+
+    def __str__(self):
+        return f"{self.page.title}/{_('Video')}"
+
+    class Meta: # pyright: ignore
+        verbose_name = _("Video block")
+        verbose_name_plural = _("Video blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Video")
+
+    def get_content_description(self):
+        return _("Video from youtube, vimeo or twitch")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentvideo_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentvideo_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontentvideo_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_video/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_video.html"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page)
+
+    @property
+    def get_unique_id(self):
+        return "Video" + str(self.pk)

@@ -1,0 +1,50 @@
+<div class="{% if obj.background_color %}px-4 py-4{% else %}py-2{% endif %} rounded-lg" style="background-color: {{ obj.background_color }}">
+  {% if obj.show_name %}<h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>{% endif %}
+
+  {% if obj.url %}
+    <a href={{ obj.url }}>
+      <img class="w-full h-auto rounded-lg" src="{{ obj.image_content.url }}">
+    </a>
+  {% else %}
+    <img class="w-full h-auto rounded-lg" src="{{ obj.image_content.url }}" onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}').click();">
+  {% endif %}
+
+  {% if obj.show_captions %}
+    {% if obj.credits or obj.caption %}
+      <p class="ml-2 mt-1 italic text-center">
+        {{ obj.caption }}
+        {% if obj.credits and obj.caption %} - {% endif %}
+        {% if obj.credits %} {{ obj.credits }} {% endif %}
+      </p>
+    {% endif %}
+  {% endif %}
+</div>
+{% if obj.image_content %}
+  <div id="{{ obj.get_unique_id }}" class="hidden" >
+        <a href={{obj.image_content.url}} id="lightbox-{{ obj.get_unique_id }}" data-pswp-width="{{obj.image_content.width}}" data-pswp-height="{{obj.image_content.height}}">
+            <img src="{{obj.image_content.url}}" class="rounded-lg" alt="{{ obj.caption }}" />
+            {% if obj.show_captions %}
+              <span class="pswp-caption-content">
+                  {% if obj.caption %}{{ obj.caption }} {% endif %} 
+                  {% if obj.credits and obj.caption %} - {% endif %}
+                  {% if obj.credits %}{{obj.credits}} {% endif %}
+              </span>
+            {% endif %}
+        </a>
+  </div>
+{% endif %}
+<script type="text/javascript">
+  (function () {
+    var lightbox = new PhotoSwipeLightbox({
+      gallery: '#{{ obj.get_unique_id }}',
+      showHideAnimationType: 'fade',
+      children: 'a',
+      pswpModule: PhotoSwipe 
+    });
+    const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
+      // Plugins options, for example:
+      type: 'below',
+    });
+    lightbox.init();
+  })()
+</script>

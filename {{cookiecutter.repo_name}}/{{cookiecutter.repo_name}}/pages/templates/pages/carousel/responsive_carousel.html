@@ -1,0 +1,68 @@
+{% load core components thumbnail %}
+{% load pages_tags %}
+
+{% carousel id=obj.get_carousel_id enable_nav_buttons %}
+  {% for image in obj.images.all %}
+    {% carousel_slide %}
+      <a data-pswp-src="{{ image.file.url }}" data-pswp-width="{{image.file.width}}" data-pswp-height="{{image.file.height}}">
+          <picture onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}-{{image.id}}').click();">
+            {% with "2000x"|concat_string:obj.height as crop %}
+              {% thumbnail image crop crop=image.file.sorl as im %}
+                <source class="rounded-md" srcset="{{ image.url }}" media="(min-width: 1000px)">
+              {% endthumbnail %}
+            {% endwith %}
+            {% with "1600x"|concat_string:obj.height as crop %}
+              {% thumbnail image crop crop=image.file.sorl as im %}
+                <source class="rounded-md" srcset="{{ im.url }}" media="(min-width: 800px)">
+              {% endthumbnail %}
+            {% endwith %}
+            {% with "1200x"|concat_string:obj.height as crop %}
+              {% thumbnail image crop crop=image.file.sorl as im %}
+                <source class="rounded-md" srcset="{{ im.url }}" media="(min-width: 600px)">
+              {% endthumbnail %}
+            {% endwith %}
+            {% with "800x"|concat_string:obj.height as crop %}
+              {% thumbnail image crop crop=image.file.sorl as im %}
+                <source class="rounded-md" srcset="{{ im.url }}" media="(min-width: 400px)">
+              {% endthumbnail %}
+            {% endwith %}
+            {% with "600x"|concat_string:obj.height as crop %}
+              {% thumbnail image crop crop=image.file.sorl as im %}
+                <img class="rounded-md" srcset="{{ im.url }}" alt="{{ image.caption }}">
+              {% endthumbnail %}
+            {% endwith %}
+          </picture>
+      </a>
+      {% if obj.show_captions %}
+        {% if image.credits or image.caption %}
+          <p class="ml-2 pb-7 mt-1 italic text-center">
+              {{ image.caption }}
+              {% if image.credits and image.caption %} - {% endif %}
+              {% if image.credits %} {{ image.credits }} {% endif %}
+          </p>
+          <p class="ml-2 pb-7 mt-1 italic text-center pswp-caption-content">
+              {{ image.caption }}
+              {% if image.credits and image.caption %} - {% endif %}
+              {% if image.credits %} {{ image.credits }} {% endif %}
+          </p>
+        {% endif %}
+      {% endif %}
+    {% endcarousel_slide %}
+  {% endfor %}
+{% endcarousel %}
+
+<script type="module">
+    import PhotoSwipeDynamicCaption from "https://cdnjs.cloudflare.com/ajax/libs/photoswipe-dynamic-caption-plugin/1.2.7/photoswipe-dynamic-caption-plugin.esm.js"
+    (function () {
+        var lightbox = new PhotoSwipeLightbox({
+            gallery: '#{{ obj.get_carousel_id }}',
+            showHideAnimationType: 'fade',
+            children: 'a',
+            pswpModule: PhotoSwipe 
+        });
+        const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
+            type: 'below',
+        });
+        lightbox.init();
+    })()
+</script>

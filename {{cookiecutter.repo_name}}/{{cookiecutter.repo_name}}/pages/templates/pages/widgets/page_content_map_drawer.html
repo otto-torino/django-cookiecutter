@@ -1,0 +1,44 @@
+{% now "U" as now %}
+<div id="pagecontentmapdrawer_map_{{ now }}"
+     style="max-width: 100%;
+            width: 1000px;
+            height: 400px;
+            margin: auto"></div>
+<script>
+(function ($) {
+    const shape = $(`#id_items-{{ item_id }}-shape`).val()
+    const fillInputField = (data) => {
+        const coordinates = JSON.stringify(data[shape.toLowerCase()][0]);
+        $(`#id_items-{{ item_id }}-coordinates`).val(coordinates);
+    }
+    const map = new OpenStreetMapDrawer.Map('#pagecontentmapdrawer_map_{{ now }}', {
+        tools: {
+            [shape.toLowerCase()]: {
+                options: {
+                    maxItemsAllowed: 1
+                }
+            },
+        },
+        fullscreen: false,
+        exportMapCtrl: null,
+        exportMapCb: fillInputField,
+        onShapesChange: () => {
+            fillInputField(map.exportMap());
+        }
+    })
+    map.render();
+
+    // import data
+    const coordinates = $(`#id_items-{{ item_id }}-coordinates`).val();
+    if (coordinates) {
+        const coords = JSON.parse(coordinates);
+        const data = {[shape.toLowerCase()]: [coords]};
+        map.importMap(data);
+    }
+
+    map._state.tools[shape.toLowerCase()].setDrawing();
+    setTimeout(function () {
+        map._map.invalidateSize();
+    }, 500)
+})(Baton.jQuery)
+</script>

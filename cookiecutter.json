@@ -14,7 +14,6 @@
     "use_cabinet": "y",
     "use_filer": "n",
     "use_disqus": "n",
-    "use_subject_imagefield": "y",
     "use_sorl_thumbnail": "y",
     "use_simple_captcha": "n",
     "language_code": "en-us",
