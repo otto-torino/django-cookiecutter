@@ -39,3 +39,6 @@ sorl-thumbnail==12.10.0
 {% if cookiecutter.use_simple_captcha == 'y' %}
 django-simple-captcha==0.6.0
 {% endif %}
+{% if cookiecutter.use_cabinet == 'y' %}
+django-tree-queries==0.16.1
+{% endif %}

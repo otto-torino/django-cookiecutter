@@ -1,0 +1,23 @@
+<div class="p-4" style="background-color: {{ object.background_color }}">
+    {% if object.show_name %}
+        <h3 class="font-medium">{{ object.name }}</h3>
+    {% endif %}
+    {% if object.description %}
+        <div>{{ object.description | safe }}</div>
+    {% endif %}
+    <table class="table table-border w-100">
+        <tbody>
+            {% for file in object.files.all %}
+                <tr>
+                    <td class="p-2">
+                        <a href="" class="d-flex align-items-center gap-2">
+                            <i class="fa fa-file"></i>
+                            <span class="underline">{{ file.name }}</span>
+                        </a>
+                    </td>
+                    <td class="p-2">{% if file.description %}{{ file.description }}{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+  </table>
+</div>

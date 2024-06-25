@@ -1,0 +1,119 @@
+{% extends "admin/change_list.html" %}
+
+{% load admin_urls i18n static %}
+
+{# Do not render filters #}
+{% block filters %}{% endblock %}
+
+{# Add parent folders to breadcrumbs #}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a>
+&rsaquo; <a href=".">{% trans 'Root folder' %}</a>
+{% for node in cabinet.folder.ancestors_including_self %}
+&rsaquo; {% if forloop.last %}{{ node }}{% else %}<a href="?{{ cabinet.querystring }}&amp;folder__id__exact={{ node.id }}">{{ node }}</a>{% endif %}
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block object-tools-items %}
+  {% if perms.cabinet.add_folder %}
+  <li>
+    <a href="{% url 'admin:cabinet_folder_add' %}?{{ cabinet.querystring }}&amp;parent={{ cabinet.folder.pk }}" class="addlink">
+      {% blocktrans with name=_('folder') %}Add {{ name }}{% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
+  {% if has_add_permission and cabinet.folder %}
+  <li>
+    {% url cl.opts|admin_urlname:'add' as add_url %}
+    <a href="{% add_preserved_filters add_url is_popup to_field %}&amp;folder={{ cabinet.folder.pk }}" class="addlink">
+      {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+    </a>
+  </li>
+  <li id="cabinet-upload">
+    <a href="#" class="addlink">{% trans "Upload multiple files" %}</a>
+    <input type="file" multiple style="display:none">
+  </li>
+  {% endif %}
+{% endblock %}
+
+{% block result_list %}
+{{ block.super }}
+
+{# Blob of content that is added to main template if there were no files #}
+{# (which always happens for example on the root folder listing) #}
+<script type="text/template" id="cabinet-result-list">
+  <div class="results">
+  <table id="result_list">
+    <thead>
+    <tr>
+      {% if action_form %}
+      <th scope="col"  class="action-checkbox-column">
+        <div class="text"><span><input type="checkbox" id="action-toggle" /></span></div>
+        <div class="clear"></div>
+      </th>
+      {% endif %}
+      <th scope="col"  class="column-admin_thumbnail">
+        <div class="text"><span></span></div>
+        <div class="clear"></div>
+      </th>
+      <th scope="col"  class="column-admin_file_name">
+        {% trans "nome file" as file_name_label %}
+        <div class="text"><span>{{ file_name_label|title }}</span></div>
+        <div class="clear"></div>
+      </th>
+      <th scope="col"  class="column-admin_details">
+        {% trans "details" as details_label %}
+        <div class="text"><span>{{ details_label|title }}</span></div>
+        <div class="clear"></div>
+      </th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  </div>
+</script>
+
+<script type="text/template" id="cabinet-folder-list">
+  {% if cabinet.folder %}
+  <tr class="row-folder">
+    {% if action_form %}<td></td>{% endif %}
+    <td class="field-admin_thumbnail">
+      <a href="?{{ cabinet.querystring }}{% if cabinet.folder.parent_id %}&amp;folder__id__exact={{ cabinet.folder.parent_id }}{% endif %}"><i class="fa fa-folder"></i></a>
+    </td>
+    <th class="field-admin_file_name" colspan="3">
+      <a href="?{{ cabinet.querystring }}{% if cabinet.folder.parent_id %}&amp;folder__id__exact={{ cabinet.folder.parent_id }}{% endif %}">../</a>
+    </th>
+  </tr>
+  {% endif %}
+  {% for f in cabinet.folder_children %}
+    <tr class="row-folder">
+      {% if action_form %}<td></td>{% endif %}
+      <td class="field-admin_thumbnail">
+        <a href="?{{ cabinet.querystring }}&amp;folder__id__exact={{ f.id }}"><i class="fa fa-folder"></i></a>
+      </td>
+      <th class="field-admin_file_name">
+        <a href="?{{ cabinet.querystring }}&amp;folder__id__exact={{ f.id }}">{{ f }}</a>
+      </th>
+      <td class="field-admin_details">
+        <small>
+          {% blocktrans with num_subfolders=f.num_subfolders num_files=f.num_files trimmed %}
+            {{ num_subfolders }} subfolders, {{ num_files }} files
+          {% endblocktrans %}
+          <a href="{% url 'admin:cabinet_folder_change' f.id %}?{{ cabinet.querystring }}"
+             title="{% trans 'Change folder' %}" class="changelink"></a>
+          <br>
+          {% blocktrans with created_at=f.created_at|date:"SHORT_DATE_FORMAT" updated_at=f.updated_at|date:"SHORT_DATE_FORMAT" trimmed %}
+            Created {{ created_at }}, last modified {{ updated_at }}
+          {% endblocktrans %}
+        </small>
+      </td>
+    </tr>
+  {% endfor %}
+</script>
+<p class="cabinet-upload-hint">
+  {% trans "Upload files by dropping them into the list above." %}
+</p>
+{% endblock %}

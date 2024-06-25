@@ -1,0 +1,44 @@
+{% load static components i18n %}
+{% if obj.use_accordion %}
+{% trans "Allegati" as accordion_title %}
+  {% accordion id=obj.get_unique_id name=obj.name|default_if_none:accordion_title bg=obj.background_color %}
+    <div class="rounded-lg">
+        {% for attachment in obj.files.all %}
+        <div class="flex gap-2 odd:bg-white even:bg-gray-100">
+            <div>
+                <a href="{{ attachment.file.file.url }}" class="text-primary">
+                    <span class="material-symbols-outlined {% if attachment.description %}!text-3xl{% else %}!text-3xl{% endif %}">download</span>
+                </a>
+            </div>
+            <div>
+                <div class="font-bold mt-2">{{ attachment.name }} ({{ attachment.file.file.size|filesizeformat }})</div>
+                {% if attachment.description %}
+                    <div class="my-2">{{ attachment.description }}</div>
+                {% endif %}
+            </div>            
+        </div>
+    {% endfor %} 
+    </div>
+  {% endaccordion %}
+{% else %}
+    <div class="my-3 border-t pt-3" style="background-color: {{ obj.background_color }}">
+        {% if obj.show_name %}<h3 class="text-2xl text-corange mb-1">{{ obj.name }}</h3>{% endif %}
+        <div class="flex flex-col gap-2">        
+            {% for attachment in obj.files.all %}
+                <div class="flex mt-1 gap-2 odd:bg-white even:bg-gray-100">
+                    <div>
+                        <a href="{{ attachment.file.file.url }}" class="text-primary">
+                            <span class="material-symbols-outlined {% if attachment.description %}!text-3xl{% else %}!text-3xl{% endif %}">download</span>
+                        </a>
+                    </div>
+                    <div>
+                        <div class="font-bold mt-2">{{ attachment.name }} ({{ attachment.file.file.size|filesizeformat }})</div>
+                        {% if attachment.description %}
+                            <div class="my-2">{{ attachment.description }}</div>
+                        {% endif %}
+                    </div>            
+                </div>
+            {% endfor %}   
+        </div>
+    </div>
+{% endif %}

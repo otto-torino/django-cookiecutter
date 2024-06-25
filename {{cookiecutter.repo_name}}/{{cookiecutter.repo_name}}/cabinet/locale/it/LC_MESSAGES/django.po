@@ -1,0 +1,322 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-02 10:56+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: admin.py:35
+msgid "file name"
+msgstr "nome file"
+
+#: admin.py:43 templates/admin/cabinet/file/change_list.html:68
+msgid "details"
+msgstr "dettagli"
+
+#: admin.py:48 templates/admin/cabinet/file/change_list.html:108
+#, python-format
+msgid "Created %(created_at)s, last modified %(updated_at)s"
+msgstr "Creato %(created_at)s, ultima modifica %(updated_at)s"
+
+#: apps.py:9
+msgid "Cabinet media library"
+msgstr "File manager"
+
+#: base.py:49 base.py:72
+msgid "immagine"
+msgstr ""
+
+#: base.py:58
+msgid "coordinate soggetto"
+msgstr ""
+
+#: base.py:61
+msgid "larghezza"
+msgstr ""
+
+#: base.py:64
+msgid "altezza"
+msgstr ""
+
+#: base.py:67
+#, fuzzy
+#| msgid "alternative text"
+msgid "testo alternativo"
+msgstr "testo alternativo"
+
+#: base.py:73
+msgid "immagini"
+msgstr ""
+
+#: base.py:86
+msgid "Image"
+msgstr "Immagine"
+
+#: base.py:93
+msgid "Video"
+msgstr "Video"
+
+#: base.py:100
+msgid "Audio"
+msgstr "Audio"
+
+#: base.py:105
+msgid "PDF document"
+msgstr "Documento PDF"
+
+#: base.py:106
+msgid "Flash"
+msgstr "Flash"
+
+#: base.py:107
+msgid "Text"
+msgstr "Testo"
+
+#: base.py:108
+msgid "Rich Text"
+msgstr "Testo formattato"
+
+#: base.py:109
+msgid "Zip archive"
+msgstr "Archivio Zip"
+
+#: base.py:112
+msgid "Microsoft Word"
+msgstr "Microsoft Word"
+
+#: base.py:117
+msgid "Microsoft Excel"
+msgstr "Microsoft Excel"
+
+#: base.py:122
+msgid "Microsoft PowerPoint"
+msgstr "Microsoft PowerPoint"
+
+#: base.py:125
+msgid "Binary"
+msgstr "Binario"
+
+#: base.py:129 base.py:232 fields.py:16
+msgid "file"
+msgstr "file"
+
+#: base.py:129
+msgid "You can upload a file to download or an image, not both"
+msgstr "Puoi caricare un file per il download o un'immagine, non entrambi"
+
+#: base.py:131
+msgid "download type"
+msgstr "tipo di download"
+
+#: base.py:135
+msgid "download"
+msgstr "Download"
+
+#: base.py:136
+msgid "downloads"
+msgstr "downloads"
+
+#: base.py:159
+msgid "Keep filename this time when uploading new file?"
+msgstr "Mantieni il nome del file quando carichi un nuovo file?"
+
+#: base.py:162
+msgid ""
+"By default, a new and unique filename is generated for each file, which also "
+"helps with caching."
+msgstr ""
+"Di default, un nuovo e unico nome file viene generato per ogni file, il che "
+"aiuta anche con la cache."
+
+#: base.py:209
+msgid "created at"
+msgstr "creato il"
+
+#: base.py:210
+msgid "updated at"
+msgstr "aggiornato il"
+
+#: base.py:222 base_admin.py:90 models.py:46
+#: templates/admin/cabinet/file/change_list.html:24
+#: templates/admin/cabinet/folder/change_form.html:15
+msgid "folder"
+msgstr "cartella"
+
+#: base.py:226 templates/admin/cabinet/file/change_list.html:63
+#, fuzzy
+#| msgid "file"
+msgid "nome file"
+msgstr "file"
+
+#: base.py:227
+msgid "dimensioni"
+msgstr ""
+
+#: base.py:233 base_admin.py:101
+msgid "files"
+msgstr "files"
+
+#: base.py:258
+msgid "Per favore compila un solo campo di tipo file!"
+msgstr ""
+
+#: base_admin.py:60
+msgid "file type"
+msgstr "tipo di file"
+
+#: base_admin.py:83
+msgid "Delete this folder"
+msgstr "Elimina questa cartella"
+
+#: base_admin.py:171
+#, python-format
+msgid "The folder \"%s\" was changed successfully."
+msgstr "La cartella \"%s\" è stata modificata con successo."
+
+#: base_admin.py:179
+#, python-format
+msgid "The folder \"%s\" was added successfully."
+msgstr "La cartella \"%s\" è stata aggiunta con successo."
+
+#: base_admin.py:200
+#, python-format
+msgid "Add %s"
+msgstr "Aggiungi %s"
+
+#: base_admin.py:200
+#, python-format
+msgid "Change %s"
+msgstr "Modifica %s"
+
+#: base_admin.py:239
+#, python-format
+msgid "Cannot delete %(name)s"
+msgstr "Impossibile eliminare %(name)s"
+
+#: base_admin.py:247
+#, python-format
+msgid "The folder \"%s\" was deleted successfully."
+msgstr "La cartella \"%s\" è stata eliminata con successo."
+
+#: base_admin.py:269 base_admin.py:307
+msgid "Move files to folder"
+msgstr "Sposta file nella cartella"
+
+#: base_admin.py:292
+msgid "The files have been successfully moved."
+msgstr "I file sono stati spostati con successo."
+
+#: base_admin.py:455 templates/admin/cabinet/file/change_form.html:9
+#: templates/admin/cabinet/file/change_list.html:13
+#: templates/admin/cabinet/folder/change_form.html:9
+msgid "Root folder"
+msgstr "Cartella principale"
+
+#: base_admin.py:517
+msgid "Principale"
+msgstr ""
+
+#: base_admin.py:543
+msgid "Advanced"
+msgstr "Avanzate"
+
+#: fields.py:15
+msgid "cartella"
+msgstr ""
+
+#: models.py:41
+msgid "name"
+msgstr "nome"
+
+#: models.py:47
+msgid "folders"
+msgstr "cartelle"
+
+#: models.py:59
+msgid "Root folder with same name exists already."
+msgstr "Esiste già una cartella principale con lo stesso nome."
+
+#: models.py:69
+msgid "caption"
+msgstr "didascalia"
+
+#: models.py:70
+msgid "copyright"
+msgstr "copyright"
+
+#: templates/admin/cabinet/file/change_form.html:7
+#: templates/admin/cabinet/file/change_list.html:11
+#: templates/admin/cabinet/folder/change_form.html:7
+msgid "Home"
+msgstr "Home"
+
+#: templates/admin/cabinet/file/change_form.html:21
+#: templates/admin/cabinet/file/change_list.html:24
+#: templates/admin/cabinet/file/change_list.html:32
+#: templates/admin/cabinet/folder/change_form.html:15
+#, python-format
+msgid "Add %(name)s"
+msgstr "Aggiungi %(name)s"
+
+#: templates/admin/cabinet/file/change_list.html:36
+msgid "Upload multiple files"
+msgstr "Carica più file"
+
+#: templates/admin/cabinet/file/change_list.html:102
+#, python-format
+msgid "%(num_subfolders)s subfolders, %(num_files)s files"
+msgstr "%(num_subfolders)s sottocartelle, %(num_files)s file"
+
+#: templates/admin/cabinet/file/change_list.html:106
+msgid "Change folder"
+msgstr "Modifica cartella"
+
+#: templates/admin/cabinet/file/change_list.html:117
+msgid "Upload files by dropping them into the list above."
+msgstr "Carica file trascinandoli nella lista qui sopra."
+
+#: templates/admin/cabinet/folder/change_form.html:23
+msgid "Save"
+msgstr "Salva"
+
+#~ msgid "image"
+#~ msgstr "immagine"
+
+#~ msgid "image width"
+#~ msgstr "larghezza immagine"
+
+#~ msgid "image height"
+#~ msgstr "altezza immagine"
+
+#~ msgid "primary point of interest"
+#~ msgstr "punto di interesse principale"
+
+#~ msgid "images"
+#~ msgstr "immagini"
+
+#~ msgid "file size"
+#~ msgstr "dimensione file"
+
+#~ msgid "Please fill in exactly one file field!"
+#~ msgstr "Per favore, inserisci esattamente un campo file!"
+
+#, python-format
+#~ msgid "Cannot delete %(name)s because of related objects (%(related)s)"
+#~ msgstr ""
+#~ "Impossibile eliminare %(name)s a causa degli oggetti correlati "
+#~ "(%(related)s)"
+
+#~ msgid "Download"
+#~ msgstr "Download"
