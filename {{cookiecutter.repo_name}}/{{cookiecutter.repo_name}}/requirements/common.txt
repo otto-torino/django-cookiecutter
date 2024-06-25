@@ -6,7 +6,6 @@ python-dotenv==1.0.1
 Django==5.0.3
 django-ckeditor==6.7.1
 django-compressor==4.4
-django-constance==3.1.0
 django-picklefield==3.1
 django-cleanup==8.1.0
 django-extensions==3.2.3
@@ -18,8 +17,9 @@ django-libsass==0.9
 django-user-agents==0.4.0
 django-mptt==0.16.0
 django-lineup==0.3.1
+django-preferences-utils==0.1.0
 {% if cookiecutter.admin == 'django-baton' %}
-django-baton==3.1.0
+django-baton==4.0.1
 {% elif cookiecutter.admin == 'django-grappelli' %}
 django-grappelli==3.0.3
 {% endif %}

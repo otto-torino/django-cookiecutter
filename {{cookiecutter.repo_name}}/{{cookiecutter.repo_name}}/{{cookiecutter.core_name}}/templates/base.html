@@ -4,28 +4,25 @@
         <head>
             <meta charset="utf-8" />
             <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-            <title>{% block title %}{{ config.SITE_TITLE }}{% endblock title %}</title>
+            <title>{% block title %}{{ pref.site_title }}{% endblock title %}</title>
             {% block meta %}
-                <meta name="title" content="{% block meta_title %}{{ config.META_TITLE }}{% endblock meta_title %}" />
-                <meta name="description" content="{% block meta_description %}{{ config.META_DESCRIPTION }}{% endblock meta_description %}" />
-                <meta name="keywords" content="{% block meta_keywords %}{{ config.META_KEYWORDS }}{% endblock meta_keywords %}" />
+                <meta name="title" content="{% block meta_title %}{{ pref.meta_title }}{% endblock meta_title %}" />
+                <meta name="description" content="{% block meta_description %}{{ pref.meta_description }}{% endblock meta_description %}" />
+                <meta name="keywords" content="{% block meta_keywords %}{{ pref.meta_keywords }}{% endblock meta_keywords %}" />
                 {% block meta_extra %}{% endblock meta_extra %}
                 {% comment %}Open Graph{% endcomment %}
-                <meta property="og:title" content="{% block meta_og_title %}{{ config.OG_TITLE }}{% endblock meta_og_title %}" />
-                <meta property="og:type" content="{% block meta_og_type %}{{ config.OG_TYPE }}{% endblock meta_og_type %}" />
+                <meta property="og:title" content="{% block meta_og_title %}{{ pref.meta_title }}{% endblock meta_og_title %}" />
+                <meta property="og:type" content="{% block meta_og_type %}website{% endblock meta_og_type %}" />
                 <meta property="og:url" content="{% block meta_og_url %}{{ ABSURL }}{% endblock meta_og_url %}" />
-                <meta property="og:description" content="{% block meta_og_description %}{{ config.OG_DESCRIPTION }}{% endblock meta_og_description %}" />
-                <meta property="og:image" content="{% block meta_og_image %}{{ config.OG_IMAGE }}{% endblock meta_og_image %}" />
+                <meta property="og:description" content="{% block meta_og_description %}{{ pref.meta_description }}{% endblock meta_og_description %}" />
+                {% if pref.meta_image %}<meta property="og:image" content="{% block meta_og_image %}{{ pref.meta_image.url }}{% endblock meta_og_image %}" />{% endif %}
                 {% block meta_og_extra %}{% endblock meta_og_extra %}
                 {% comment %}Twitter{% endcomment %}
                 <meta name="twitter:card" content="{% block meta_tw_card %}summary{% endblock meta_tw_card %}" />
                 <meta name="twitter:url" content="{% block meta_tw_url %}{{ ABSURL }}{% endblock meta_tw_url %}" />
-                <meta name="twitter:title" content="{% block meta_tw_title %}{{ config.TWITTER_TITLE }}{% endblock meta_tw_title %}" />
-                <meta name="twitter:description" content="{% block meta_tw_description %}{{ config.TWITTER_DESCRIPTION }}{% endblock meta_tw_description %}" />
-                {% if config.TWITTER_CREATOR %}
-                    <meta name="twitter:creator" content="{% block meta_tw_creator %}{{ config.TWITTER_CREATOR }}{% endblock meta_tw_creator %}" />
-                {% endif %}
-                <meta name="twitter:image" content="{% block meta_tw_image %}{{ config.TWITTER_IMAGE }}{% endblock meta_tw_image %}" />
+                <meta name="twitter:title" content="{% block meta_tw_title %}{{ pref.meta_title }}{% endblock meta_tw_title %}" />
+                <meta name="twitter:description" content="{% block meta_tw_description %}{{ pref.meta_description }}{% endblock meta_tw_description %}" />
+                {% if pref.meta_image %}<meta property="twitter:image" content="{% block meta_tw_image %}{{ pref.meta_image.url }}{% endblock meta_tw_image %}" />{% endif %}
                 {% block meta_tw_extra %}{% endblock meta_tw_extra %}
             {% endblock meta %}
 

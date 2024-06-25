@@ -74,6 +74,7 @@ INSTALLED_APPS = (
     'django_user_agents',
     'django_extensions',
     'compressor',
+    'preferences_utils',
     'tailwind',
     # 'theme',
     'django_browser_reload',
@@ -95,9 +96,7 @@ INSTALLED_APPS = (
     'taggit',
     'mptt',
     'lineup.apps.LineupConfig',
-    'apps.SettingsConfig',
     'pages',
-    'constance.backends.database',
     {% if cookiecutter.admin == 'django-baton' %}'baton.autodiscover',{% endif %}
 )
 
@@ -124,11 +123,11 @@ TEMPLATES = [
         'OPTIONS': {
             'debug': False,
             'context_processors': [
-                'constance.context_processors.config',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'preferences_utils.context_processors.preferences.pref',
                 '{{ cookiecutter.core_name }}.context_processors.debug',
                 '{{ cookiecutter.core_name }}.context_processors.absurl',
             ],
@@ -157,33 +156,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# CONSTANCE
-CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
-CONSTANCE_CONFIG = {
-    'HIDE_ARCHIVED': (True, _('Hide from admin lists archived records')),
-    'SITE_TITLE': ('{{ cookiecutter.project_name }}', _('Site title')),
-    'META_TITLE': ('{{ cookiecutter.project_name }}', _('Meta title')),
-    'META_DESCRIPTION': ('{{ cookiecutter.project_description }}', _('Meta description')),
-    'META_KEYWORDS': ('', _('Meta keywords')),
-    'OG_TITLE': ('{{ cookiecutter.project_name }}', _('Open Graph title')),
-    'OG_TYPE': ('website', _('Open Graph type')),
-    'OG_DESCRIPTION': ('{{ cookiecutter.project_description }}', _('Open Graph description')),
-    'OG_IMAGE': ('', _('Open Graph image')),
-    'TWITTER_TITLE': ('{{ cookiecutter.project_name }}', _('Twitter title')),
-    'TWITTER_DESCRIPTION': ('{{ cookiecutter.project_description }}', _('Twitter description')),
-    'TWITTER_CREATOR': ('', _('Twitter creator')),
-    'TWITTER_IMAGE': ('', _('Twitter image')),
-}
-
-CONSTANCE_CONFIG_FIELDSETS = {
-    'SEO': ('SITE_TITLE', 'META_TITLE', 'META_DESCRIPTION', 'META_KEYWORDS', ),
-    'Facebook Sharing': ('OG_TITLE', 'OG_TYPE', 'OG_DESCRIPTION',
-                            'OG_IMAGE', ),
-    'Twitter Sharing': ('TWITTER_TITLE', 'TWITTER_DESCRIPTION',
-                           'TWITTER_CREATOR', 'TWITTER_IMAGE', ),
-    'Administration': ('HIDE_ARCHIVED', ),
-}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -214,11 +186,11 @@ BATON = {
     'SITE_TITLE': '{{ cookiecutter.project_name }}',
     'INDEX_TITLE': 'Site administration',
     'MENU': (
-        {'type': 'title', 'label': 'System',  'apps': ('auth', 'sites', 'constance', )},
+        {'type': 'title', 'label': 'System',  'apps': ('auth', 'sites', 'core', )},
         {'type': 'model', 'app': 'core', 'name': 'user', 'label': 'Users', 'icon':'fa fa-user'},
         {'type': 'model', 'app': 'auth', 'name': 'group', 'label': 'Groups', 'icon':'fa fa-users'},
         {'type': 'model', 'app': 'sites', 'name': 'site', 'label': 'Sites', 'icon':'fa fa-leaf'},
-        {'type': 'model', 'app': 'constance', 'name': 'config', 'label': 'Settings', 'icon':'fa fa-cogs'},
+        {'type': 'model', 'app': 'core', 'name': 'preferences', 'label': 'Settings', 'icon':'fa fa-cogs'},
 
         {% if cookiecutter.use_filer == 'y' %}
         {'type': 'title', 'label': 'Resources',  'apps': ('filer', )},
