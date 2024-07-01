@@ -1,4 +1,4 @@
-{% load pages_tags %}
+{% raw %}{% load pages_tags %}
 <style>
     .video-iframe {
         aspect-ratio: 16 / 9;
@@ -16,4 +16,4 @@
             <iframe class="video-iframe" style="width: {{ object.width_percent }}%" src="https://clips.twitch.tv/embed?{{ object.video_id }}&parent={{ request.get_host|replace:":8000|" }}" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
         {% endif %}
   </div>
-</div>
+</div>{% endraw %}

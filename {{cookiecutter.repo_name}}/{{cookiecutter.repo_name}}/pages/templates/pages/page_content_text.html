@@ -1,4 +1,4 @@
-{% load static components %}
+{% raw %}{% load static components %}
 {% if obj.use_accordion %}
   {% accordion id=obj.get_unique_id name=obj.name bg=obj.background_color %}
     <div class="{% if obj.background_color %}px-4 py-4{% else %}py-2{% endif %} rounded-lg">
@@ -15,4 +15,4 @@
     {% endif %}
     {{ obj.content|safe }}
   </div>
-{% endif %}
+  {% endif %}{% endraw %}

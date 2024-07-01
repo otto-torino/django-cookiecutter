@@ -1,4 +1,4 @@
-{% extends 'admin/change_form.html' %}
+{% raw %}{% extends 'admin/change_form.html' %}
 {% load i18n static %}
 
 {% block extrahead %}
@@ -20,4 +20,4 @@
       &rsaquo; {% if add %}{% blocktranslate with name=opts.verbose_name %}Add {{ name }}{% endblocktranslate %}{% else %}{{ original|truncatewords:"18" }}{% endif %}
     </div>
   {% endblock %}
-{% endif %}
+  {% endif %}{% endraw %}

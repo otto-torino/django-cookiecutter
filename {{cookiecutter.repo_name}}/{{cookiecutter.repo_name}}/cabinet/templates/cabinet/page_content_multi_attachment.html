@@ -1,4 +1,4 @@
-{% load static components i18n %}
+{% raw %}{% load static components i18n %}
 {% if obj.use_accordion %}
 {% trans "Allegati" as accordion_title %}
   {% accordion id=obj.get_unique_id name=obj.name|default_if_none:accordion_title bg=obj.background_color %}
@@ -41,4 +41,4 @@
             {% endfor %}   
         </div>
     </div>
-{% endif %}
+    {% endif %}{% endraw %}

@@ -1,8 +1,8 @@
-<div class="p-4" style="background-color: {{ object.background_color }}">
+{% raw %}<div class="p-4" style="background-color: {{ object.background_color }}">
   {% if object.show_name %}
     <a {% if object.url %}href={{ object.url }}{% endif %}>
       <h3 class="font-medium">{{ object.name }}</h3>
     </a>
   {% endif %}
   {{ object.content | safe }}
-</div>
+</div>{% endraw %}

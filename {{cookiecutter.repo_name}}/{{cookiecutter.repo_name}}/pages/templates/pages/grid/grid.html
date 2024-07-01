@@ -1,4 +1,4 @@
-{% if bootstrap %}
+{% raw %}{% if bootstrap %}
 <div id="{{ obj.get_unique_id }}" class="container-fluid">
     <div class="row">
         {% for image in obj.images.all %}
@@ -48,4 +48,4 @@
         });
         lightbox.init();
     })()
-</script>
+</script>{% endraw %}

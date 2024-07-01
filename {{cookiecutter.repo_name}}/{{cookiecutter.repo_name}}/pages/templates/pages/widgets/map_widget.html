@@ -1,4 +1,4 @@
-{% load static i18n %}
+{% raw %}{% load static i18n %}
 {% include "django/forms/widgets/textarea.html" %}
 <a style="cursor: pointer" class="btn btn-sm btn-secondary ms-2" onclick="pageContentMapItemDraw()">{% trans "draw" %}</a>
 <script>
@@ -17,5 +17,4 @@ if (!window.pageContentMapItemDraw) {
         mapModal.open();
     }
 }
-</script>
-
+</script>{% endraw %}

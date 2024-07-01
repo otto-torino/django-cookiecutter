@@ -1,4 +1,4 @@
-{% extends 'page.html' %}
+{% raw %}{% extends 'page.html' %}
 {% load i18n core widget_tweaks sorl_thumbnail search_engine %}
 {% block title %}{{ page.title }} | {{ block.super }}{% endblock %}
 {% block meta_title %}
@@ -120,4 +120,4 @@
 
         {% suggested_widget page %}
     </main>
-{% endblock %}
+    {% endblock %}{% endraw %}

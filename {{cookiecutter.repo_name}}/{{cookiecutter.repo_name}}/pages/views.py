@@ -1,4 +1,4 @@
-from django.contrib.sites.shortcuts import get_current_site
+{% raw %}from django.contrib.sites.shortcuts import get_current_site
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
@@ -13,7 +13,7 @@ DEFAULT_TEMPLATE = "pages/default.html"
 # This view is called from PageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
 # has not been called even if CsrfViewMiddleware is installed. So we need
-# to use @csrf_protect, in case the template needs {% raw %}{% csrf_token %}{% endraw %}.
+# to use @csrf_protect, in case the template needs {% csrf_token %}.
 # However, we can't just wrap this view; if no matching page exists,
 # or a redirect is required for authentication, the 404 needs to be returned
 # without any CSRF checks. Therefore, we only
@@ -86,3 +86,4 @@ def page_content_rss_feed_content(request, page_content_id):
         "pages/page_content_rss_feed_content.html",
         ctx,
     )
+ {% endraw %}

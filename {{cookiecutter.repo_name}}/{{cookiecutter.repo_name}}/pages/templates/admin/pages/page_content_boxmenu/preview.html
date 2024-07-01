@@ -1,4 +1,4 @@
-{% load sorl_thumbnail %}
+{% raw %}{% load sorl_thumbnail %}
 <div class="{% if object.background_color %}p-4{% else %}p-2{% endif %}" style="background-color: {{ object.background_color }}">
   {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
   <div class="d-flex flex-column justify-content-center  flex-md-row mx-4 flex-wrap">
@@ -21,4 +21,4 @@
       </div>
     {% endfor %}
   </div>
-</div>
+  </div>{% endraw %}

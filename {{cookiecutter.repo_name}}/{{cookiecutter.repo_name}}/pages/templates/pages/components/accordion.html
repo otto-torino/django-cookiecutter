@@ -1,4 +1,4 @@
-{% load  static components %}
+{% raw %}{% load  static components %}
                     
 <div id="{{ attributes.id }}" class="{% if not attributes.no_margin %}mt-2{% endif %}">
     <div class="border-t border-gray-800"{% if attributes.bg %} style="background-color: {{ attributes.bg }}"{% endif %}>
@@ -37,4 +37,4 @@
             </div>
         </div>
     </div>
-</div>
+</div>{% endraw %}

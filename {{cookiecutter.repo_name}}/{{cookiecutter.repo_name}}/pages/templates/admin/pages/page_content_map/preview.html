@@ -1,4 +1,4 @@
-<div class="p-4" style="background-color: {{ object.background_color }}">
+{% raw %}<div class="p-4" style="background-color: {{ object.background_color }}">
     {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
     {{ object.text | safe }}
     <div id="map{{ object.id }}" style="height: {{ object.height }}px;"></div>
@@ -88,4 +88,4 @@
         })()
         
     </script>
-</div>
+</div>{% endraw %}
