@@ -79,20 +79,15 @@ INSTALLED_APPS = (
     'tailwind',
     # 'theme',
     'django_browser_reload',
-    {% if cookiecutter.use_filer == 'y' %}
-    'filer',
-    'easy_thumbnails',
-    {% endif %}
+    {% if cookiecutter.use_filer == 'y' %}'filer',
+    'easy_thumbnails',{% endif %}
     'django_cleanup',
-    {% if cookiecutter.use_simple_captcha == 'y' %}
-    'captcha',
-    {% endif %}
-    {% if cookiecutter.use_sorl_thumbnail == 'y' %}
-    'sorl.thumbnail',
-    {% endif %}
+    {% if cookiecutter.use_simple_captcha == 'y' %}'captcha',{% endif %}
+    {% if cookiecutter.use_sorl_thumbnail == 'y' %}'sorl.thumbnail',{% endif %}
     'taggit',
     'mptt',
     'lineup.apps.LineupConfig',
+    'cabinet',
     'pages',
     {% if cookiecutter.admin == 'django-baton' %}'baton.autodiscover',{% endif %}
 )
@@ -105,7 +100,6 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'pages.middleware.PageFallbackMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware',
 )
@@ -194,10 +188,8 @@ BATON = {
         {'type': 'app', 'name': 'filer', 'label': 'File manager', 'icon':'fa fa-file'},
         {% endif %}
 
-        {% if cookiecutter.use_cabinet == 'y' %}
         {'type': 'title', 'label': 'Resources',  'apps': ('cabinet', )},
         {'type': 'model', 'app': 'cabinet', 'name': 'file', 'label': _('File manager'), 'icon':'fa fa-file'},
-        {% endif %}
 
         {'type': 'title', 'label': 'Navigation',  'apps': ('lineup', )},
         {'type': 'model', 'app': 'lineup', 'name': 'menuitem', 'label': 'Menu', 'icon':'fa fa-bars'},
@@ -212,6 +204,8 @@ BATON = {
 {% elif cookiecutter.admin == 'django-grappelli' %}
 GRAPPELLI_ADMIN_TITLE = '{{ cookiecutter.project_name }} - Amministrazione'
 {% endif %}
+
+CABINET_FILE_MODEL = "cabinet.File"
 
 # TAGGIT
 TAGGIT_CASE_INSENSITIVE = True

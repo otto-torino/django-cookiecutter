@@ -62,7 +62,7 @@ CLONE_SKIP_FIELDS = [
 ]
 
 @admin.register(Page)
-class PageAdmin(admin.ModelAdmin, ArchivedModelAdmin): # pyright: ignore
+class PageAdmin(ArchivedModelAdmin): # pyright: ignore
     @admin.action(description=_("Clona pagine selezionate"))
     def clone(self, request, queryset):
         for obj in queryset:

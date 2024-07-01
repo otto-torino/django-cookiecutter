@@ -18,6 +18,7 @@ django-libsass==0.9
 django-user-agents==0.4.0
 django-mptt==0.16.0
 django-colorfield==0.11.0
+django-imagefield==0.18.0
 django-lineup==0.3.1
 django-preferences-utils==0.1.0
 django-subject-imagefield==0.2.13
@@ -39,3 +40,4 @@ django-simple-captcha==0.6.0
 {% if cookiecutter.use_cabinet == 'y' %}
 django-tree-queries==0.16.1
 {% endif %}
+django-web-components==0.2.0

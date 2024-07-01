@@ -26,6 +26,12 @@ if __name__ == "__main__":
         action='store_true',
         help='starts the environment')
     parser.add_argument(
+        '--stop',
+        dest='stop',
+        required=False,
+        action='store_true',
+        help='stops the environment')
+    parser.add_argument(
         '--clean',
         dest='clean',
         required=False,
@@ -72,6 +78,8 @@ if __name__ == "__main__":
     # options parsing
     if args['start']:
         os.system("docker-compose -f docker-compose.yml up")
+    elif args['stop']:
+        os.system("docker-compose -f docker-compose.yml down")
     elif args['clean']:
         os.system("docker container stop {{cookiecutter.repo_name}}_app")
         os.system("docker container stop {{cookiecutter.repo_name}}_postgres")
