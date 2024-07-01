@@ -13,7 +13,7 @@ DEFAULT_TEMPLATE = "pages/default.html"
 # This view is called from PageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
 # has not been called even if CsrfViewMiddleware is installed. So we need
-# to use @csrf_protect, in case the template needs {% csrf_token %}.
+# to use @csrf_protect, in case the template needs {% raw %}{% csrf_token %}{% endraw %}.
 # However, we can't just wrap this view; if no matching page exists,
 # or a redirect is required for authentication, the 404 needs to be returned
 # without any CSRF checks. Therefore, we only

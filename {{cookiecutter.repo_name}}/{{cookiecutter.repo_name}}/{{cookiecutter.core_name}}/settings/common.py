@@ -90,7 +90,6 @@ INSTALLED_APPS = (
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}
     'sorl.thumbnail',
     {% endif %}
-    {% if cookiecutter.use_disqus == 'y' %}'disqus',{% endif %}
     'taggit',
     'mptt',
     'lineup.apps.LineupConfig',
@@ -249,11 +248,6 @@ CKEDITOR_CONFIGS = {
         'stylesSet': 'core_styles:/static/{{ cookiecutter.core_name }}/src/js/ckeditor_styles.js',
     }
 }
-
-{% if cookiecutter.use_disqus == 'y' %}
-DISQUS_API_KEY = ''
-DISQUS_WEBSITE_SHORTNAME = ''
-{% endif %}
 
 {% if cookiecutter.use_filer == 'y' %}
 THUMBNAIL_HIGH_RESOLUTION = True

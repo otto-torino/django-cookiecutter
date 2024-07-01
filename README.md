@@ -36,7 +36,6 @@ Project details:
     - [django-suit](http://djangosuit.com/) (optional)
     - [django-grappelli](https://github.com/sehmaschine/django-grappelli) (optional)
     - [django-filer](https://github.com/stefanfoulis/django-filer) (optional)
-    - [django-disqus](https://github.com/arthurk/django-disqus) (optional)
     - [django-compressor](https://github.com/django-compressor/django-compressor)
     - [django-tailwind](https://github.com/timonweb/django-tailwind)
     - pages with integrated ckeditor
