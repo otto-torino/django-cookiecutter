@@ -71,15 +71,15 @@ if __name__ == "__main__":
     # functions
     def manage_remote_command(cmd):
         if cmd == 'setup':
-            os.system("docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && ../bin/ansible_remote\"")
+            os.system("docker compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && ../bin/ansible_remote\"")
         else: # fabric stuff
-            os.system("docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && fab production %s\"" % cmd)
+            os.system("docker compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && fab production %s\"" % cmd)
 
     # options parsing
     if args['start']:
-        os.system("docker-compose -f docker-compose.yml up")
+        os.system("docker compose -f docker-compose.yml up")
     elif args['stop']:
-        os.system("docker-compose -f docker-compose.yml down")
+        os.system("docker compose -f docker-compose.yml down")
     elif args['clean']:
         os.system("docker container stop {{cookiecutter.repo_name}}_app")
         os.system("docker container stop {{cookiecutter.repo_name}}_postgres")
@@ -89,12 +89,12 @@ if __name__ == "__main__":
         os.system("docker volume rm {{cookiecutter.repo_name}}_db-data")
         os.system("docker volume rm {{cookiecutter.repo_name}}_virtualenv")
     elif args['open_shell']:
-        os.system("docker-compose -f docker-compose.yml exec app bash")
+        os.system("docker compose -f docker-compose.yml exec app bash")
     elif args['createsuperuser']:
-        os.system("docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && python manage.py createsuperuser\"")
+        os.system("docker compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && python manage.py createsuperuser\"")
     elif args['management_command']:
         os.system(
-            "docker-compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && python manage.py %s\"" % args['management_command']
+            "docker compose -f docker-compose.yml exec app bash -c \"source ../../venv/bin/activate && python manage.py %s\"" % args['management_command']
         )
     elif args['remote_command']:
         manage_remote_command(args['remote_command'])
