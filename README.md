@@ -1,4 +1,4 @@
-# Django Cookiecutter
+# Django Cookiecutterreadme
 
 Yet another django cookiecutter template.
 
@@ -96,11 +96,11 @@ After that:
 
 Start the project
 
-    $ ./cli.sh --start
+    $ ./cli.py --start
 
 In another terminal init tailwind:
 
-    $ ./cli.sh --manage "taiwind init"
+    $ ./cli.py --manage "taiwind init"
 
 Then uncomment the `theme` app inside the `core/settings/common.py` file
 
