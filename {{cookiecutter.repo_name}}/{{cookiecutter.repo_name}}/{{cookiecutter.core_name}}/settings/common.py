@@ -188,8 +188,10 @@ BATON = {
         {'type': 'app', 'name': 'filer', 'label': 'File manager', 'icon':'fa fa-file'},
         {% endif %}
 
+        {% if cookiecutter.use_cabinet == 'y' %}
         {'type': 'title', 'label': 'Resources',  'apps': ('cabinet', )},
         {'type': 'model', 'app': 'cabinet', 'name': 'file', 'label': _('File manager'), 'icon':'fa fa-file'},
+        {% endif %}
 
         {'type': 'title', 'label': 'Navigation',  'apps': ('lineup', )},
         {'type': 'model', 'app': 'lineup', 'name': 'menuitem', 'label': 'Menu', 'icon':'fa fa-bars'},
@@ -205,7 +207,9 @@ BATON = {
 GRAPPELLI_ADMIN_TITLE = '{{ cookiecutter.project_name }} - Amministrazione'
 {% endif %}
 
+{% if cookiecutter.use_cabinet == 'y' %}
 CABINET_FILE_MODEL = "cabinet.File"
+{% endif %}
 
 # TAGGIT
 TAGGIT_CASE_INSENSITIVE = True
