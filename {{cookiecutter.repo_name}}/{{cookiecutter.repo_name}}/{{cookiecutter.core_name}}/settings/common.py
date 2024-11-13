@@ -87,7 +87,7 @@ INSTALLED_APPS = (
     'taggit',
     'mptt',
     'lineup.apps.LineupConfig',
-    'cabinet',
+    {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'pages',
     {% if cookiecutter.admin == 'django-baton' %}'baton.autodiscover',{% endif %}
 )

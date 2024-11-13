@@ -26,7 +26,7 @@ if context['admin'] != 'django-baton':
     print('removing unused baton admin template' + '\n')
     shutil.rmtree('./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/templates/admin')
 
-if not context['use_cabinet']:
+if context['use_cabinet'] != 'y':
     shutil.rmtree('./{{ cookiecutter.repo_name }}/cabinet')
 
 shutil.move('gitignore', '.gitignore')
