@@ -26,6 +26,9 @@ if context['admin'] != 'django-baton':
     print('removing unused baton admin template' + '\n')
     shutil.rmtree('./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/templates/admin')
 
+if not context['use_cabinet']:
+    shutil.rmtree('./{{ cookiecutter.repo_name }}/cabinet')
+
 shutil.move('gitignore', '.gitignore')
 # os.system('docker-compose -f docker-compose.yml build --no-cache')
 os.system('mkdir .virtualenv')
