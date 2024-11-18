@@ -149,9 +149,9 @@ def reset_db(ctx):
 @task
 def production(ctx):
     """ Production server settings """
-    ctx.config.run.env['path'] = '/home/otto/www/iuli'
+    ctx.config.run.env['path'] = '{{ cookiecutter.webapp_dir}}'
     ctx.config.run.env['conn'] = Connection(
-        host='iuli.sqrt64.it', user=os.getenv('REMOTE_USER'))
+        host='{{ cookiecutter.domain }}', user=os.getenv('REMOTE_USER'))
     ctx.config.run.env['db_name'] = os.getenv('REMOTE_DB')
     ctx.config.run.env['db_user'] = os.getenv('REMOTE_DB_USER')
     ctx.config.run.env['db_password'] = os.getenv('REMOTE_DB_PASSWORD')
