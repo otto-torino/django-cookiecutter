@@ -9,4 +9,4 @@ echo "=================="
 echo "Remote Provisioning"
 echo "=================="
 
-ansible-playbook --inventory-file="$DIR/provisioning/ansible_remote_inventory" --private-key="~/.ssh/id_rsa." --extra-vars "@$DIR/provisioning/ansible_remote_variables" --extra-vars "base_dir=$DIR" "$DIR/provisioning/playbooks/remote.yml"
+ansible-playbook --inventory-file="$DIR/provisioning/ansible_remote_inventory" --private-key="~/.ssh/id_rsa" --extra-vars "@$DIR/provisioning/ansible_remote_variables" --extra-vars "base_dir=$DIR" "$DIR/provisioning/playbooks/remote.yml"
