@@ -395,8 +395,8 @@ def restartUwsgi(ctx):
     c = get_connection(ctx)
     set_env(ctx, 'virtualenv_path',
             os.path.abspath(os.path.join(get_env(ctx, 'path'), '.virtualenv')))
-    c.run('kill -9 `cat /tmp/project-master_iuli.pid`', warn=True)
-    c.run('rm /tmp/project-master_iuli.pid /tmp/uwsgi_iuli.sock', warn=True)  # noqa
+    c.run('kill -9 `cat /tmp/project-master_{{ cookiecutter.repo_name }}.pid`', warn=True)
+    c.run('rm /tmp/project-master_{{ cookiecutter.repo_name }}.pid /tmp/uwsgi_{{ cookiecutter.repo_name }}.sock', warn=True)  # noqa
     c.run('cd %(path)s/releases/current; %(virtualenv_path)s/bin/uwsgi -H %(virtualenv_path)s --ini %(path)s/releases/current/uwsgi.ini' % get_env(ctx)) # noqa
     print_("Done!", 'SUCCESS')
 
@@ -417,4 +417,4 @@ def log(ctx):
     print("Displays remote server logs")
     print("...")
     c = get_connection(ctx)
-    c.run('cat %(path)s/logs/iuli.log' % get_env(ctx)) # noqa
+    c.run('cat %(path)s/logs/{{ cookiecutter.repo_name }}.log' % get_env(ctx)) # noqa
