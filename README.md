@@ -1,4 +1,4 @@
-# Django Cookiecutterreadme
+# Django Cookiecutter
 
 Yet another django cookiecutter template.
 
