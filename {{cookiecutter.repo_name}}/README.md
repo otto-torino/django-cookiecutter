@@ -42,12 +42,12 @@
 
 - start the project    
     ```
-    $ ./cli.sh --start
+    $ ./cli.py --start
     ```
 
 - in another terminal init tailwind:    
     ```
-    $ ./cli.sh --manage "taiwind init"
+    $ ./cli.py --manage "tailwind init"
     ```
 - uncomment the `theme` app inside the `core/settings/common.py` file    
 
