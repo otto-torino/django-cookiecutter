@@ -78,6 +78,7 @@ INSTALLED_APPS = (
     'subject_imagefield',
     "colorfield",
     'tailwind',
+    'django_web_components',
     # 'theme',
     'django_browser_reload',
     {% if cookiecutter.use_filer == 'y' %}'filer',
@@ -122,6 +123,9 @@ TEMPLATES = [
                 'preferences_utils.context_processors.preferences.pref',
                 '{{ cookiecutter.core_name }}.context_processors.debug',
                 '{{ cookiecutter.core_name }}.context_processors.absurl',
+            ],
+            "builtins": [
+                "django_web_components.templatetags.components",
             ],
             'libraries': {
                 'sorl_thumbnail': 'sorl.thumbnail.templatetags.thumbnail',

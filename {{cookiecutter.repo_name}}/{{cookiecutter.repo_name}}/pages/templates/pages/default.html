@@ -1,5 +1,5 @@
 {% raw %}{% extends 'page.html' %}
-{% load i18n core widget_tweaks sorl_thumbnail search_engine %}
+{% load i18n core sorl_thumbnail %}
 {% block title %}{{ page.title }} | {{ block.super }}{% endblock %}
 {% block meta_title %}
     {% if page.meta_title %}
@@ -56,54 +56,36 @@
 {% endblock %}
 {% block meta_og_url %}{{ request.build_absolute_uri }}{% endblock %}
 {% block meta_tw_url %}{{ request.build_absolute_uri }}{% endblock %}
-{% block content %}
-    {% block extra_css %}
-        {% if page.has_map_content %}
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-            crossorigin="" />
-            {# fullscreen control for leaflet #}
-            <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
-                rel='stylesheet' />
-      {% endif %}
-    {% endblock %}
-    {% block extra_js %}
-        {% if page.has_map_content %}
-            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-            crossorigin=""></script>
-            {# fullscreen control for leaflet #}
-            <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
-        {% endif %}
-    {% endblock %}
-    <main class="px-2">
 
+{% block extra_css %}
+    {% if page.has_map_content %}
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+        {# fullscreen control for leaflet #}
+        <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
+            rel='stylesheet' />
+  {% endif %}
+{% endblock %}
+{% block extra_js %}
+    {% if page.has_map_content %}
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+        {# fullscreen control for leaflet #}
+        <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <main class="px-2">
         <div class="title-row">
-            {% #title title=page.title breadcrumbs=page.breadcrumbs %}
+            <h1>{{ page.title }}</h1>
             {% if page.last_updated %}
                 <div class="flex justify-end mb-6 md:mb-0 text-gray-400 text-sm">{% trans 'Ultimo aggiornamento:' %} {{ updated }}</div>
             {% endif %}
         </div>
 
-        {% if page.thematicisms.count %}
-            <div class="thematicisms-row">
-                {% for thematicism in page.thematicisms.all %}
-                    <div class="flex items-center text-corange ">
-                        {% if thematicism.icon %}
-                            <span class="material-symbols-outlined mr-2">{{ thematicism.icon }}</span>
-                        {% endif %}
-                        <span class="font-bold">{{ thematicism }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        
-        {% if page.tags.count %}
-            <div class="tags-row">
-                {% #tags tags=page.tags.all %}
-            </div>
-        {% endif %}
-       
         <div id="content-blocks" class="flex flex-col">
             {% for content_block in page.content_blocks.all %}
                 {% if content_block.enabled %}
@@ -113,11 +95,5 @@
                 {% endif %}
             {% endfor %}
         </div>
-
-        {% if page.places.count %}
-            {% #places_accordion places=page.places.all collapsed=True %}
-        {% endif %}
-
-        {% suggested_widget page %}
     </main>
     {% endblock %}{% endraw %}
