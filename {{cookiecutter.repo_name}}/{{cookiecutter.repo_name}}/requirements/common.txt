@@ -30,6 +30,7 @@ django-grappelli==3.0.3
 {% if cookiecutter.use_filer == 'y' %}
 django-filer==2.2.3
 easy-thumbnails==2.8.5
+feedparser==6.0.11
 {% endif %}
 {% if cookiecutter.use_sorl_thumbnail == 'y' %}
 sorl-thumbnail==12.10.0
