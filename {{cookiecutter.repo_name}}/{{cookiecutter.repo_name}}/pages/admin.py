@@ -112,12 +112,9 @@ class PageAdmin(ArchivedModelAdmin): # pyright: ignore
                 "fields": (
                     "status",
                     "relevance",
-                    "show_suggested",
                     "parent",
                     "url",
                     "title",
-                    "thematicisms",
-                    "places",
                     "tags",
                     "sites",
                     "last_updated",

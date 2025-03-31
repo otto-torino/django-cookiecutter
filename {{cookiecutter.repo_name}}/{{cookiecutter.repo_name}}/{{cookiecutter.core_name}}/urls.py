@@ -36,6 +36,8 @@ urlpatterns = [
             name='home'),
     # ckeditor uploader
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    # taggit autosuggest
+    re_path("^taggit_autosuggest/", include("taggit_autosuggest.urls")),
     {% if cookiecutter.use_filer == 'y' %}
     # filer
     path('filer/', include('filer.urls')),
