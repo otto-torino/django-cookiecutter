@@ -76,6 +76,7 @@ INSTALLED_APPS = (
     'compressor',
     'preferences_utils',
     'subject_imagefield',
+    "colorfield",
     'tailwind',
     # 'theme',
     'django_browser_reload',
