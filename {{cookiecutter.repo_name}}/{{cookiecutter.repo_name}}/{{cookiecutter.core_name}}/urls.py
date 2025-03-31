@@ -38,6 +38,8 @@ urlpatterns = [
     path('ckeditor/', include('ckeditor_uploader.urls')),
     # taggit autosuggest
     re_path("^taggit_autosuggest/", include("taggit_autosuggest.urls")),
+    # pages
+    path("p/", include("pages.urls", namespace="pages")),
     {% if cookiecutter.use_filer == 'y' %}
     # filer
     path('filer/', include('filer.urls')),
