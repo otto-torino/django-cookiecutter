@@ -78,14 +78,15 @@
 {% endblock %}
 
 {% block content %}
-    <main class="px-2">
-        <div class="title-row">
-            <h1>{{ page.title }}</h1>
+    <main class="py-8">
+
+        <div class="flex flex-col md:flex-row justify-center md:justify-between items-center md:gap-8 container px-5">
+            <h2>{{ page.title }}</h2>
             {% if page.last_updated %}
-                <div class="flex justify-end mb-6 md:mb-0 text-gray-400 text-sm">{% trans 'Ultimo aggiornamento:' %} {{ updated }}</div>
+                <div class="text-gray-400 text-sm mb-8 whitespace-nowrap">{{ updated }}</div>
             {% endif %}
         </div>
-
+       
         <div id="content-blocks" class="flex flex-col">
             {% for content_block in page.content_blocks.all %}
                 {% if content_block.enabled %}
@@ -95,5 +96,6 @@
                 {% endif %}
             {% endfor %}
         </div>
+
     </main>
-    {% endblock %}{% endraw %}
+{% endblock %}{% endraw %}

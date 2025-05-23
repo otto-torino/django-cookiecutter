@@ -4,6 +4,7 @@ import logging
 
 from ckeditor_uploader.fields import RichTextUploadingField
 from colorfield.fields import ColorField
+from baton.fields import BatonAiImageField
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -20,7 +21,8 @@ from django_extensions.db.models import TimeStampedModel
 from subject_imagefield.fields import SubjectImageField
 from taggit.managers import ContentType
 from taggit_autosuggest.managers import TaggableManager
-from .managers import PageManager
+from .managers import PageContentQuerySet, PageManager
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -123,6 +125,8 @@ class Page(TimeStampedModel):
     )
     url = models.CharField(_("URL"), max_length=100, db_index=True)
     title = models.CharField(_("title"), max_length=200)
+    image = BatonAiImageField(verbose_name=_("immagine header"), upload_to="pages/images/",subject_location_field='subject_location', blank=True, null=True)
+    subject_location = models.CharField(max_length=7, default="50,50")
     tags = TaggableManager(_("tags"), blank=True)
     template_name = models.CharField(
         _("template name"),
@@ -238,8 +242,10 @@ class PageContent(TimeStampedModel):
         ("#AADAC5", _("green")),
         ("#F0E8DB", _("beige")),
         ("#DCD5C8", _("brown")),
+        ("#e2e8f0", _("grey")),
     ]
 
+    layout_content = models.BooleanField(_("layout content"), default=False, help_text=_('if true this content can only be used inside a layout block'))
     name = models.CharField(_("name"), max_length=200, blank=True, null=True)
     show_name = models.BooleanField(_("show name"), default=False)
     background_color = ColorField(
@@ -255,6 +261,9 @@ class PageContent(TimeStampedModel):
     content_object = GenericForeignKey("content_type", "object_id")
     position = models.IntegerField(_("ordering"), editable=False)
     enabled = models.BooleanField(_("block enabled"), default=True)
+    full_width = models.BooleanField(_("full width"), default=False, help_text=_("set to true if you want the block to fill the page width"))
+
+    objects = PageContentQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         if self and self.page:
@@ -289,6 +298,9 @@ class PageContent(TimeStampedModel):
     @property
     def get_unique_id(self):
         raise NotImplementedError
+    
+    def __str__(self):
+        return f"{self.name}"
 
     class Meta: # pyright: ignore
         ordering = ["position"]
@@ -297,6 +309,13 @@ class PageContent(TimeStampedModel):
 class PageContentText(PageContent, AccordionBlock):
     content = RichTextUploadingField(verbose_name=_("content"), blank=True)
     url = models.CharField(_("url"), blank=True, null=True)
+    text_color = ColorField(
+        _("text color"),
+        help_text=_("set the text color, leave empty to use inherited default color"),
+        blank=True,
+        null=True,
+    )
+
     def __str__(self):
         return f"{self.page.title}/{_('text content')}"
 
@@ -394,6 +413,8 @@ class PageContentTextImage(PageContent, AccordionBlock):
     CHOICES = (
         ("left", _("Left")),
         ("right", _("Right")),
+        ("top", _("Top")),
+        ("bottom", _("Bottom")),
     )
     text = RichTextUploadingField(verbose_name=_("text"), blank=True)
     # specify the width of the left column in percentage
@@ -404,11 +425,12 @@ class PageContentTextImage(PageContent, AccordionBlock):
         blank=True,
         null=True,
     )
-    image = models.ImageField(
-        verbose_name=_("image"), upload_to="pages/text_image_content"
+    image = BatonAiImageField(
+        verbose_name=_("image"), upload_to="pages/text_image_content", subject_location_field='subject_location'
     )
+    subject_location = models.CharField(max_length=7, default="50,50")
     image_position = models.CharField(
-        _("image position"), max_length=5, choices=CHOICES, default="right"
+        _("image position"), max_length=6, choices=CHOICES, default="right"
     )
     show_captions = models.BooleanField(
         _("show captions"),
@@ -479,6 +501,17 @@ class PageContentMultiImage(PageContent):
         default=450,
         help_text=_("set the max height of the carousel images in pixels"),
     )
+    crop = models.BooleanField(
+        _("crop images"),
+        default=False,
+        help_text=_("set to true if you want to crop the images"),
+    )
+    crop_size = models.CharField(
+        _("crop size"),
+        default="600x500",
+        help_text=_("size should be wxh"),
+    )
+    image_list = models.JSONField(verbose_name=_("image list"), blank=True, null=True)
 
     def __str__(self):
         return f"{self.page.title}/{_('multi image content')}"
@@ -551,13 +584,6 @@ class PageContentBoxMenu(PageContent):
     columns = models.IntegerField(
         _("columns"), help_text=_("maximum number of boxes per row"), default=5
     )
-    shadow = models.BooleanField(
-        _("shadow"),
-        default=True,
-        help_text=_(
-            "set to true if you want the boxes to have a shadow on name and icon"
-        ),
-    )
     zoom = models.BooleanField(
         _("zoom"),
         default=False,
@@ -621,7 +647,16 @@ class PageContentBoxMenu(PageContent):
 
 
 class PageContentBoxItem(models.Model):
-    file = SubjectImageField(
+    COLOR_PALETTE = [
+        ("#084cbf", _("blue")),
+        ("#0ea20c", _("green")),
+        ("#e20716", _("red")),
+        ("#ba1cab", _("purple")),
+        ("#f5c828", _("yellow")),
+        ("#38a9ca", _("cyan")),
+    ]
+
+    file = BatonAiImageField(
         _("image"),
         upload_to="pages/box_menu_content",
         subject_location_field="subject_location",
@@ -638,7 +673,7 @@ class PageContentBoxItem(models.Model):
     )
     icon = models.FileField(
         verbose_name=_("icon"),
-        upload_to="park-life/",
+        upload_to="box-items/",
         help_text="upload an svg icon",
         blank=True,
         null=True,
@@ -650,11 +685,15 @@ class PageContentBoxItem(models.Model):
         default="#f5f5f5",
         help_text=_("set the color of box name"),
     )
-    bg_color = models.CharField(
-        _("background color"),
-        max_length=7,
-        default="#f5f5f5",
-        help_text=_("set the color of box background"),
+    bg_color = ColorField(
+        _("background color"), samples=COLOR_PALETTE, blank=True, null=True
+    )
+    shadow = models.BooleanField(
+        _("shadow"),
+        default=True,
+        help_text=_(
+            "set to true if you want the box to have a shadow on name and icon"
+        ),
     )
     block = models.ForeignKey(
         PageContentBoxMenu, on_delete=models.CASCADE, related_name="images"
@@ -750,6 +789,10 @@ class PageContentMap(PageContent):
     def copy_and_assign(self, page):
         generic_copy_and_assign(self, page)
 
+    @property
+    def get_unique_id(self):
+        return "Map" + str(self.pk)
+
 
 class PageContentMapItem(models.Model):
     class Shape(models.TextChoices):
@@ -840,3 +883,75 @@ class PageContentVideo(PageContent):
     @property
     def get_unique_id(self):
         return "Video" + str(self.pk)
+
+class PageContentLayout(PageContent):
+    wrapper_css = models.TextField(_('grid css'), help_text='The grid wrapper should have a .grid-wrapper class, every grid item should have a .grid-item class') 
+
+    def __str__(self):
+        return f"{self.page.title}/{_('Layout')}"
+
+    def render_wrapper_css(self):
+        return self.wrapper_css.replace("grid-wrapper", "grid-wrapper-" + str(self.pk))
+
+    class Meta: # pyright: ignore
+        verbose_name = _("Layout block")
+        verbose_name_plural = _("Layout blocks")
+
+    def class_name(self):
+        return self.__class__.__name__
+
+    def get_content_label(self):
+        return _("Layout")
+
+    def get_content_description(self):
+        return _("Layout with grid")
+
+    def get_add_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentlayout_add")
+
+    def get_change_form_url(self):
+        return reverse_lazy("admin:pages_pagecontentlayout_change", args=[self.pk])
+
+    def get_delete_url(self):
+        return reverse_lazy("admin:pages_pagecontentlayout_delete", args=[self.pk])
+
+    def get_preview_template(self):
+        return "admin/pages/page_content_layout/preview.html"
+
+    def get_render_template(self):
+        return "pages/page_content_layout.html"
+
+    def copy_and_assign(self, page):
+        generic_copy_and_assign(self, page) # FIXME: change
+
+    @property
+    def get_unique_id(self):
+        return "Layout" + str(self.pk)
+
+class PageContentLayoutItem(models.Model):
+    TOP = 1
+    BOTTOM = 2
+
+    POSITION_CHOICES = (
+        (TOP, _("Top")),
+        (BOTTOM, _("Bottom")),
+    )
+    layout = models.ForeignKey(
+        PageContentLayout, on_delete=models.CASCADE, related_name="layout_items"
+    )
+    css = models.TextField(verbose_name=_("css"), help_text=_("Write the css class of the grid item, it must be .grid-item, i.e. .grid-item { grid-column: 1 / 3; }"))
+    content = models.ForeignKey(
+        PageContent, on_delete=models.CASCADE, related_name="layout_contents", blank=True, null=True, limit_choices_to={'layout_content': True}
+    )
+    text = RichTextUploadingField(verbose_name=_("text"), blank=True, null=True)
+    text_position = models.PositiveSmallIntegerField(
+        _("tex position"), choices=POSITION_CHOICES, default=TOP
+    )
+
+    class Meta: # pyright: ignore
+        verbose_name = _("Layout block item")
+        verbose_name_plural = _("Layout block items")
+        ordering = ['id', ]
+
+    def render_item_css(self):
+        return self.css.replace("grid-item", "grid-item-" + str(self.pk))

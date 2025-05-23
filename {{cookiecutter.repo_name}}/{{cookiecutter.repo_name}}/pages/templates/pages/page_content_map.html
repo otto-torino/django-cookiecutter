@@ -1,7 +1,10 @@
-{% raw %}<div class="{% if obj.background_color %}px-4 py-4{% else %}py-2{% endif %} rounded-lg" style="background-color: {{ obj.background_color }}">
-    {% if obj.show_name %}<h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>{% endif %}
+{% raw %}{% extends 'pages/page_content_base.html' %}
+{% load components %}
+
+{% block inner_block %}
     {{ obj.text|safe }}
-    <div class="mt-6" id="map{{ obj.id }}" style="height: {{ obj.height }}px;"></div>
+    <div class="mt-6 z-0" id="map{{ obj.id }}" style="height: {{ obj.height }}px;"></div>
+
     <script>
         (function () {
             var map = L.map('map{{ obj.id }}', {
@@ -91,4 +94,4 @@
         })()
         
     </script>
-</div>{% endraw %}
+{% endblock %}{% endraw %}
