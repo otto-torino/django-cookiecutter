@@ -169,7 +169,7 @@ class PageAdmin(ArchivedModelAdmin): # pyright: ignore
             current_app=self.admin_site.name,
         )
         return mark_safe(
-            '<div style=""> <a class="btn btn-secondary btn-sm" href="%s"><i class="fa fa-pen me-2"></i> Modifica</a> </div>'
+            '<div style=""> <a class="btn btn-secondary btn-sm" href="%s"><i class="material-symbols-outlined me-2">edit</i> Modifica</a> </div>'
             % edit_contents_url
         )
 
