@@ -36,13 +36,16 @@ if context['use_cabinet'] != 'y':
 shutil.move('gitignore', '.gitignore')
 
 print("📦 Building Docker images...")
+
+subprocess.run(["mkdir", ".virtualenv"], check=True)
 subprocess.run(["docker", "compose", "-f", "docker-compose.yml", "build"], check=True)
 
 if not os.path.exists(theme_path):
     print("🎨 Initializing Tailwind app (theme)...")
     subprocess.run([
         "docker", "compose", "-f", "docker-compose.yml", "run", "--rm", "app",
-        "./cli.py", "--manage", "tailwind init" # TODO: DA FIXARE
+        "bash", "-c",
+        "source /home/app/venv/bin/activate && cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py tailwind init"
     ], check=True)
 else:
     print("🌀 Tailwind app already present, skipping creation.")
