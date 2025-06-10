@@ -25,7 +25,7 @@ django-markdownx==4.0.7
 django-preferences-utils==0.1.0
 django-subject-imagefield==0.2.13
 {% if cookiecutter.admin == 'django-baton' %}
-django-baton==4.2.3
+django-baton==5.0.0
 {% elif cookiecutter.admin == 'django-grappelli' %}
 django-grappelli==3.0.3
 {% endif %}
