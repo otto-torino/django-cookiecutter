@@ -22,18 +22,20 @@ from collections import OrderedDict
 
 theme_path = os.path.join("theme")
 
-context = {{ cookiecutter }}
+context = {{cookiecutter}}
 
-if context['admin'] != 'django-baton':
-    print('\n')
-    print('POST HOOK' + '\n')
-    print('removing unused baton admin template' + '\n')
-    shutil.rmtree('./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/templates/admin')
+if context["admin"] != "django-baton":
+    print("\n")
+    print("POST HOOK" + "\n")
+    print("removing unused baton admin template" + "\n")
+    shutil.rmtree(
+        "./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/templates/admin"
+    )
 
-if context['use_cabinet'] != 'y':
-    shutil.rmtree('./{{ cookiecutter.repo_name }}/cabinet')
+if context["use_cabinet"] != "y":
+    shutil.rmtree("./{{ cookiecutter.repo_name }}/cabinet")
 
-shutil.move('gitignore', '.gitignore')
+shutil.move("gitignore", ".gitignore")
 
 print("📦 Building Docker images...")
 
@@ -42,11 +44,24 @@ subprocess.run(["docker", "compose", "-f", "docker-compose.yml", "build"], check
 
 if not os.path.exists(theme_path):
     print("🎨 Initializing Tailwind app (theme)...")
-    subprocess.run([
-        "docker", "compose", "-f", "docker-compose.yml", "run", "--rm", "app",
-        "bash", "-c",
-        "source /home/app/venv/bin/activate && cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py tailwind init"
-    ], check=True)
+    subprocess.run(
+        [
+            "docker",
+            "compose",
+            "-f",
+            "docker-compose.yml",
+            "run",
+            "--rm",
+            "app",
+            "bash",
+            "-c",
+            "source /home/app/venv/bin/activate && cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py tailwind init",
+        ],
+        check=True,
+    )
+    os.system(
+        "sed -i \"s/^\\(\\s*\\)#'theme',/\\1'theme',/\" {{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/settings/common.py"
+    )
 else:
     print("🌀 Tailwind app already present, skipping creation.")
 

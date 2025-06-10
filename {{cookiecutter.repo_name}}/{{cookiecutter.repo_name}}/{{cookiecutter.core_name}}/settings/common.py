@@ -79,7 +79,7 @@ INSTALLED_APPS = (
     "colorfield",
     'tailwind',
     'django_web_components',
-    # 'theme',
+    #'theme',
     'django_browser_reload',
     {% if cookiecutter.use_filer == 'y' %}'filer',
     'easy_thumbnails',{% endif %}
