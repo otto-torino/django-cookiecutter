@@ -182,27 +182,30 @@ BATON = {
     'SITE_TITLE': '{{ cookiecutter.project_name }}',
     'INDEX_TITLE': 'Site administration',
     'MENU': (
-        {'type': 'title', 'label': 'System',  'apps': ('auth', 'sites', 'core', )},
-        {'type': 'model', 'app': 'core', 'name': 'user', 'label': 'Users', 'icon':'fa fa-user'},
-        {'type': 'model', 'app': 'auth', 'name': 'group', 'label': 'Groups', 'icon':'fa fa-users'},
-        {'type': 'model', 'app': 'sites', 'name': 'site', 'label': 'Sites', 'icon':'fa fa-leaf'},
-        {'type': 'model', 'app': 'core', 'name': 'preferences', 'label': 'Settings', 'icon':'fa fa-cogs'},
+        {'type': 'title', 'label': 'System',  'apps': ('auth', 'sites', 'core', ), 'icon': 'desktop_windows', 'children': [
 
+            {'type': 'model', 'app': 'core', 'name': 'user', 'label': 'Users',},
+            {'type': 'model', 'app': 'auth', 'name': 'group', 'label': 'Groups',},
+            {'type': 'model', 'app': 'sites', 'name': 'site', 'label': 'Sites',},
+            {'type': 'model', 'app': 'core', 'name': 'preferences', 'label': 'Settings',},
+        ]},
         {% if cookiecutter.use_filer == 'y' %}
-        {'type': 'title', 'label': 'Resources',  'apps': ('filer', )},
-        {'type': 'app', 'name': 'filer', 'label': 'File manager', 'icon':'fa fa-file'},
+            {'type': 'title', 'label': 'Resources',  'apps': ('filer', ), 'icon': 'storage', 'children': [
+                {'type': 'app', 'name': 'filer', 'label': 'File manager',},
+            ]},
         {% endif %}
 
         {% if cookiecutter.use_cabinet == 'y' %}
-        {'type': 'title', 'label': 'Resources',  'apps': ('cabinet', )},
-        {'type': 'model', 'app': 'cabinet', 'name': 'file', 'label': _('File manager'), 'icon':'fa fa-file'},
+            {'type': 'title', 'label': 'Resources',  'apps': ('cabinet', ), 'icon': 'storage', 'children': [
+                {'type': 'model', 'app': 'cabinet', 'name': 'file', 'label': _('File manager'),},
+            ]},
         {% endif %}
-
-        {'type': 'title', 'label': 'Navigation',  'apps': ('lineup', )},
-        {'type': 'model', 'app': 'lineup', 'name': 'menuitem', 'label': 'Menu', 'icon':'fa fa-bars'},
-
-        {'type': 'title', 'label': 'Contents',  'apps': ('pages', )},
-        {'type': 'model', 'app': 'pages', 'name': 'page', 'label': 'Pages', 'icon':'fa fa-book'},
+        {'type': 'title', 'label': 'Navigation',  'apps': ('lineup', ), 'icon': 'menu', 'children': [
+            {'type': 'model', 'app': 'lineup', 'name': 'menuitem', 'label': 'Menu',},
+        ]},
+         {'type': 'title', 'label': 'Contents',  'apps': ('pages', ), 'icon': 'description', 'default_open': True, 'children': [
+            {'type': 'model', 'app': 'pages', 'name': 'page', 'label': 'Pages',},
+        ]},
     ),
     'COPYRIGHT': '© %d {{ cookiecutter.domain }}' % YEAR,
     'SUPPORT_HREF': 'mailto:stefano.contini@otto.to.it',
