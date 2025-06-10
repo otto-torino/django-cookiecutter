@@ -24,10 +24,10 @@ class FileAdmin(CKEditorFilebrowserMixin, FileAdminBase):
                     '<img src="{}" alt=""/>', target.url, instance.image_alt_text
                 )
             except Exception:
-                return mark_safe('<span class="fa fa-file-circle-exclamation"></span>')
+                return mark_safe('<span class="material-symbols-outlined">error</span>')
         elif instance.download_file.name:
             return format_html(
-                '<i class="fa fa-file-{}"></i>',
+                '<i class="material-symbols-outlined {}">description</i>',
                 instance.download_type,
             )
         return ""
@@ -60,13 +60,13 @@ class FileAdmin(CKEditorFilebrowserMixin, FileAdminBase):
     def admin_url(self, instance):
         if instance.image_file.name:
             return mark_safe(
-                '{} <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(\'{}\')"> <i class="fa fa-clipboard d-inline-block ms-2"></a>'.format(
+                '{} <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(\'{}\')"> <i class="material-symbols-outlined d-inline-block ms-2">content_copy</a>'.format(
                     instance.image_file.url, instance.image_file.url
                 )
             )
         elif instance.download_file.name:
             return mark_safe(
-                '{} <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(\'{}\')"> <i class="fa fa-clipboard d-inline-block ms-2"></a>'.format(
+                '{} <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(\'{}\')"> <i class="material-symbols-outlined d-inline-block ms-2">content_copy</a>'.format(
                     instance.download_file.url, instance.download_file.url
                 )
             )
@@ -83,6 +83,7 @@ try:
         """
         Tabular Inline View for EventFile
         """
+
         model = AttachmentModel
         extra = 1
         raw_id_fields = ("file",)
@@ -90,7 +91,7 @@ try:
             "collapse-entry",
             "expand-first",
         )
-        fields = ["file", "position", "name", "description"] 
+        fields = ["file", "position", "name", "description"]
 
     @admin.register(PageContentMultiAttachment)
     class PageContentMultiAttachmentAdmin(PageContentAdmin):
@@ -102,13 +103,11 @@ try:
             (
                 _("Main"),
                 {
-                    "fields": (
-                        "name",
-                    ),
+                    "fields": ("name",),
                     "classes": (
                         "baton-tabs-init",
                         "baton-tab-inline-files",
-                        "baton-tab-fs-adv"
+                        "baton-tab-fs-adv",
                     ),
                 },
             ),

@@ -8,8 +8,8 @@
 .field-admin_thumbnail .fa {
     font-size: 26px;
 }
-.field-admin_thumbnail .fa-folder {
-    color: #b3c100;
+.field-admin_thumbnail .folder-icon {
+    color: #f97316;
 }
 .field-admin_thumbnail span {
   box-sizing: border-box;
