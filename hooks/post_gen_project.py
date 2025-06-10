@@ -17,7 +17,6 @@
 import os
 import subprocess
 import shutil
-from collections import OrderedDict
 
 
 theme_path = os.path.join("theme")
