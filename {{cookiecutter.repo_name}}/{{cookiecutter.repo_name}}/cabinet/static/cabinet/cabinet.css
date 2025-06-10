@@ -66,6 +66,12 @@
   font-size: 2rem;
 }
 
+[data-bs-theme='dark'] .results > .progress,
+[data-bs-theme='dark'] .results.dragover::after {
+  box-shadow: 0 0 0 15px rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.9);
+}
+
 .results.dragover::after {
   content: "Drop here to upload";
 }
