@@ -15,8 +15,12 @@
 ##
 
 import os
+import subprocess
 import shutil
 from collections import OrderedDict
+
+
+theme_path = os.path.join("theme")
 
 context = {{ cookiecutter }}
 
@@ -30,6 +34,19 @@ if context['use_cabinet'] != 'y':
     shutil.rmtree('./{{ cookiecutter.repo_name }}/cabinet')
 
 shutil.move('gitignore', '.gitignore')
-# os.system('docker-compose -f docker-compose.yml build --no-cache')
-os.system('mkdir .virtualenv')
-os.system('docker compose -f docker-compose.yml up')
+
+print("📦 Building Docker images...")
+subprocess.run(["docker", "compose", "-f", "docker-compose.yml", "build"], check=True)
+
+if not os.path.exists(theme_path):
+    print("🎨 Initializing Tailwind app (theme)...")
+    subprocess.run([
+        "docker", "compose", "-f", "docker-compose.yml", "run", "--rm", "app",
+        "./cli.py", "--manage", "tailwind init" # TODO: DA FIXARE
+    ], check=True)
+else:
+    print("🌀 Tailwind app already present, skipping creation.")
+
+subprocess.run(["docker", "compose", "-f", "docker-compose.yml", "up"], check=True)
+
+print("\n✅ Done! You can now start the project!\n")
