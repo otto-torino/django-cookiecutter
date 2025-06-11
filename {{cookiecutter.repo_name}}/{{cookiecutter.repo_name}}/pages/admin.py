@@ -292,7 +292,7 @@ class PageContentImageAdmin(PageContentAdmin):
             {
                 "fields": (
                     "name",
-                    "image_content",
+                    "image",
                     "caption",
                     "credits",
                     "url",
