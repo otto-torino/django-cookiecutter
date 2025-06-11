@@ -3,10 +3,10 @@
 
   {% if obj.url %}
     <a href={{ obj.url }}>
-      <img class="w-full h-auto rounded-lg" src="{{ obj.image_content.url }}">
+      <img class="w-full h-auto rounded-lg" src="{{ obj.image.url }}">
     </a>
   {% else %}
-    <img class="w-full h-auto rounded-lg" src="{{ obj.image_content.url }}" onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}').click();">
+    <img class="w-full h-auto rounded-lg" src="{{ obj.image.url }}" onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}').click();">
   {% endif %}
 
   {% if obj.show_captions %}
@@ -19,10 +19,10 @@
     {% endif %}
   {% endif %}
 </div>
-{% if obj.image_content %}
+{% if obj.image %}
   <div id="{{ obj.get_unique_id }}" class="hidden" >
-        <a href={{obj.image_content.url}} id="lightbox-{{ obj.get_unique_id }}" data-pswp-width="{{obj.image_content.width}}" data-pswp-height="{{obj.image_content.height}}">
-            <img src="{{obj.image_content.url}}" class="rounded-lg" alt="{{ obj.caption }}" />
+        <a href={{obj.image.url}} id="lightbox-{{ obj.get_unique_id }}" data-pswp-width="{{obj.image.width}}" data-pswp-height="{{obj.image.height}}">
+            <img src="{{obj.image.url}}" class="rounded-lg" alt="{{ obj.caption }}" />
             {% if obj.show_captions %}
               <span class="pswp-caption-content">
                   {% if obj.caption %}{{ obj.caption }} {% endif %} 

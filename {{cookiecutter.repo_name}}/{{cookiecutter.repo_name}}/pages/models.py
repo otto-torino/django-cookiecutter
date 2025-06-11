@@ -25,60 +25,6 @@ from .managers import PageContentQuerySet, PageManager
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
-
-def generic_copy_and_assign(block, page):
-    # classes which need a deep copy because they have children items
-    NESTED_CONTENTS = [
-        # apps.get_model('pages.PageContentMap'),
-        apps.get_model("pages.PageContentBoxMenu"),
-    ]
-
-    ITEM_MAP = {
-        # apps.get_model('pages.PageContentMap'): apps.get_model('pages.PageContentMapItem'),
-        apps.get_model("pages.PageContentBoxMenu"): apps.get_model(
-            "pages.PageContentBoxItem"
-        ),
-    }
-
-    # fields which must be skipped during the copying of the object (file is here because having a double reference to a file can create issues)
-    SKIP_FIELDS = [
-        "id",
-        "object_id",
-        "pagecontent_ptr",
-        "block_id",
-        "page",
-        "file",
-        "image",
-        "image_content",
-        "caption",
-        "caption_it",
-        "caption_en",
-        "caption_fr",
-        "credits",
-        "icon",
-    ]
-
-    new_content = type(block.content_object)()
-    for field in type(block.content_object)._meta.fields:
-        if field.name not in SKIP_FIELDS:
-            setattr(new_content, field.name, getattr(block.content_object, field.name))
-    new_content.page = page
-    new_content.save()
-    new_content.object_id = new_content.id
-    new_content.save()
-    if type(block.content_object) in NESTED_CONTENTS:
-        item_model = ITEM_MAP.get(type(block.content_object), None)
-        if item_model is not None:
-            items = item_model.objects.filter(block=block)
-            for item in items:
-                new_item = item_model()
-                for field in item_model._meta.fields:
-                    if field.name not in SKIP_FIELDS:
-                        setattr(new_item, field.name, getattr(item, field.name))
-                new_item.block = new_content
-                new_item.save()
-
-
 class AccordionBlock(models.Model):
     use_accordion = models.BooleanField(
         default=False,
@@ -260,7 +206,7 @@ class PageContent(TimeStampedModel):
     layout_content = models.BooleanField(
         _("layout content"),
         default=False,
-        help_text=_("if true this content can only be used inside a layout block"),
+        help_text=_("if true this content can only be used inside a layout block, in that case probably you also want it to have full width"),
     )
     name = models.CharField(_("name"), max_length=200)
     show_name = models.BooleanField(_("show name"), default=False)
@@ -313,9 +259,6 @@ class PageContent(TimeStampedModel):
         raise NotImplementedError
 
     def get_render_template(self):
-        raise NotImplementedError
-
-    def copy_and_assign(self, page):
         raise NotImplementedError
 
     @property
@@ -372,9 +315,6 @@ class PageContentText(PageContent, AccordionBlock):
     def get_render_template(self):
         return "pages/page_content_text.html"
 
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
-
     @property
     def get_unique_id(self):
         return "Text" + str(self.pk)
@@ -427,9 +367,6 @@ class PageContentImage(PageContent):
 
     def get_render_template(self):
         return "pages/page_content_image.html"
-
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
 
     @property
     def get_unique_id(self):
@@ -500,9 +437,6 @@ class PageContentTextImage(PageContent, AccordionBlock):
 
     def get_render_template(self):
         return "pages/page_content_textimage.html"
-
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
 
     @property
     def get_unique_id(self):
@@ -576,9 +510,6 @@ class PageContentMultiImage(PageContent):
 
     def get_carousel_id(self):
         return f"carousel-{self.pk}"
-
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
 
     @property
     def get_unique_id(self):
@@ -676,9 +607,6 @@ class PageContentBoxMenu(PageContent):
     def get_carousel_id(self):
         return f"carousel-{self.pk}"
 
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
-
     @property
     def get_unique_id(self):
         return "BoxMenu" + str(self.pk)
@@ -775,9 +703,6 @@ class PageContentRssFeed(PageContent):
     def get_render_template(self):
         return "pages/page_content_rss_feed.html"
 
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
-
     @property
     def get_unique_id(self):
         return "Rss" + str(self.pk)
@@ -825,9 +750,6 @@ class PageContentMap(PageContent):
 
     def get_render_template(self):
         return "pages/page_content_map.html"
-
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
 
 
 class PageContentMapItem(models.Model):
@@ -918,9 +840,6 @@ class PageContentVideo(PageContent):
     def get_render_template(self):
         return "pages/page_content_video.html"
 
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)
-
     @property
     def get_unique_id(self):
         return "Video" + str(self.pk)
@@ -986,9 +905,6 @@ class PageContentLayout(PageContent):
 
     def get_render_template(self):
         return "pages/page_content_layout.html"
-
-    def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page)  # FIXME: change
 
     @property
     def get_unique_id(self):

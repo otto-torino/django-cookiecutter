@@ -40,7 +40,7 @@ def get_file_model():
 class Folder(TimestampsMixin, TreeNode):
     name = models.CharField(_("name"), max_length=100)
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         ordering = ["name"]
         unique_together = [("parent", "name")]
         verbose_name = _("folder")
@@ -52,7 +52,7 @@ class Folder(TimestampsMixin, TreeNode):
     def clean(self):
         super().clean()
         if (
-            not self.parent_id # pyright: ignore
+            not self.parent_id  # pyright: ignore
             and Folder.objects.filter(~Q(pk=self.pk), Q(name=self.name)).exists()
         ):
             raise ValidationError(
@@ -63,33 +63,32 @@ class Folder(TimestampsMixin, TreeNode):
         return self.ancestors(include_self=True)
 
 
-class File(AbstractFile, ImageMixin, DownloadMixin, OverwriteMixin): # pyright: ignore
+class File(AbstractFile, ImageMixin, DownloadMixin, OverwriteMixin):  # pyright: ignore
     FILE_FIELDS = ["image_file", "download_file"]
 
     caption = models.CharField(_("caption"), max_length=1000, blank=True)
     copyright = models.CharField(_("copyright"), max_length=1000, blank=True)
 
-    class Meta(AbstractFile.Meta): # pyright: ignore
+    class Meta(AbstractFile.Meta):  # pyright: ignore
         swappable = "CABINET_FILE_MODEL"
 
 
 # Register Attachment content block if pages app is installed
 try:
     from cabinet.fields import CabinetForeignKey
-    from pages.models import PageContent, generic_copy_and_assign
+    from pages.models import PageContent
 
     class PageContentMultiAttachment(PageContent, AccordionBlock):
-
         def __str__(self):
             return f"{self.page.title}/{_('attachment content')}"
 
-        class Meta: # pyright: ignore
+        class Meta:  # pyright: ignore
             verbose_name = _("attachment content block")
             verbose_name_plural = _("attachment content blocks")
 
         def class_name(self):
             return self.__class__.__name__
-        
+
         @property
         def get_unique_id(self):
             return "Attachment" + str(self.pk)
@@ -105,7 +104,7 @@ try:
 
         def get_change_form_url(self):
             return reverse_lazy(
-                "admin:cabinet_pagecontentmultiattachment_change", args=[self.pk] 
+                "admin:cabinet_pagecontentmultiattachment_change", args=[self.pk]
             )
 
         def get_delete_url(self):
@@ -119,10 +118,6 @@ try:
         def get_render_template(self):
             return "cabinet/page_content_multi_attachment.html"
 
-        def copy_and_assign(self, page):
-            return generic_copy_and_assign(self, page)
-       
-
     class AttachmentModel(models.Model):
         file = CabinetForeignKey(
             File,
@@ -134,7 +129,7 @@ try:
         description = models.TextField(_("descrizione"), blank=True, null=True)
 
         position = models.IntegerField(_("ordinamento"), default=0)
-        name = models.CharField(_("nome"),max_length=200)
+        name = models.CharField(_("nome"), max_length=200)
         page_content = models.ForeignKey(
             PageContentMultiAttachment,
             related_name="files",
@@ -142,7 +137,7 @@ try:
             verbose_name=_("contenuto"),
         )
 
-        class Meta: # pyright: ignore
+        class Meta:  # pyright: ignore
             verbose_name = _("file")
             verbose_name_plural = _("file")
             ordering = ("position",)

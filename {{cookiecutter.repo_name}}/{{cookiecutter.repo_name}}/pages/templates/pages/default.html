@@ -78,7 +78,6 @@
 {% endblock %}
 
 {% block top_css %}max-w-screen overflow-hidden relative{% endblock top_css %}
-{% block navbar %}{% include "core/components/navbar.html" %}{% endblock navbar %}
 {% block hero %}
 <div class="relative lg:border-r-[40px] lg:border-secondary">
     {% thumbnail page.image "1920x500" crop=page.image.sorl as cropped %}
@@ -88,7 +87,7 @@
     <img src={{ cropped.url }} alt="image" class="lg:hidden w-full" width="800" height="400" />
     {% endthumbnail %}
     <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/80 via-black/30 to-black/0 text-center leading-tight"></div>
-    {% #title title=page.title %}
+    <h1>{{ page.title }}</h1>
 </div>
 {% endblock hero %}
 
