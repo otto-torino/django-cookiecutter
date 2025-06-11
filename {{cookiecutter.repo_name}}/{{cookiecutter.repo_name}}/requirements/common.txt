@@ -27,7 +27,7 @@ django-modeltranslation==0.19.13
 {% endif %}
 django-preferences-utils==0.1.0
 django-subject-imagefield==0.2.13
-django-baton==5.0.1
+django-baton==5.0.2
 {% if cookiecutter.use_filer == 'y' %}
 django-filer==2.2.3
 easy-thumbnails==2.8.5
