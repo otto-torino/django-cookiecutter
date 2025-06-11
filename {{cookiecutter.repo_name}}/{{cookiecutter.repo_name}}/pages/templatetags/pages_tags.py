@@ -4,6 +4,9 @@ from django import template
 from django.conf import settings
 from ..models import Page
 from django.contrib.sites.shortcuts import get_current_site
+import random
+import string
+
 
 register = template.Library()
 
@@ -168,4 +171,11 @@ def get_page(parser, token):
         return PageNode(context_name, starts_with=prefix, single=True)
     else:
         raise template.TemplateSyntaxError(syntax_message)
+
+
+@register.simple_tag
+def random_uid(length=12):
+    """Generate a random alphanumeric string of given length (default: 12)."""
+    chars = string.ascii_letters + string.digits
+    return "".join(random.choices(chars, k=length))
 

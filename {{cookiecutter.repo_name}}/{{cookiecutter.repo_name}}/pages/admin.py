@@ -683,5 +683,11 @@ class PageContentLayoutAdmin(PageContentAdmin):
         ),
     )
 
+    baton_form_includes = [
+        ("pages/admin_includes/layout_grid.html", "wrapper_css", "right"),
+        ("pages/admin_includes/layout_grid_item.html", "css", "top"),
+    ]
+
+
 
 PageAdmin.register(PageContentLayout)

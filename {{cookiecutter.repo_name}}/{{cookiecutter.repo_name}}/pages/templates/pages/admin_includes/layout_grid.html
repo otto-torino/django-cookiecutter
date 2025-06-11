@@ -1,0 +1,35 @@
+{% raw %}{% load i18n %}
+<div class="mb-2 ms-2">
+  <a class="btn btn-sm btn-secondary" id="layout-grid-cols-3"><span class="material-symbols-outlined">edit_note</span> {% trans "3 same width columns" %}</a>
+</div>
+<div class="mb-2 ms-2">
+  <a class="btn btn-sm btn-secondary" id="layout-grid-cols-hsc"><span class="material-symbols-outlined">edit_note</span> {% trans "areas header, sidebar, content" %}</a>
+</div>
+<script>
+  (function () {
+    document.getElementById("layout-grid-cols-3").addEventListener("click", function () {
+      document.getElementById("id_wrapper_css").value = `.grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    justify-items: center;
+    align-items: top;
+}
+      `;
+    })
+
+    document.getElementById("layout-grid-cols-hsc").addEventListener("click", function () {
+      document.getElementById("id_wrapper_css").value = `.grid-wrapper {
+    display: grid;
+    grid-template-areas: 
+        "header header"
+        "sidebar content";
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    gap: 1rem;
+}
+      `;
+    })
+  })();
+</script>{% endraw %}
