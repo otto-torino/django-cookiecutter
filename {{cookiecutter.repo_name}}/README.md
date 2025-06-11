@@ -4,56 +4,61 @@
 
 ## Getting Started
 
-- clone the repository    
+- Clone the repository
+
     ```
-    $ git clone https://github.com/{{ cookiecutter.author }}/{{ cookiecutter.repo_name }}.git
+    git clone https://github.com/{{ cookiecutter.author }}/{{ cookiecutter.repo_name }}.git
     ```
-- cd the new project    
+
+- Change directory
+
     ```
-    $ cd [repo_name]/[repo_name]
+    cd [repo_name]/[repo_name]
     ```
-- create a `.env` file
+
+- Create a `.env` file
+
     ```
-    $ touch .env
+    touch .env
     ```
-- config the environment    
+
+- Config the environment
+
   ```
-  $ dotenv set DJANGO_SETTINGS_MODULE core.settings.local
-  $ dotenv set SECRET_KEY "***"
-  $ dotenv set DB_NAME db{{ cookiecutter.repo_name }}
-  $ dotenv set DB_HOST db
-  $ dotenv set DB_PORT 5432
-  $ dotenv set DB_USER {{ cookiecutter.db_user }}
-  $ dotenv set DB_PASSWORD ***
-  $ dotenv set PYTHONUNBUFFERED true
-  $ dotenv set LC_ALL en_US.UTF-8
-  $ dotenv set REMOTE_USER ***
-  $ dotenv set REMOTE_USER_PWD ***
-  $ dotenv set REMOTE_DB ***
-  $ dotenv set REMOTE_DB_USER ***
-  $ dotenv set REMOTE_DB_PASSWORD ***
+  dotenv set DJANGO_SETTINGS_MODULE core.settings.local
+  dotenv set SECRET_KEY "***"
+  dotenv set DB_NAME db{{ cookiecutter.repo_name }}
+  dotenv set DB_HOST db
+  dotenv set DB_PORT 5432
+  dotenv set DB_USER {{ cookiecutter.db_user }}
+  dotenv set DB_PASSWORD ***
+  dotenv set PYTHONUNBUFFERED true
+  dotenv set LC_ALL en_US.UTF-8
+  dotenv set REMOTE_USER ***
+  dotenv set REMOTE_USER_PWD ***
+  dotenv set REMOTE_DB ***
+  dotenv set REMOTE_DB_USER ***
+  dotenv set REMOTE_DB_PASSWORD ***
   ```
-- create some dirs
+
+- Create some dirs
+
     ```
-    $ cd ..
-    $ mkdir .virtualenv
-    $ mkdir logs
+    cd ..
+    mkdir .virtualenv
+    mkdir logs
     ```
 
-- start the project    
+- Start the project
+
     ```
-    $ ./cli.py --start
+    ./cli.py --start
     ```
 
-- in another terminal init tailwind:    
-    ```
-    $ ./cli.py --manage "tailwind init"
-    ```
-- uncomment the `theme` app inside the `core/settings/common.py` file    
+- Enjoy
 
-- enjoy    
     ```
-    $ google-chrome http://localhost:8000
+    google-chrome http://localhost:8000
     ```
 
 ## CLI (development, remote setup and deploy)
@@ -64,6 +69,7 @@ Your new cool installation comes with a command line interface you can use to la
 |---------|-------------|
 | `--help` | Prints the help summary |
 | `--start` | Starts the development environment |
+| `--stop` | Stops the development environment |
 | `--clean` | Removes containers and volumes |
 | `--shell` | Opens a shell in the app container |
 | `--createsuperuser` | Creates a superuser account |
@@ -79,6 +85,7 @@ Let's see in the detail the remote commands:
 | `deploy` | Performs a deploy in production |
 | `rollback` | Rollbacks to the previous release in production |
 | `getRemoteRevision` | Returns the current revision deployed in production |
+| `logs` | Displays production logs |
 | `dumpDbSnapshot` | Dumps and downloads a production db snapshot |
 | `loadDbSnapshot` | Dumps and downloads a production db snapshot and loads it in the local db |
 | `loadDb` | Loads the current production db already downloaded in the local db |
@@ -88,7 +95,6 @@ Let's see in the detail the remote commands:
 | `restartUwsgi` | Restarts uWSGI service |
 | `restart` | Restarts services and reloads the web server |
 
-
 ### Autocompletion
 
 The provided cli supports autocompletion through [argcomplete](https://github.com/kislyuk/argcomplete). If you want to benefit of it (not mandatory), you need to install it on your machine and activate it globally.
@@ -96,23 +102,23 @@ The provided cli supports autocompletion through [argcomplete](https://github.co
 #### Ubuntu
 
 ```bash
-$ pip install argcomplete
-$ mkdir ~/.bash_completion.d
-$ activate-global-python-argcomplete --dest=~/.bash_completion.d
-$ echo ". ~/.bash_completion.d/python-argcomplete" >> ~/.bashrc
+pip install argcomplete
+mkdir ~/.bash_completion.d
+activate-global-python-argcomplete --dest=~/.bash_completion.d
+echo ". ~/.bash_completion.d/python-argcomplete" >> ~/.bashrc
 ```
 
 #### OSX
 
-The problem with OSX is that it comes with a quite old version of bash which does not support all recent source command options.    
+The problem with OSX is that it comes with a quite old version of bash which does not support all recent source command options.
 Better update it.
 
 ```bash
-$ brew install bash
-$ sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'
-$ chsh -s /usr/local/bin/bash
-$ pip install argcomplete
-$ activate-global-python-argcomplete
-$ echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
-$ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
+brew install bash
+sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'
+chsh -s /usr/local/bin/bash
+pip install argcomplete
+activate-global-python-argcomplete
+echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
+echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
 ```
