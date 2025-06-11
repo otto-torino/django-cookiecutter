@@ -454,8 +454,10 @@ class PageContentTextImage(PageContent, AccordionBlock):
         verbose_name=_("image"),
         upload_to="pages/text_image_content",
         subject_location_field="subject_location",
+        alt_field="caption",
     )
     subject_location = models.CharField(max_length=7, default="50,50")
+    caption = models.CharField(max_length=255, blank=True, null=True)
     image_position = models.CharField(
         _("image position"), max_length=6, choices=CHOICES, default="right"
     )
@@ -464,7 +466,6 @@ class PageContentTextImage(PageContent, AccordionBlock):
         default=True,
         help_text=_("set to true if you want to show the captions of the images"),
     )
-    caption = models.TextField(_("caption"), blank=True, null=True)
     credits = models.TextField(_("credits"), blank=True, null=True)
 
     def __str__(self):

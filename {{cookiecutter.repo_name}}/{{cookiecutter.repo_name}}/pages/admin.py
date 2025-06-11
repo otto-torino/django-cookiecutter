@@ -344,7 +344,6 @@ class PageContentImageAdmin(PageContentAdmin):
                 "fields": (
                     "name",
                     "image_content",
-                    "image_subject_location",
                     "caption",
                     "credits",
                     "url",
