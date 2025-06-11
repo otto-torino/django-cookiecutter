@@ -1,24 +1,22 @@
 {% raw %}{% load i18n pages_tags %}
 {% random_uid as uid %}
 <div class="mb-2">
-  <a class="btn btn-sm btn-secondary" id="layout-grid-item-empty-{{ uid }}"><span class="material-symbols-outlined">edit_note</span> {% trans "empty" %}</a>
-  <a class="btn btn-sm btn-secondary" id="layout-grid-item-area-{{ uid }}"><span class="material-symbols-outlined">edit_note</span> {% trans "header area" %}</a>
+  <a class="btn btn-sm btn-secondary" onclick="generateEmpty{{ uid }}(this)" id="layout-grid-item-empty-{{ uid }}"><span class="material-symbols-outlined">edit_note</span> {% trans "empty" %}</a>
+  <a class="btn btn-sm btn-secondary" onclick="generateArea{{ uid }}(this)" id="layout-grid-item-area-{{ uid }}"><span class="material-symbols-outlined">edit_note</span> {% trans "header area example" %}</a>
 </div>
 <script>
-  (function () {
-    document.getElementById("layout-grid-item-empty-{{ uid }}").addEventListener("click", function () {
-      Baton.jQuery(this).parents('.field-css').find('textarea').val(`.grid-item {
+  var generateEmpty{{ uid }} = (el) => {
+      Baton.jQuery(el).parents('.field-css').find('textarea').val(`.grid-item {
 }
       `);
-    })
+  }
 
-    document.getElementById("layout-grid-item-area-{{ uid }}").addEventListener("click", function () {
-      Baton.jQuery(this).parents('.field-css').find('textarea').val(`.grid-item {
+  var generateArea{{ uid }} = (el) => {
+      Baton.jQuery(el).parents('.field-css').find('textarea').val(`.grid-item {
     grid-area: header;
     padding: 1rem;
     text-align: center;
 }
       `);
-    })
-  })();
+  }
 </script>{% endraw %}
