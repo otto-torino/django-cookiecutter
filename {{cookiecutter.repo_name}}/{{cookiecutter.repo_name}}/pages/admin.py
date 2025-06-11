@@ -344,6 +344,7 @@ class PageContentImageAdmin(PageContentAdmin):
                 "fields": (
                     "name",
                     "image_content",
+                    "image_subject_location",
                     "caption",
                     "credits",
                     "url",
@@ -382,6 +383,7 @@ class PageContentTextImageAdmin(PageContentAdmin):
                     "name",
                     "text",
                     "image",
+                    "subject_location",
                     "caption",
                     "credits",
                 ),
@@ -475,7 +477,6 @@ class PageContentBoxMenuAdmin(PageContentAdmin):
                     "name",
                     "columns",
                     "rectangular",
-                    "shadow",
                     "zoom",
                     "rounding",
                 ),

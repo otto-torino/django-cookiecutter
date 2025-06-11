@@ -584,16 +584,17 @@ class PageContentMultiImage(PageContent):
 
 
 class PageContentMultiImageItem(models.Model):
-    file = SubjectImageField(
+    file = BatonAiImageField(
         upload_to="pages/multi_image_content",
         verbose_name=_("file"),
         subject_location_field="subject_location",
+        alt_field="caption",
     )
     subject_location = models.CharField(
         _("subject coordinates"), max_length=7, default="50,50"
     )
+    caption = models.CharField(_("caption"), max_length=255, blank=True, null=True)
     position = models.IntegerField(_("order"), default=0)
-    caption = models.TextField(_("caption"), blank=True, null=True)
     credits = models.TextField(_("credits"), blank=True, null=True)
     block = models.ForeignKey(
         PageContentMultiImage, on_delete=models.CASCADE, related_name="images"
@@ -688,12 +689,14 @@ class PageContentBoxItem(models.Model):
         _("image"),
         upload_to="pages/box_menu_content",
         subject_location_field="subject_location",
+        alt_field="alt_text",
         blank=True,
         null=True,
     )
     subject_location = models.CharField(
         _("subject coordinates"), max_length=7, default="50,50"
     )
+    alt_text = models.CharField(_("alt text"), max_length=255, blank=True, null=True)
     name = models.CharField(verbose_name=_("name"), max_length=100, blank=True)
     link = models.CharField(
         verbose_name=_("url"),
