@@ -19,7 +19,30 @@ class ArchivedModelAdmin(admin.ModelAdmin):
 
 
 # register the user admin
-admin.site.register(User, UserAdmin)
+class CustomUserAdmin(UserAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
+    fieldsets = (
+        ('Main', {
+            'fields': ('username', 'password', ),
+            'classes': ('baton-tabs-init', 'baton-tab-fs-info', 'baton-tab-fs-permissions', 'baton-tab-fs-dates', ),
+
+        }),
+        ('Personal Info', {
+            'fields': ('first_name', 'last_name', 'email', ),
+            'classes': ('tab-fs-info', ),
+
+        }),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', ),
+            'classes': ('tab-fs-permissions', ),
+        }),
+        ('Important dates', {
+            'fields': ('last_login', 'date_joined', ),
+            'classes': ('tab-fs-dates', ),
+        }),
+    )
+
+admin.site.register(User, CustomUserAdmin)
 
 
 @admin.register(Preferences)
