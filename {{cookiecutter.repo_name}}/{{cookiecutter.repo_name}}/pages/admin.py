@@ -1,9 +1,9 @@
 import logging
 from functools import update_wrapper
 
-{% if cookiecutter.admin == 'django-baton' %}
+
 from baton.admin import RelatedDropdownFilter
-{% endif %}
+
 from core.admin import ArchivedModelAdmin
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
@@ -40,7 +40,7 @@ from taggit.models import TaggedItem
 
 logger = logging.getLogger(__name__)
 
-# classes which need a deep copy because they have children items 
+# classes which need a deep copy because they have children items
 CLONE_NESTED_CONTENTS = [
     PageContentMap,
     PageContentBoxMenu,
@@ -53,31 +53,32 @@ CLONE_ITEM_MAP = {
 
 # fields which must be skipped during the copying of the object (file is here because having a double reference to a file can create issues)
 CLONE_SKIP_FIELDS = [
-    'file',
-    'id',
-    'object_id',
-    'pagecontent_ptr',
-    'block_id',
-    'page',
+    "file",
+    "id",
+    "object_id",
+    "pagecontent_ptr",
+    "block_id",
+    "page",
 ]
 
+
 @admin.register(Page)
-class PageAdmin(ArchivedModelAdmin): # pyright: ignore
+class PageAdmin(ArchivedModelAdmin):  # pyright: ignore
     @admin.action(description=_("Clona pagine selezionate"))
     def clone(self, request, queryset):
         for obj in queryset:
             if not obj.title_it:
                 title_it = obj.title_it
             else:
-                title_it = obj.title_it + '_COPY'
+                title_it = obj.title_it + "_COPY"
             if not obj.title_en:
                 title_en = obj.title_en
             else:
-                title_en = obj.title_en + '_COPY'
+                title_en = obj.title_en + "_COPY"
             if not obj.title_fr:
                 title_fr = obj.title_fr
             else:
-                title_fr = obj.title_fr + '_COPY'
+                title_fr = obj.title_fr + "_COPY"
             page = Page.objects.create(
                 status=obj.status,
                 parent=obj.parent,
@@ -104,7 +105,9 @@ class PageAdmin(ArchivedModelAdmin): # pyright: ignore
 
     content_models = {}
     form = PageForm
-    actions=['clone',]
+    actions = [
+        "clone",
+    ]
     fieldsets = (
         (
             _("Main"),
@@ -137,7 +140,7 @@ class PageAdmin(ArchivedModelAdmin): # pyright: ignore
             _("Advanced options"),
             {
                 "classes": ("tab-fs-adv",),
-                "fields": ("registration_required", "users","groups", "template_name"),
+                "fields": ("registration_required", "users", "groups", "template_name"),
             },
         ),
     )
@@ -150,7 +153,7 @@ class PageAdmin(ArchivedModelAdmin): # pyright: ignore
     )
     list_editable = ("status",)
     list_filter = (
-        {% if cookiecutter.admin == 'django-baton' %}("parent", RelatedDropdownFilter),{% endif %}
+        ("parent", RelatedDropdownFilter),
         "registration_required",
         "status",
     )
@@ -182,7 +185,7 @@ class PageAdmin(ArchivedModelAdmin): # pyright: ignore
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
 
-            wrapper.model_admin = self # pyright: ignore
+            wrapper.model_admin = self  # pyright: ignore
             return update_wrapper(wrapper, view)
 
         info = self.model._meta.app_label, self.model._meta.model_name
@@ -245,10 +248,18 @@ class PageContentAdmin(admin.ModelAdmin):
             page = None
 
         if page is None:
-            messages.add_message(request, messages.WARNING, _("Page content block should be created starting from an already existing page."))
+            messages.add_message(
+                request,
+                messages.WARNING,
+                _(
+                    "Page content block should be created starting from an already existing page."
+                ),
+            )
             return redirect("admin:pages_page_changelist")
 
-        context.update({"show_save_and_add_another": False, "show_delete": False, "page": page})
+        context.update(
+            {"show_save_and_add_another": False, "show_delete": False, "page": page}
+        )
         return super().render_change_form(request, context, add, change, form_url, obj)
 
     def save_model(self, request, obj, form, change):
@@ -258,7 +269,7 @@ class PageContentAdmin(admin.ModelAdmin):
             content_type = ContentType.objects.get_for_model(self.model)
             obj.page = page
             obj.content_type = content_type
-            obj.position = page.content_blocks.count() # pyright: ignore
+            obj.position = page.content_blocks.count()  # pyright: ignore
         with transaction.atomic():  # TODO manage error
             super().save_model(request, obj, form, change)
             # we need to store the id inside the PageContent object_id field to be able to
@@ -271,13 +282,13 @@ class PageContentAdmin(admin.ModelAdmin):
         """
         If adding  a block, redirect to the content editing page
         """
-        return redirect("admin:pages_page_edit_content", id=obj.page_id) # pyright: ignore
+        return redirect("admin:pages_page_edit_content", id=obj.page_id)  # pyright: ignore
 
     def response_post_save_change(self, request, obj: PageContent):
         """
         If saving a block, redirect to the content editing page
         """
-        return redirect("admin:pages_page_edit_content", id=obj.page_id) # pyright: ignore
+        return redirect("admin:pages_page_edit_content", id=obj.page_id)  # pyright: ignore
 
     def response_delete(self, request, obj_display, obj_id):
         """
@@ -333,6 +344,7 @@ class PageContentImageAdmin(PageContentAdmin):
                 "fields": (
                     "name",
                     "image_content",
+                    "image_subject_location",
                     "caption",
                     "credits",
                     "url",
@@ -581,7 +593,7 @@ class PageContentMapAdmin(PageContentAdmin):
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
 
-            wrapper.model_admin = self # pyright: ignore
+            wrapper.model_admin = self  # pyright: ignore
             return update_wrapper(wrapper, view)
 
         info = self.model._meta.app_label, self.model._meta.model_name
@@ -637,5 +649,6 @@ class PageContentVideoAdmin(PageContentAdmin):
             },
         ),
     )
+
 
 PageAdmin.register(PageContentVideo)

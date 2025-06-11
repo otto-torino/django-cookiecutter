@@ -84,10 +84,12 @@ def generic_copy_and_assign(block, page):
 class AccordionBlock(models.Model):
     use_accordion = models.BooleanField(
         default=False,
-        help_text=_("set to true if you want this block to be inside an accordion, the block name will be used inside the accordion head"),
+        help_text=_(
+            "set to true if you want this block to be inside an accordion, the block name will be used inside the accordion head"
+        ),
     )
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         abstract = True
         verbose_name = _("accordion")
         verbose_name_plural = _("accordions")
@@ -125,7 +127,13 @@ class Page(TimeStampedModel):
     )
     url = models.CharField(_("URL"), max_length=100, db_index=True)
     title = models.CharField(_("title"), max_length=200)
-    image = BatonAiImageField(verbose_name=_("immagine header"), upload_to="pages/images/",subject_location_field='subject_location', blank=True, null=True)
+    image = BatonAiImageField(
+        verbose_name=_("immagine header"),
+        upload_to="pages/images/",
+        subject_location_field="subject_location",
+        blank=True,
+        null=True,
+    )
     subject_location = models.CharField(max_length=7, default="50,50")
     tags = TaggableManager(_("tags"), blank=True)
     template_name = models.CharField(
@@ -171,8 +179,13 @@ class Page(TimeStampedModel):
     )
     sites = models.ManyToManyField(Site, verbose_name=_("sites"))
     status = models.IntegerField(choices=STATUS_CHOICES, default=DRAFT)
-    relevance = models.IntegerField(verbose_name=_("rilevanza"), help_text=_("priority level for searches"), choices=RELEVANCE_CHOICES, default=2)
-    
+    relevance = models.IntegerField(
+        verbose_name=_("rilevanza"),
+        help_text=_("priority level for searches"),
+        choices=RELEVANCE_CHOICES,
+        default=2,
+    )
+
     # seo
     meta_title = models.CharField(
         _("meta title"),
@@ -195,9 +208,9 @@ class Page(TimeStampedModel):
         help_text=_("default to page tags"),
     )
 
-    objects: PageManager = PageManager() # pyright: ignore
+    objects: PageManager = PageManager()  # pyright: ignore
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("page")
         verbose_name_plural = _("pages")
         ordering = ("url",)
@@ -213,7 +226,7 @@ class Page(TimeStampedModel):
         )
 
     def has_map_content(self):
-        for c in self.content_blocks.filter(enabled=True): # pyright: ignore
+        for c in self.content_blocks.filter(enabled=True):  # pyright: ignore
             if c.content_type.model == "pagecontentmap":
                 return True
         return False
@@ -245,7 +258,11 @@ class PageContent(TimeStampedModel):
         ("#e2e8f0", _("grey")),
     ]
 
-    layout_content = models.BooleanField(_("layout content"), default=False, help_text=_('if true this content can only be used inside a layout block'))
+    layout_content = models.BooleanField(
+        _("layout content"),
+        default=False,
+        help_text=_("if true this content can only be used inside a layout block"),
+    )
     name = models.CharField(_("name"), max_length=200, blank=True, null=True)
     show_name = models.BooleanField(_("show name"), default=False)
     background_color = ColorField(
@@ -261,7 +278,11 @@ class PageContent(TimeStampedModel):
     content_object = GenericForeignKey("content_type", "object_id")
     position = models.IntegerField(_("ordering"), editable=False)
     enabled = models.BooleanField(_("block enabled"), default=True)
-    full_width = models.BooleanField(_("full width"), default=False, help_text=_("set to true if you want the block to fill the page width"))
+    full_width = models.BooleanField(
+        _("full width"),
+        default=False,
+        help_text=_("set to true if you want the block to fill the page width"),
+    )
 
     objects = PageContentQuerySet.as_manager()
 
@@ -298,11 +319,11 @@ class PageContent(TimeStampedModel):
     @property
     def get_unique_id(self):
         raise NotImplementedError
-    
+
     def __str__(self):
         return f"{self.name}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         ordering = ["position"]
 
 
@@ -319,7 +340,7 @@ class PageContentText(PageContent, AccordionBlock):
     def __str__(self):
         return f"{self.page.title}/{_('text content')}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("text content block")
         verbose_name_plural = _("text content blocks")
 
@@ -358,22 +379,26 @@ class PageContentText(PageContent, AccordionBlock):
 
 
 class PageContentImage(PageContent):
-    image_content = models.ImageField(
-        verbose_name=_("content"), upload_to="pages/image_content"
+    image_content = BatonAiImageField(
+        verbose_name=_("content"),
+        upload_to="pages/image_content",
+        subject_location_field="image_subject_location",
+        alt_field="caption",
     )
+    image_subject_location = models.CharField(max_length=7, default="50,50")
+    caption = models.CharField(max_length=255, blank=True, null=True)
     show_captions = models.BooleanField(
         _("show captions"),
         default=True,
         help_text=_("set to true if you want to show the captions of the images"),
     )
-    caption = models.TextField(_("caption"), blank=True, null=True)
     credits = models.TextField(_("credits"), blank=True, null=True)
     url = models.CharField(_("url"), blank=True, null=True)
 
     def __str__(self):
         return f"{self.page.title}/{_('image content')}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("image content block")
         verbose_name_plural = _("image content blocks")
 
@@ -426,7 +451,9 @@ class PageContentTextImage(PageContent, AccordionBlock):
         null=True,
     )
     image = BatonAiImageField(
-        verbose_name=_("image"), upload_to="pages/text_image_content", subject_location_field='subject_location'
+        verbose_name=_("image"),
+        upload_to="pages/text_image_content",
+        subject_location_field="subject_location",
     )
     subject_location = models.CharField(max_length=7, default="50,50")
     image_position = models.CharField(
@@ -443,7 +470,7 @@ class PageContentTextImage(PageContent, AccordionBlock):
     def __str__(self):
         return f"{self.page.title}/{_('text and image content')}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("text and image content block")
         verbose_name_plural = _("text and image content blocks")
 
@@ -516,7 +543,7 @@ class PageContentMultiImage(PageContent):
     def __str__(self):
         return f"{self.page.title}/{_('multi image content')}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("multi image content block")
         verbose_name_plural = _("multi image content blocks")
 
@@ -571,7 +598,7 @@ class PageContentMultiImageItem(models.Model):
         PageContentMultiImage, on_delete=models.CASCADE, related_name="images"
     )
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("image")
         verbose_name_plural = _("images")
         ordering = ("position",)
@@ -603,7 +630,7 @@ class PageContentBoxMenu(PageContent):
     def __str__(self):
         return f"{self.page.title}/{_('Box menu content')}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("Box menu")
         verbose_name_plural = _("Box menus")
 
@@ -702,7 +729,7 @@ class PageContentBoxItem(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("Box")
         verbose_name_plural = _("Boxes")
         ordering = ("position",)
@@ -715,7 +742,7 @@ class PageContentRssFeed(PageContent):
     def __str__(self):
         return f"{self.page.title}/{_('RSS feed')}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("RSS feed block")
         verbose_name_plural = _("RSS feed blocks")
 
@@ -849,7 +876,7 @@ class PageContentVideo(PageContent):
     def __str__(self):
         return f"{self.page.title}/{_('Video')}"
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("Video block")
         verbose_name_plural = _("Video blocks")
 
@@ -884,8 +911,12 @@ class PageContentVideo(PageContent):
     def get_unique_id(self):
         return "Video" + str(self.pk)
 
+
 class PageContentLayout(PageContent):
-    wrapper_css = models.TextField(_('grid css'), help_text='The grid wrapper should have a .grid-wrapper class, every grid item should have a .grid-item class') 
+    wrapper_css = models.TextField(
+        _("grid css"),
+        help_text="The grid wrapper should have a .grid-wrapper class, every grid item should have a .grid-item class",
+    )
 
     def __str__(self):
         return f"{self.page.title}/{_('Layout')}"
@@ -893,7 +924,7 @@ class PageContentLayout(PageContent):
     def render_wrapper_css(self):
         return self.wrapper_css.replace("grid-wrapper", "grid-wrapper-" + str(self.pk))
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("Layout block")
         verbose_name_plural = _("Layout blocks")
 
@@ -922,11 +953,12 @@ class PageContentLayout(PageContent):
         return "pages/page_content_layout.html"
 
     def copy_and_assign(self, page):
-        generic_copy_and_assign(self, page) # FIXME: change
+        generic_copy_and_assign(self, page)  # FIXME: change
 
     @property
     def get_unique_id(self):
         return "Layout" + str(self.pk)
+
 
 class PageContentLayoutItem(models.Model):
     TOP = 1
@@ -939,19 +971,31 @@ class PageContentLayoutItem(models.Model):
     layout = models.ForeignKey(
         PageContentLayout, on_delete=models.CASCADE, related_name="layout_items"
     )
-    css = models.TextField(verbose_name=_("css"), help_text=_("Write the css class of the grid item, it must be .grid-item, i.e. .grid-item { grid-column: 1 / 3; }"))
+    css = models.TextField(
+        verbose_name=_("css"),
+        help_text=_(
+            "Write the css class of the grid item, it must be .grid-item, i.e. .grid-item { grid-column: 1 / 3; }"
+        ),
+    )
     content = models.ForeignKey(
-        PageContent, on_delete=models.CASCADE, related_name="layout_contents", blank=True, null=True, limit_choices_to={'layout_content': True}
+        PageContent,
+        on_delete=models.CASCADE,
+        related_name="layout_contents",
+        blank=True,
+        null=True,
+        limit_choices_to={"layout_content": True},
     )
     text = RichTextUploadingField(verbose_name=_("text"), blank=True, null=True)
     text_position = models.PositiveSmallIntegerField(
         _("tex position"), choices=POSITION_CHOICES, default=TOP
     )
 
-    class Meta: # pyright: ignore
+    class Meta:  # pyright: ignore
         verbose_name = _("Layout block item")
         verbose_name_plural = _("Layout block items")
-        ordering = ['id', ]
+        ordering = [
+            "id",
+        ]
 
     def render_item_css(self):
         return self.css.replace("grid-item", "grid-item-" + str(self.pk))
