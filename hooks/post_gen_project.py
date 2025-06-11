@@ -38,6 +38,9 @@ if context["use_cabinet"] != "y":
 if context["use_translations"] != "y":
     shutil.rmtree("./{{ cookiecutter.repo_name }}/pages/translation.py")
     shutil.rmtree("./{{ cookiecutter.repo_name }}/cabinet/translation.py")
+    shutil.rmtree(
+        "./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/translation.py"
+    )
 
 shutil.move("gitignore", ".gitignore")
 
@@ -45,6 +48,22 @@ print("📦 Building Docker images...")
 
 subprocess.run(["mkdir", ".virtualenv"], check=True)
 subprocess.run(["docker", "compose", "-f", "docker-compose.yml", "build"], check=True)
+
+subprocess.run(
+    [
+        "docker",
+        "compose",
+        "-f",
+        "docker-compose.yml",
+        "run",
+        "--rm",
+        "app",
+        "bash",
+        "-c",
+        "source /home/app/venv/bin/activate && cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py makemigrations",
+    ],
+    check=True,
+)
 
 if not os.path.exists(theme_path):
     print("🎨 Initializing Tailwind app (theme)...")
