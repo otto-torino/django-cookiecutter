@@ -74,8 +74,7 @@ Then you should answer some questions:
 | Repo Name | String | The repository name |
 | Core Name | String | Name of the main application module |
 | Use filer | Boolean<br>y/n | Whether to install django-filer or not |
-| Use disqus | Boolean<br>y/n | Whether to install django-disqus or not |
-| Use subject imagefield | Boolean<br>y/n | Whether to install django-subject-imagefield or not |
+| Use cabinet | Boolean<br>y/n | Whether to include custom cabinet app or not |
 | Use sorl thumbnail | Boolean<br>y/n | Whether to install sorl-thumbnail or not |
 | Use captcha | Boolean<br>y/n | Whether to install django-simple-captcha or not |
 | Use Translations        | Boolean<br>y/n | Whether to install django-modeltranslation or not |
@@ -83,7 +82,7 @@ Then you should answer some questions:
 | Timezone | String | The timezone django setting |
 | Author | String | The application author |
 | Email | String | The admin e-mail used to send erro e-mails with trace |
-| Ubuntu Version | Enum<br>16.04 \| 18.04 \| latest  | The ubuntu version used for the docker container |
+| Ubuntu Version | Enum<br>20.04 \| 22.04 \| latest  | The ubuntu version used for the docker container |
 | Remote User | String | The remote user used during deploy |
 | Remote Password | String | The remote user password |
 | Domain | String | The domain of the deployed application |
@@ -186,8 +185,3 @@ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
   ```
 
 * Launch `./cli.py --start`
-
-## TODO
-
-* Add bootstrap 5 as cookiecutter option
-* Add staging environment
