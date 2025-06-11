@@ -43,69 +43,9 @@ from taggit.models import TaggedItem
 
 logger = logging.getLogger(__name__)
 
-# classes which need a deep copy because they have children items
-CLONE_NESTED_CONTENTS = [
-    PageContentMap,
-    PageContentBoxMenu,
-]
-
-CLONE_ITEM_MAP = {
-    PageContentMap: PageContentMapItem,
-    PageContentBoxMenu: PageContentBoxItem,
-}
-
-# fields which must be skipped during the copying of the object (file is here because having a double reference to a file can create issues)
-CLONE_SKIP_FIELDS = [
-    "file",
-    "id",
-    "object_id",
-    "pagecontent_ptr",
-    "block_id",
-    "page",
-]
-
 
 @admin.register(Page)
-class PageAdmin({% if cookiecutter.use_translations == "y" %}TranslationAdmin{% else %}admin.ModelAdmin{% endif %}, ArchivedModelAdmin):  # pyright: ignore
-    @admin.action(description=_("Clona pagine selezionate"))
-    def clone(self, request, queryset):
-        for obj in queryset:
-            if not obj.title_it:
-                title_it = obj.title_it
-            else:
-                title_it = obj.title_it + "_COPY"
-            if not obj.title_en:
-                title_en = obj.title_en
-            else:
-                title_en = obj.title_en + "_COPY"
-            if not obj.title_fr:
-                title_fr = obj.title_fr
-            else:
-                title_fr = obj.title_fr + "_COPY"
-            page = Page.objects.create(
-                status=obj.status,
-                parent=obj.parent,
-                url=obj.url[:-1] + "_COPY/",
-                title_it=title_it,
-                title_en=title_en,
-                title_fr=title_fr,
-                last_updated=obj.last_updated,
-                registration_required=obj.registration_required,
-                template_name=obj.template_name,
-                meta_title=obj.meta_title,
-                meta_description=obj.meta_description,
-                meta_keywords=obj.meta_keywords,
-            )
-            page.sites.set(obj.sites.all())
-            page.users.set(obj.users.all())
-            page.groups.set(obj.groups.all())
-            page.save()
-            for tag in obj.tags.all():
-                tag_object = TaggedItem(content_object=page, tag=tag)
-                tag_object.save()
-            for block in obj.content_blocks.all():
-                block.content_object.copy_and_assign(page)
-
+class PageAdmin({% if cookiecutter.use_translations == "y" %}TranslationAdmin, {% endif %}ArchivedModelAdmin):  # pyright: ignore
     content_models = {}
     form = PageForm
     actions = [
@@ -122,6 +62,7 @@ class PageAdmin({% if cookiecutter.use_translations == "y" %}TranslationAdmin{% 
                     "url",
                     "title",
                     "image",
+                    "alt_text",
                     "subject_location",
                     "tags",
                     "sites",

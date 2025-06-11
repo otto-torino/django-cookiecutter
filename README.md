@@ -13,49 +13,48 @@ Yet another django cookiecutter template.
 
 ## Features
 
-- Local environment running inside 4 docker containers, one for the app, one for the database, one for the mail service and one for tailwind.
-- Development ready django project with all packages installed and database created and ready to go.
-- Set of bin commands to perform common tasks.
-- Set of production bin commands to perform machine setup (ansible) and deploy (fabric).
+* Local environment running inside 4 docker containers, one for the app, one for the database, one for the mail service and one for tailwind.
+* Development ready django project with all packages installed and database created and ready to go.
+* Set of bin commands to perform common tasks.
+* Set of production bin commands to perform machine setup (ansible) and deploy (fabric).
 
 Project details:
 
-- django db settings managed with environment variables
-- some must-have (in my opinion) packages installed:
-    - [django-ckeditor](https://github.com/django-ckeditor/django-ckeditor)
-    - [django-cleanup](https://github.com/un1t/django-cleanup)
-    - [django-preferences-utils](https://github.com/otto-torino/django-preferences-utils)
-    - [django-user_agents](https://github.com/selwin/django-user_agents)
-    - [django-extensions](https://github.com/django-extensions/django-extensions)
-    - [django-simple-captcha](https://github.com/mbi/django-simple-captcha)
-    - [django-subject-imagefield](https://github.com/otto-torino/django-subject-imagefield)
-    - [django-taggit](https://github.com/alex/django-taggit)
-    - [sorl-thumbnail](https://github.com/jazzband/sorl-thumbnail)
-    - [django-debug-toolbar](https://github.com/django-debug-toolbar/django-debug-toolbar)
-    - [django-baton](https://github.com/otto-torino/django-baton) (optional)
-    - [django-suit](http://djangosuit.com/) (optional)
-    - [django-grappelli](https://github.com/sehmaschine/django-grappelli) (optional)
-    - [django-filer](https://github.com/stefanfoulis/django-filer) (optional)
-    - [django-compressor](https://github.com/django-compressor/django-compressor)
-    - [django-tailwind](https://github.com/timonweb/django-tailwind)
-    - pages with integrated ckeditor
+* django db settings managed with environment variables
+* some must-have (in my opinion) packages installed:
+  * [django-ckeditor](https://github.com/django-ckeditor/django-ckeditor)
+  * [django-cleanup](https://github.com/un1t/django-cleanup)
+  * [django-preferences-utils](https://github.com/otto-torino/django-preferences-utils)
+  * [django-user_agents](https://github.com/selwin/django-user_agents)
+  * [django-extensions](https://github.com/django-extensions/django-extensions)
+  * [django-simple-captcha](https://github.com/mbi/django-simple-captcha)
+  * [django-subject-imagefield](https://github.com/otto-torino/django-subject-imagefield)
+  * [django-taggit](https://github.com/alex/django-taggit)
+  * [sorl-thumbnail](https://github.com/jazzband/sorl-thumbnail)
+  * [django-debug-toolbar](https://github.com/django-debug-toolbar/django-debug-toolbar)
+  * [django-baton](https://github.com/otto-torino/django-baton)
+  * [django-modeltranslation](https://github.com/otto-torino/django-baton) (optional)
+  * [django-filer](https://github.com/stefanfoulis/django-filer) (optional)
+  * [django-compressor](https://github.com/django-compressor/django-compressor)
+  * [django-tailwind](https://github.com/timonweb/django-tailwind)
+  * pages with integrated ckeditor
 
 ### Frontend
 
 #### Vendor
 
-- tailwind
-- air-datepicker
-- ramda
-- swiper
-- tocca
+* tailwind
+* air-datepicker
+* ramda
+* swiper
+* tocca
 
 ## Getting started
 
 Install cookiecutter
 
 ```bash
-$ pip install cookiecutter
+pip install cookiecutter
 ```
 
 Install docker-compose, see the [official docs](https://docs.docker.com/compose/install/).
@@ -63,7 +62,7 @@ Install docker-compose, see the [official docs](https://docs.docker.com/compose/
 Run the cookiecutter command
 
 ```bash
-$ cookiecutter https://github.com/otto-torino/django-cookiecutter
+cookiecutter https://github.com/otto-torino/django-cookiecutter
 ```
 
 Then you should answer some questions:
@@ -74,13 +73,13 @@ Then you should answer some questions:
 | Project Description | String | The project description, site meta description |
 | Repo Name | String | The repository name |
 | Core Name | String | Name of the main application module |
-| Admin | Enum<br>django-baton \| default \| django-suit \| django-grappelli | The admin application |
 | Use filer | Boolean<br>y/n | Whether to install django-filer or not |
 | Use disqus | Boolean<br>y/n | Whether to install django-disqus or not |
 | Use subject imagefield | Boolean<br>y/n | Whether to install django-subject-imagefield or not |
 | Use sorl thumbnail | Boolean<br>y/n | Whether to install sorl-thumbnail or not |
 | Use captcha | Boolean<br>y/n | Whether to install django-simple-captcha or not |
-| Language Code | String | The language code django setting |
+| Use Translations        | Boolean<br>y/n | Whether to install django-modeltranslation or not |
+| Default language | Enum<br>it \| en | The language code and languages django setting |
 | Timezone | String | The timezone django setting |
 | Author | String | The application author |
 | Email | String | The admin e-mail used to send erro e-mails with trace |
@@ -96,13 +95,9 @@ After that:
 
 Start the project
 
-    $ ./cli.py --start
+    ./cli.py --start
 
-In another terminal init tailwind:
-
-    $ ./cli.py --manage "taiwind init"
-
-Then uncomment the `theme` app inside the `core/settings/common.py` file
+Enjoy
 
 ## CLI
 
@@ -112,6 +107,7 @@ Your new cool installation comes with a command line interface you can use to la
 |---------|-------------|
 | `--help` | Prints the help summary |
 | `--start` | Starts the development environment |
+| `--stop` | Stops the development environment |
 | `--clean` | Removes containers and volumes |
 | `--shell` | Opens a shell in the app container |
 | `--createsuperuser` | Creates a superuser account |
@@ -138,7 +134,6 @@ Let's see in the detail the remote commands:
 
 > After the first start, uncomment the theme app inside the settings common file.
 
-
 ### Autocompletion
 
 The provided cli supports autocompletion through [argcomplete](https://github.com/kislyuk/argcomplete). If you want to benefit of it (not mandatory), you need to install it on your machine and activate it globally.
@@ -146,32 +141,33 @@ The provided cli supports autocompletion through [argcomplete](https://github.co
 #### Ubuntu
 
 ```bash
-$ pip install argcomplete
-$ mkdir ~/.bash_completion.d
-$ activate-global-python-argcomplete --dest=~/.bash_completion.d
-$ echo ". ~/.bash_completion.d/python-argcomplete" >> ~/.bashrc
+pip install argcomplete
+mkdir ~/.bash_completion.d
+activate-global-python-argcomplete --dest=~/.bash_completion.d
+echo ". ~/.bash_completion.d/python-argcomplete" >> ~/.bashrc
 ```
 
 #### OSX
 
-The problem with OSX is that it comes with a quite old version of bash which does not support all recent source command options.    
+The problem with OSX is that it comes with a quite old version of bash which does not support all recent source command options.
 Better update it.
 
 ```bash
-$ brew install bash
-$ sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'
-$ chsh -s /usr/local/bin/bash
-$ pip install argcomplete
-$ activate-global-python-argcomplete
-$ echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
-$ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
+brew install bash
+sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'
+chsh -s /usr/local/bin/bash
+pip install argcomplete
+activate-global-python-argcomplete
+echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
+echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
 ```
 
 ## Starting from cloned project
 
-- Create the `.virtualenv` directory into the root directory
-- Create the `logs` directory into the root directory
-- Create a `.env` file in the `root/project-name/project-name` directory with the following content:
+* Create the `.virtualenv` directory into the root directory
+* Create the `logs` directory into the root directory
+* Create a `.env` file in the `root/project-name/project-name` directory with the following content:
+
   ```
     DJANGO_SETTINGS_MODULE=core.settings.local
     DB_NAME=...
@@ -188,9 +184,10 @@ $ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
     REMOTE_DB_PASSWORD=...
     SECRET_KEY=...
   ```
-- Launch `./cli.py --start`
+
+* Launch `./cli.py --start`
 
 ## TODO
 
-- Add bootstrap 5 as cookiecutter option
-- Add staging environment
+* Add bootstrap 5 as cookiecutter option
+* Add staging environment

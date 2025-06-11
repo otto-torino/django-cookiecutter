@@ -13,7 +13,7 @@ DEFAULT_TEMPLATE = "pages/default.html"
 # This view is called from PageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
 # has not been called even if CsrfViewMiddleware is installed. So we need
-# to use @csrf_protect, in case the template needs {% csrf_token %}.
+# to use @csrf_protect, in case the template needs {% raw %}{% csrf_token %}{% endraw %}.
 # However, we can't just wrap this view; if no matching page exists,
 # or a redirect is required for authentication, the 404 needs to be returned
 # without any CSRF checks. Therefore, we only
@@ -67,7 +67,7 @@ def page_content_rss_feed_preview(request, page_content_id):
     page_content = get_object_or_404(PageContentRssFeed, id=page_content_id)
     feed = consume_rss_feed(page_content.rss_feed_url)
     ctx = {
-        "entries": feed.entries[:page_content.num_items],
+        "entries": feed.entries[: page_content.num_items],
     }
     return render(
         request,
@@ -75,15 +75,15 @@ def page_content_rss_feed_preview(request, page_content_id):
         ctx,
     )
 
+
 def page_content_rss_feed_content(request, page_content_id):
     page_content = get_object_or_404(PageContentRssFeed, id=page_content_id)
     feed = consume_rss_feed(page_content.rss_feed_url)
     ctx = {
-        "entries": feed.entries[:page_content.num_items],
+        "entries": feed.entries[: page_content.num_items],
     }
     return render(
         request,
         "pages/page_content_rss_feed_content.html",
         ctx,
     )
- 

@@ -14,11 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.urls import path, re_path, include
-{% if cookiecutter.admin == 'django-baton' %}
 from baton.autodiscover import admin
-{% else %}
-from django.contrib import admin
-{% endif %}
 from django.conf import settings
 from django.views.generic import TemplateView
 from django.views import static
@@ -29,9 +25,7 @@ urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
     # admin
     path('admin/', admin.site.urls),
-    {% if cookiecutter.admin == 'django-baton' %}
     path('baton/', include('baton.urls')),
-    {% endif %}
     re_path(r'^$', TemplateView.as_view(template_name='home.html'),
             name='home'),
     # ckeditor uploader
@@ -43,10 +37,6 @@ urlpatterns = [
     {% if cookiecutter.use_filer == 'y' %}
     # filer
     path('filer/', include('filer.urls')),
-    {% endif %}
-    {% if cookiecutter.admin == 'django-grappelli' %}
-    # grappelli
-    path('grappelli/', include('grappelli.urls')),
     {% endif %}
 ]
 

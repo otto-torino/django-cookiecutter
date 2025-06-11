@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from preferences_utils.admin import PreferencesUtilsAdmin
-{% if cookiecutter.use_translations == 'y' %}from lineup.models import MenuItem
+{% if cookiecutter.use_translations == 'y' %}from modeltranslation.admin import TranslationAdmin, TranslationStackedInline
+from lineup.models import MenuItem
 from lineup.admin import MenuItemAdmin as BaseMenuItemAdmin{% endif %}
 
 from .models import User, Preferences
@@ -51,8 +52,7 @@ class PreferencesAdmin(PreferencesUtilsAdmin):
 
     fieldsets = (
         (_('Principale'), {
-            {% if cookiecutter.admin == 'django-baton' %}'fields': ("site_title", "ai_models", "hide_archived", "robots",),{% endif %}
-            {% if cookiecutter.admin != 'django-baton' %}'fields': ("site_title", "hide_archived", "robots",),{% endif %}
+            'fields': ("site_title", "ai_models", "hide_archived", "robots",),
             "classes": ("baton-tabs-init", "baton-tab-fs-meta", ),
         }),
         (_('Meta'), {
@@ -62,6 +62,20 @@ class PreferencesAdmin(PreferencesUtilsAdmin):
     )
 
 {% if cookiecutter.use_translations == 'y' %}
+# Custom menu admin
+class MenuItemInline(TranslationStackedInline):
+    """
+    Tabular Inline View for MenuItem
+    """
+
+    model = MenuItem
+    extra = 1
+    classes = (
+        "collapse-entry",
+        "expand-first",
+    )
+    prepopulated_fields = {"slug": ("label",)}
+
 admin.site.unregister(MenuItem)
 
 

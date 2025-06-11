@@ -24,21 +24,13 @@ theme_path = os.path.join("theme")
 
 context = {{cookiecutter}}
 
-if context["admin"] != "django-baton":
-    print("\n")
-    print("POST HOOK" + "\n")
-    print("removing unused baton admin template" + "\n")
-    shutil.rmtree(
-        "./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/templates/admin"
-    )
-
 if context["use_cabinet"] != "y":
     shutil.rmtree("./{{ cookiecutter.repo_name }}/cabinet")
 
 if context["use_translations"] != "y":
-    shutil.rmtree("./{{ cookiecutter.repo_name }}/pages/translation.py")
-    shutil.rmtree("./{{ cookiecutter.repo_name }}/cabinet/translation.py")
-    shutil.rmtree(
+    os.remove("./{{ cookiecutter.repo_name }}/pages/translation.py")
+    os.remove("./{{ cookiecutter.repo_name }}/cabinet/translation.py")
+    os.remove(
         "./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/translation.py"
     )
 
@@ -49,6 +41,9 @@ print("📦 Building Docker images...")
 subprocess.run(["mkdir", ".virtualenv"], check=True)
 subprocess.run(["docker", "compose", "-f", "docker-compose.yml", "build"], check=True)
 
+migrate_apps = "core pages"
+if context["use_cabinet"] == "y":
+    migrate_apps += " cabinet"
 subprocess.run(
     [
         "docker",
@@ -60,7 +55,8 @@ subprocess.run(
         "app",
         "bash",
         "-c",
-        "source /home/app/venv/bin/activate && cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py makemigrations",
+        "source /home/app/venv/bin/activate && cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py makemigrations %s"
+        % migrate_apps,
     ],
     check=True,
 )

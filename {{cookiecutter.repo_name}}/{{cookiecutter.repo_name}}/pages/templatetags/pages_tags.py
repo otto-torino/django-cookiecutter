@@ -9,10 +9,10 @@ register = template.Library()
 
 @register.filter
 def replace(value, arg):
-    """
+    {% raw %}"""
     Replacing filter
     Use `{{ "aaa"|replace:"a|b" }}`
-    """
+    """{% endraw %}
     if len(arg.split('|')) != 2:
         return value
 
@@ -83,7 +83,7 @@ class PageNode(template.Node):
 
 @register.tag
 def get_pages(parser, token):
-    """
+    {% raw %}"""
     Retrieves all page objects available for the current site and
     visible to the specific user (or visible to all users if no user is
     specified). Populates the template context with them in a variable
@@ -108,7 +108,7 @@ def get_pages(parser, token):
         {% get_pages '/about/' as about_pages %}
         {% get_pages prefix as about_pages %}
         {% get_pages '/about/' for someuser as about_pages %}
-    """
+    """{% endraw %}
     bits = token.split_contents()
     syntax_message = ("%(tag_name)s expects a syntax of %(tag_name)s "
                       "['url_starts_with'] [for user] as context_name" %
@@ -142,7 +142,7 @@ def get_pages(parser, token):
 
 @register.tag
 def get_page(parser, token):
-    """
+    {% raw %}"""
     Retrieves the page object available for the current site if
     visible to the current user by url. Populates the template context with
     it in a variable whose name is defined by the ``as`` clause.
@@ -154,7 +154,7 @@ def get_page(parser, token):
     Example usage::
 
         {% get_page '/about/' as about_pages %}
-    """
+    """{% endraw %}
     bits = token.split_contents()
     syntax_message = ("%(tag_name)s expects a syntax of %(tag_name)s "
                       "['url'] as context_name" %

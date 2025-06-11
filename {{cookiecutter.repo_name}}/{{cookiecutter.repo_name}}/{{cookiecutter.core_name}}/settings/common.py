@@ -62,7 +62,7 @@ AUTH_PASSWORD_VALIDATORS = [
 INSTALLED_APPS = (
     '{{ cookiecutter.core_name }}',
     {% if cookiecutter.use_translations == 'y' %}'modeltranslation',{% endif %}
-    {% if cookiecutter.admin == 'django-baton' %}'baton',{% elif cookiecutter.admin == 'django-suit' %}'suit',{% elif cookiecutter.admin == 'django-grappelli' %}'grappelli',{% endif %}
+    'baton',
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -90,9 +90,9 @@ INSTALLED_APPS = (
     'taggit',
     'mptt',
     'lineup.apps.LineupConfig',
-    {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'pages',
-    {% if cookiecutter.admin == 'django-baton' %}'baton.autodiscover',{% endif %}
+    {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
+    'baton.autodiscover',
 )
 
 MIDDLEWARE = (
@@ -150,7 +150,7 @@ LANGUAGE_CODE = '{{ cookiecutter.default_language}}'
 ){% else %}LANGUAGES = (
     ("en", _("English")),
 ){% endif %}
-{% if cookiecutter.use_translations == 'y' %}MODELTRANSLATION_DEFAULT_LANGUAGE = "it"{% endif %}
+{% if cookiecutter.use_translations == 'y' %}MODELTRANSLATION_DEFAULT_LANGUAGE = "{{ cookiecutter.default_language}}"{% endif %}
 
 TIME_ZONE = '{{ cookiecutter.timezone }}'
 USE_I18N = True
@@ -177,7 +177,6 @@ COMPRESS_PRECOMPILERS = (
 )
 
 # ADMIN
-{% if cookiecutter.admin == 'django-baton' %}
 
 YEAR = datetime.now().year
 
@@ -215,9 +214,6 @@ BATON = {
     'SUPPORT_HREF': 'mailto:stefano.contini@otto.to.it',
     'POWERED_BY': '<a href="https://www.otto.to.it">Otto</a>'
 }
-{% elif cookiecutter.admin == 'django-grappelli' %}
-GRAPPELLI_ADMIN_TITLE = '{{ cookiecutter.project_name }} - Amministrazione'
-{% endif %}
 
 {% if cookiecutter.use_cabinet == 'y' %}
 CABINET_FILE_MODEL = "cabinet.File"
