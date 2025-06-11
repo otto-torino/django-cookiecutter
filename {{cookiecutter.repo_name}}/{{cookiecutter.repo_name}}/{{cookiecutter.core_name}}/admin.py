@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from preferences_utils.admin import PreferencesUtilsAdmin
+{% if cookiecutter.use_translations == 'y' %}from lineup.models import MenuItem
+from lineup.admin import MenuItemAdmin as BaseMenuItemAdmin{% endif %}
 
 from .models import User, Preferences
 
@@ -35,3 +37,14 @@ class PreferencesAdmin(PreferencesUtilsAdmin):
             "classes": ("tab-fs-meta",),
         }),
     )
+
+{% if cookiecutter.use_translations == 'y' %}
+admin.site.unregister(MenuItem)
+
+
+@admin.register(MenuItem)
+class MenuItemAdmin(TranslationAdmin, BaseMenuItemAdmin): # type: ignore
+    inlines = [
+        MenuItemInline,
+    ]
+{% endif %}

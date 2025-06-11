@@ -77,18 +77,29 @@
     {% endif %}
 {% endblock %}
 
-{% block content %}
-    <main class="py-8">
+{% block top_css %}max-w-screen overflow-hidden relative{% endblock top_css %}
+{% block navbar %}{% include "core/components/navbar.html" %}{% endblock navbar %}
+{% block hero %}
+<div class="relative lg:border-r-[40px] lg:border-secondary">
+    {% thumbnail page.image "1920x500" crop=page.image.sorl as cropped %}
+    <img src={{ cropped.url }} alt="image" class="hidden lg:block w-full" width="1920" height="500" />
+    {% endthumbnail %}
+    {% thumbnail page.image "800x400" crop=page.image.sorl as cropped %}
+    <img src={{ cropped.url }} alt="image" class="lg:hidden w-full" width="800" height="400" />
+    {% endthumbnail %}
+    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/80 via-black/30 to-black/0 text-center leading-tight"></div>
+    {% #title title=page.title %}
+</div>
+{% endblock hero %}
 
-        <div class="flex flex-col md:flex-row justify-center md:justify-between items-center md:gap-8 container px-5">
-            <h2>{{ page.title }}</h2>
-            {% if page.last_updated %}
-                <div class="text-gray-400 text-sm mb-8 whitespace-nowrap">{{ updated }}</div>
-            {% endif %}
-        </div>
-       
-        <div id="content-blocks" class="flex flex-col">
-            {% for content_block in page.content_blocks.all %}
+{% block content %}
+    <main>
+
+        {% if page.last_updated %}
+            <div class="flex justify-center mt-6 text-gray-400 text-sm">{% trans 'Ultimo aggiornamento:' %} {{ updated }}</div>
+        {% endif %}
+        <div id="content-blocks" class="flex flex-col py-4 text-lg">
+            {% for content_block in page.content_blocks.for_content %}
                 {% if content_block.enabled %}
                     {% with template=content_block.content_object.get_render_template %}
                         {% include template with obj=content_block.content_object request=request only %}
@@ -96,6 +107,5 @@
                 {% endif %}
             {% endfor %}
         </div>
-
     </main>
 {% endblock %}{% endraw %}

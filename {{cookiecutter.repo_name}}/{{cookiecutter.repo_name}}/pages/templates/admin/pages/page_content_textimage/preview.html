@@ -20,16 +20,25 @@
       {% endif %}
     }
 </style>
-<div class="p-4" style="background-color: {{ object.background_color }}">
-  {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
-  <div class="row {% if object.image_position == 'left' %} flex-row-reverse {% endif %}">
-    <div class="col-12 col-md-custom-{{ object.id }}-left">
-      {{ object.text|safe }}
-    </div>
-    {% if object.image %}
-      <div class="col-12 col-md-custom-{{ object.id }}-right">
-        <img class="img-fluid" src="{{ object.image.url }}" alt="{{ object.name }}">
-      </div>
+<div style="background-color: {{ object.background_color }}">
+    {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
+    {% if object.image_position == 'top' or object.image_position == 'bottom' %}
+        <div class="d-flex flex-column align-items-start gap-2">
+            <div class="col-12 col-md-custom-{{ object.id }}-left {% if object.image_position == 'top' %}order-1{% endif %}">{{ object.text|safe }}</div>
+            <img
+                src="{{ object.image.url }}"
+                alt="{{ object.name }}">
+        </div>
+    {% else %}
+        <div class="row {% if object.image_position == 'left' %}flex-row-reverse{% endif %}">
+            <div class="col-12 col-md-custom-{{ object.id }}-left">{{ object.text|safe }}</div>
+            {% if object.image %}
+                <div class="col-12 col-md-custom-{{ object.id }}-right">
+                    <img class="img-fluid"
+                         src="{{ object.image.url }}"
+                         alt="{{ object.name }}">
+                </div>
+            {% endif %}
+        </div>
     {% endif %}
-  </div>
 </div>{% endraw %}

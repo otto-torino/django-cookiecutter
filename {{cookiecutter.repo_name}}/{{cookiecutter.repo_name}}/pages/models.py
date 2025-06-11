@@ -18,11 +18,9 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django_extensions.db.models import TimeStampedModel
-from subject_imagefield.fields import SubjectImageField
 from taggit.managers import ContentType
 from taggit_autosuggest.managers import TaggableManager
 from .managers import PageContentQuerySet, PageManager
-
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -131,9 +129,11 @@ class Page(TimeStampedModel):
         verbose_name=_("immagine header"),
         upload_to="pages/images/",
         subject_location_field="subject_location",
+        alt_field={% if cookiecutter.use_translations == 'y' %}"alt_text_{{ cookiecutter.default_language }}"{% else %}"alt_text"{% endif %},
         blank=True,
         null=True,
     )
+    alt_text = models.CharField(_("alt text"), max_length=200, blank=True)
     subject_location = models.CharField(max_length=7, default="50,50")
     tags = TaggableManager(_("tags"), blank=True)
     template_name = models.CharField(
@@ -226,7 +226,7 @@ class Page(TimeStampedModel):
         )
 
     def has_map_content(self):
-        for c in self.content_blocks.filter(enabled=True):  # pyright: ignore
+        for c in self.content_blocks.filter(enabled=True, layout_content=False):  # pyright: ignore
             if c.content_type.model == "pagecontentmap":
                 return True
         return False
@@ -255,7 +255,6 @@ class PageContent(TimeStampedModel):
         ("#AADAC5", _("green")),
         ("#F0E8DB", _("beige")),
         ("#DCD5C8", _("brown")),
-        ("#e2e8f0", _("grey")),
     ]
 
     layout_content = models.BooleanField(
@@ -263,13 +262,16 @@ class PageContent(TimeStampedModel):
         default=False,
         help_text=_("if true this content can only be used inside a layout block"),
     )
-    name = models.CharField(_("name"), max_length=200, blank=True, null=True)
+    name = models.CharField(_("name"), max_length=200)
     show_name = models.BooleanField(_("show name"), default=False)
     background_color = ColorField(
         _("background color"), samples=COLOR_PALETTE, blank=True, null=True
     )
     page = models.ForeignKey(
-        Page, on_delete=models.CASCADE, editable=False, related_name="content_blocks"
+        Page,
+        on_delete=models.CASCADE,
+        editable=False,
+        related_name="content_blocks",
     )
     content_type = models.ForeignKey(
         ContentType, on_delete=models.CASCADE, editable=False
@@ -379,14 +381,14 @@ class PageContentText(PageContent, AccordionBlock):
 
 
 class PageContentImage(PageContent):
-    image_content = BatonAiImageField(
-        verbose_name=_("content"),
-        upload_to="pages/image_content",
-        subject_location_field="image_subject_location",
-        alt_field="caption",
+    image = BatonAiImageField(
+        verbose_name=_("image"),
+        upload_to="pages/image_content/",
+        subject_location_field="subject_location",
+        alt_field={% if cookiecutter.use_translations == 'y' %}"caption_{{ cookiecutter.default_language }}"{% else %}"caption"{% endif %},
     )
-    image_subject_location = models.CharField(max_length=7, default="50,50")
-    caption = models.CharField(max_length=255, blank=True, null=True)
+    subject_location = models.CharField(max_length=7, default="50,50")
+    caption = models.TextField(_("caption"), blank=True, null=True)
     show_captions = models.BooleanField(
         _("show captions"),
         default=True,
@@ -454,10 +456,9 @@ class PageContentTextImage(PageContent, AccordionBlock):
         verbose_name=_("image"),
         upload_to="pages/text_image_content",
         subject_location_field="subject_location",
-        alt_field="caption",
+        alt_field={% if cookiecutter.use_translations == 'y' %}"caption_{{ cookiecutter.default_language }}"{% else %}"caption"{% endif %},
     )
     subject_location = models.CharField(max_length=7, default="50,50")
-    caption = models.CharField(max_length=255, blank=True, null=True)
     image_position = models.CharField(
         _("image position"), max_length=6, choices=CHOICES, default="right"
     )
@@ -466,6 +467,7 @@ class PageContentTextImage(PageContent, AccordionBlock):
         default=True,
         help_text=_("set to true if you want to show the captions of the images"),
     )
+    caption = models.TextField(_("caption"), blank=True, null=True)
     credits = models.TextField(_("credits"), blank=True, null=True)
 
     def __str__(self):
@@ -588,13 +590,13 @@ class PageContentMultiImageItem(models.Model):
         upload_to="pages/multi_image_content",
         verbose_name=_("file"),
         subject_location_field="subject_location",
-        alt_field="caption",
+        alt_field={% if cookiecutter.use_translations == 'y' %}"caption_{{ cookiecutter.default_language }}"{% else %}"caption"{% endif %},
     )
     subject_location = models.CharField(
         _("subject coordinates"), max_length=7, default="50,50"
     )
-    caption = models.CharField(_("caption"), max_length=255, blank=True, null=True)
     position = models.IntegerField(_("order"), default=0)
+    caption = models.TextField(_("caption"), blank=True, null=True)
     credits = models.TextField(_("credits"), blank=True, null=True)
     block = models.ForeignKey(
         PageContentMultiImage, on_delete=models.CASCADE, related_name="images"
@@ -612,6 +614,13 @@ class PageContentMultiImageItem(models.Model):
 class PageContentBoxMenu(PageContent):
     columns = models.IntegerField(
         _("columns"), help_text=_("maximum number of boxes per row"), default=5
+    )
+    shadow = models.BooleanField(
+        _("shadow"),
+        default=True,
+        help_text=_(
+            "set to true if you want the boxes to have a shadow on name and icon"
+        ),
     )
     zoom = models.BooleanField(
         _("zoom"),
@@ -676,27 +685,18 @@ class PageContentBoxMenu(PageContent):
 
 
 class PageContentBoxItem(models.Model):
-    COLOR_PALETTE = [
-        ("#084cbf", _("blue")),
-        ("#0ea20c", _("green")),
-        ("#e20716", _("red")),
-        ("#ba1cab", _("purple")),
-        ("#f5c828", _("yellow")),
-        ("#38a9ca", _("cyan")),
-    ]
-
     file = BatonAiImageField(
         _("image"),
         upload_to="pages/box_menu_content",
         subject_location_field="subject_location",
-        alt_field="alt_text",
+        alt_field={% if cookiecutter.use_translations == 'y' %}"alt_text_{{ cookiecutter.default_language }}"{% else %}"alt_text"{% endif %},
         blank=True,
         null=True,
     )
+    alt_text = models.CharField(_("alt text"), max_length=255, blank=True, null=True)
     subject_location = models.CharField(
         _("subject coordinates"), max_length=7, default="50,50"
     )
-    alt_text = models.CharField(_("alt text"), max_length=255, blank=True, null=True)
     name = models.CharField(verbose_name=_("name"), max_length=100, blank=True)
     link = models.CharField(
         verbose_name=_("url"),
@@ -704,10 +704,13 @@ class PageContentBoxItem(models.Model):
     )
     icon = models.FileField(
         verbose_name=_("icon"),
-        upload_to="box-items/",
+        upload_to="park-life/",
         help_text="upload an svg icon",
         blank=True,
         null=True,
+    )
+    icon_text = models.CharField(
+        verbose_name=_("testo icona"), max_length=100, blank=True, null=True
     )
     position = models.IntegerField(_("order"), default=0)
     text_color = models.CharField(
@@ -716,14 +719,12 @@ class PageContentBoxItem(models.Model):
         default="#f5f5f5",
         help_text=_("set the color of box name"),
     )
-    bg_color = ColorField(
-        _("background color"), samples=COLOR_PALETTE, blank=True, null=True
-    )
-    shadow = models.BooleanField(
-        _("shadow"),
-        default=True,
+    bg_color = models.CharField(
+        _("background color"),
+        max_length=7,
+        default="#f5f5f5",
         help_text=_(
-            "set to true if you want the box to have a shadow on name and icon"
+            "set the color of box background, if set will be always used instead of image on mobile devices"
         ),
     )
     block = models.ForeignKey(
@@ -785,6 +786,14 @@ class PageContentRssFeed(PageContent):
 class PageContentMap(PageContent):
     text = RichTextUploadingField(verbose_name=_("content"), blank=True)
     height = models.IntegerField(verbose_name=_("height (px)"), default=400)
+    zoom = models.IntegerField(
+        verbose_name=_("zoom"),
+        help_text=_(
+            "if not empty sets the zoom level, otherwise bounds are calculated basing upon map items"
+        ),
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return f"{self.page.title}/{_('map content')}"
@@ -820,10 +829,6 @@ class PageContentMap(PageContent):
     def copy_and_assign(self, page):
         generic_copy_and_assign(self, page)
 
-    @property
-    def get_unique_id(self):
-        return "Map" + str(self.pk)
-
 
 class PageContentMapItem(models.Model):
     class Shape(models.TextChoices):
@@ -843,6 +848,11 @@ class PageContentMapItem(models.Model):
     coordinates = models.TextField(_("coordinates"))
     name = models.CharField(verbose_name=_("name"), max_length=255)
     caption = models.TextField(verbose_name=_("caption"), blank=True, null=True)
+    open_popup = models.BooleanField(
+        _("open popup"),
+        default=False,
+        help_text=_("if true the popup will be immediately visible"),
+    )
     link = models.CharField(
         verbose_name=_("link"), max_length=255, blank=True, null=True
     )
@@ -916,6 +926,27 @@ class PageContentVideo(PageContent):
         return "Video" + str(self.pk)
 
 
+# .grid-wrapper {
+#     display: grid;
+#     gap: 10px;
+#     grid-template-columns: 150px 100px 150px 100px ;
+#     grid-template-rows: repeat(3,minmax(100px,auto));
+#   }
+#
+#   .grid-item-1 { // id1
+#     grid-column: 1 / 3;
+#   }
+#
+#   .grid-item-2 { // id2
+#     grid-column: 4 ;
+#   }
+#
+#   .grid-item-3 { // id3
+#     grid-column: 1;
+#     grid-row: 2 / 4;
+#   }
+#   ...
+#
 class PageContentLayout(PageContent):
     wrapper_css = models.TextField(
         _("grid css"),

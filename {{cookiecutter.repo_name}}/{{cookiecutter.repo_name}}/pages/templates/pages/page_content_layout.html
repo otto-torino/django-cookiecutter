@@ -1,0 +1,28 @@
+{% raw %}<style>
+    {{ obj.render_wrapper_css }}
+    {% for item in obj.layout_items.all %}
+    {{ item.render_item_css }}
+    {% endfor %}
+</style>
+{% if obj.show_name %}
+    <h2>{{ obj.name }}</h2>
+{% endif %}
+<div class="{% if obj.full_width %}{% else %}md:max-w-5xl md:mx-auto px-6 md:px-2 lg:px-0{% endif %}">
+    <div id="{{ obj.get_unique_id }}" {% if obj.background_color %}style="background-color: {{ obj.background_color }}"{% endif %}>
+        <div class="grid-wrapper-{{ obj.id }}">
+            {% for item in obj.layout_items.all %}
+            <div class="grid-item-{{ item.id }}">
+                {% if item.text and item.text_position == item.TOP %}
+                    {{ item.text | safe }}
+                {% endif %}
+                {% if item.content %}
+                    {% include item.content.content_object.get_render_template with obj=item.content.content_object %}
+                {% endif %}
+                {% if item.text and item.text_position == item.BOTTOM %}
+                    {{ item.text | safe }}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>{% endraw %}

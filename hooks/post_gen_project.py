@@ -35,6 +35,10 @@ if context["admin"] != "django-baton":
 if context["use_cabinet"] != "y":
     shutil.rmtree("./{{ cookiecutter.repo_name }}/cabinet")
 
+if context["use_translations"] != "y":
+    shutil.rmtree("./{{ cookiecutter.repo_name }}/pages/translation.py")
+    shutil.rmtree("./{{ cookiecutter.repo_name }}/cabinet/translation.py")
+
 shutil.move("gitignore", ".gitignore")
 
 print("📦 Building Docker images...")

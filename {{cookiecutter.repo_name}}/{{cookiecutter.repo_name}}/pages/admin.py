@@ -14,6 +14,7 @@ from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_exempt
+{% if cookiecutter.use_translations == "y" %}from modeltranslation.admin import TranslationAdmin, TranslationStackedInline{% endif %}
 from pages.admin_views import (
     EditPageContentsView,
     PageContentMapDrawerView,
@@ -27,6 +28,8 @@ from .models import (
     PageContentBoxItem,
     PageContentBoxMenu,
     PageContentImage,
+    PageContentLayout,
+    PageContentLayoutItem,
     PageContentMap,
     PageContentMapItem,
     PageContentMultiImage,
@@ -63,7 +66,7 @@ CLONE_SKIP_FIELDS = [
 
 
 @admin.register(Page)
-class PageAdmin(ArchivedModelAdmin):  # pyright: ignore
+class PageAdmin({% if cookiecutter.use_translations == "y" %}TranslationAdmin{% else %}admin.ModelAdmin{% endif %}, ArchivedModelAdmin):  # pyright: ignore
     @admin.action(description=_("Clona pagine selezionate"))
     def clone(self, request, queryset):
         for obj in queryset:
@@ -118,6 +121,8 @@ class PageAdmin(ArchivedModelAdmin):  # pyright: ignore
                     "parent",
                     "url",
                     "title",
+                    "image",
+                    "subject_location",
                     "tags",
                     "sites",
                     "last_updated",
@@ -230,7 +235,7 @@ class PageAdmin(ArchivedModelAdmin):  # pyright: ignore
         cls.content_models.update({model.__name__: model})
 
 
-class PageContentAdmin(admin.ModelAdmin):
+class PageContentAdmin({% if cookiecutter.use_translations == "y" %}TranslationAdmin{% else %}admin.ModelAdmin{% endif %}):
     change_form_template = "admin/pages/page_content_change_form.html"
 
     class Media:
@@ -269,7 +274,7 @@ class PageContentAdmin(admin.ModelAdmin):
             content_type = ContentType.objects.get_for_model(self.model)
             obj.page = page
             obj.content_type = content_type
-            obj.position = page.content_blocks.count()  # pyright: ignore
+            obj.position = page.content_blocks.for_content().count()  # pyright: ignore
         with transaction.atomic():  # TODO manage error
             super().save_model(request, obj, form, change)
             # we need to store the id inside the PageContent object_id field to be able to
@@ -318,10 +323,13 @@ class PageContentTextAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "use_accordion",
                     "show_name",
                     "background_color",
+                    "text_color",
                     "url",
                 ),
             },
@@ -344,7 +352,6 @@ class PageContentImageAdmin(PageContentAdmin):
                 "fields": (
                     "name",
                     "image_content",
-                    "image_subject_location",
                     "caption",
                     "credits",
                     "url",
@@ -357,7 +364,9 @@ class PageContentImageAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "show_captions",
                     "show_name",
                     "background_color",
@@ -383,7 +392,6 @@ class PageContentTextImageAdmin(PageContentAdmin):
                     "name",
                     "text",
                     "image",
-                    "subject_location",
                     "caption",
                     "credits",
                 ),
@@ -395,7 +403,9 @@ class PageContentTextImageAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "use_accordion",
                     "show_name",
                     "background_color",
@@ -411,7 +421,7 @@ class PageContentTextImageAdmin(PageContentAdmin):
 PageAdmin.register(PageContentTextImage)
 
 
-class ContentMultiImageItemInline(admin.StackedInline):
+class ContentMultiImageItemInline({% if cookiecutter.use_translations == "y" %}TranslationStackedInline{% else %}admin.StackedInline{% endif %}):
     model = PageContentMultiImageItem
     extra = 1
     classes = ("collapse-entry", "expand-first")
@@ -429,6 +439,8 @@ class PageContentMultiImageAdmin(PageContentAdmin):
             {
                 "fields": (
                     "name",
+                    "crop",
+                    "crop_size",
                     "type",
                 ),
                 "classes": (
@@ -443,7 +455,9 @@ class PageContentMultiImageAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "height",
                     "show_captions",
                     "show_name",
@@ -457,7 +471,7 @@ class PageContentMultiImageAdmin(PageContentAdmin):
 PageAdmin.register(PageContentMultiImage)
 
 
-class ContentBoxItemInline(admin.StackedInline):
+class ContentBoxItemInline({% if cookiecutter.use_translations == "y" %}TranslationStackedInline{% else %}admin.StackedInline{% endif %}):
     model = PageContentBoxItem
     extra = 1
     classes = ("collapse-entry", "expand-first")
@@ -477,6 +491,7 @@ class PageContentBoxMenuAdmin(PageContentAdmin):
                     "name",
                     "columns",
                     "rectangular",
+                    "shadow",
                     "zoom",
                     "rounding",
                 ),
@@ -492,7 +507,9 @@ class PageContentBoxMenuAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "show_name",
                     "background_color",
                 ),
@@ -529,7 +546,9 @@ class PageContentRssFeedAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "show_name",
                     "background_color",
                 ),
@@ -541,7 +560,7 @@ class PageContentRssFeedAdmin(PageContentAdmin):
 PageAdmin.register(PageContentRssFeed)
 
 
-class PageContentMapItemInline(admin.StackedInline):
+class PageContentMapItemInline({% if cookiecutter.use_translations == "y" %}TranslationStackedInline{% else %}admin.StackedInline{% endif %}):
     model = PageContentMapItem
     extra = 1
     classes = ("collapse-entry", "expand-first")
@@ -563,6 +582,8 @@ class PageContentMapAdmin(PageContentAdmin):
                 "fields": (
                     "name",
                     "text",
+                    "height",
+                    "zoom",
                 ),
                 "classes": (
                     "baton-tabs-init",
@@ -576,7 +597,9 @@ class PageContentMapAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "show_name",
                     "background_color",
                 ),
@@ -642,7 +665,9 @@ class PageContentVideoAdmin(PageContentAdmin):
             {
                 "classes": ("tab-fs-adv",),
                 "fields": (
+                    "layout_content",
                     "enabled",
+                    "full_width",
                     "show_name",
                     "background_color",
                 ),
@@ -652,3 +677,70 @@ class PageContentVideoAdmin(PageContentAdmin):
 
 
 PageAdmin.register(PageContentVideo)
+
+
+class ContentLayoutItemInline({% if cookiecutter.use_translations == "y" %}TranslationStackedInline{% else %}admin.StackedInline{% endif %}):
+    model = PageContentLayoutItem
+    extra = 1
+    fk_name = "layout"
+    classes = ("collapse-entry", "expand-first")
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "content":  # Replace with your actual ForeignKey field name
+            parent_id = request.resolver_match.kwargs.get(
+                "object_id"
+            )  # Get parent instance ID
+            if parent_id:
+                try:
+                    parent_instance = PageContentLayout.objects.get(id=parent_id)
+                    kwargs["queryset"] = PageContent.objects.filter(
+                        page=parent_instance.page  # Adjust filtering based on parent model
+                    )
+                except PageContentLayout.DoesNotExist:
+                    pass  # Fallback if the parent instance is not found
+            else:
+                page_id = request.GET.get("page")
+                if page_id:
+                    kwargs["queryset"] = PageContent.objects.filter(page_id=page_id)
+
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(PageContentLayout)
+class PageContentLayoutAdmin(PageContentAdmin):
+    """Admin View for PageContentVideo"""
+
+    list_display = ("id", "name")
+    inlines = [ContentLayoutItemInline]
+    fieldsets = (
+        (
+            _("Main"),
+            {
+                "fields": (
+                    "name",
+                    "wrapper_css",
+                ),
+                "classes": (
+                    "baton-tabs-init",
+                    "baton-tab-inline-layout_items",
+                    "baton-tab-fs-adv",
+                ),
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("tab-fs-adv",),
+                "fields": (
+                    "layout_content",
+                    "enabled",
+                    "full_width",
+                    "show_name",
+                    "background_color",
+                ),
+            },
+        ),
+    )
+
+
+PageAdmin.register(PageContentLayout)

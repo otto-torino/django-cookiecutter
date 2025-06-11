@@ -1,4 +1,4 @@
-#content-blocks-list {
+#content-blocks-list, #layout-blocks-list {
     max-width: 80rem;
     padding: 2rem .75rem;
     margin: 0 auto;

@@ -1,4 +1,4 @@
-{% raw %}from datetime import datetime
+from datetime import datetime
 from time import mktime
 from django import template
 from django.conf import settings
@@ -168,4 +168,4 @@ def get_page(parser, token):
         return PageNode(context_name, starts_with=prefix, single=True)
     else:
         raise template.TemplateSyntaxError(syntax_message)
-{% endraw %}
+

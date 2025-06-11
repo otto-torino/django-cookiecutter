@@ -4,7 +4,7 @@
         aspect-ratio: 16 / 9;
     }
 </style>
-<div class="p-4" style="background-color: {{ object.background_color }}">
+<div style="background-color: {{ object.background_color }}">
     {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
     {{ object.description | safe }}
     <div class="d-flex justify-content-center">

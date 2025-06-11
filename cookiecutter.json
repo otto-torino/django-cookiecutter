@@ -21,7 +21,11 @@
   "use_cabinet": "n",
   "use_sorl_thumbnail": "y",
   "use_simple_captcha": "n",
-  "language_code": "en-us",
+  "use_translations": "n",
+  "default_language": [
+    "it",
+    "en"
+  ],
   "timezone": "Europe/Rome",
   "author": "otto",
   "email": "logs@otto.to.it",

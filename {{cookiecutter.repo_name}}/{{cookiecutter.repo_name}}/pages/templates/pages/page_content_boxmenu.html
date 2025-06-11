@@ -1,49 +1,64 @@
-{% raw %}{% extends 'pages/page_content_base.html' %}
-{% load sorl_thumbnail components %}
-
-{% block inner_block %}
-<div class="flex flex-col justify-center md:flex-row md:align-top flex-wrap container">
-  {% for im in obj.images.all %}
-    <div class="hidden md:flex flex-col justify-start p-2" style="flex-basis: {{obj.basis}};">
-      {% if im.file %}
-        {% thumbnail im.file "400x400" crop=im.file.sorl as cropped %}
-          <div 
-            onclick="window.location.assign('{{ im.link }}');" 
-            class="h-auto w-full p-3 min-w-[13rem] {% if obj.rectangular %}max-h-[13rem]{% endif %} drop-shadow-md relative flex justify-center items-center bg-cover {% if obj.zoom %} transform transition duration-200 hover:scale-105 {% endif %} cursor-pointer" 
-            style="border-radius: {{obj.rounding}}px; aspect-ratio : 1 / 1; {% if im.file and im.bg_color %} background:linear-gradient(0deg, {{im.bg_color}}BB, {{im.bg_color}}BB), url({{cropped.url}});{% elif im.file %} background-image: url({{cropped.url}}); {% else %} background-color:{{im.bg_color}}; {% endif %}">
-        {% endthumbnail %}
-      {% else %}
-        <div onclick="window.location.assign('{{ im.link }}');" class="h-auto w-full p-3 min-w-[13rem] {% if obj.rectangular %}max-h-[13rem]{% endif %} drop-shadow-md  relative flex justify-center items-center bg-cover {% if obj.zoom %} transform transition duration-200 hover:scale-105 {% endif %} cursor-pointer" style="border-radius: {{obj.rounding}}px; aspect-ratio : 1 / 1; background-color:{{im.bg_color}};">
-      {% endif %}
-          <div class="flex flex-col items-center w-full">
-            {% if im.icon %}
-              <img src="{{im.icon.url}}" class="text-slate-50 h-36 lg:h-56 ml-0 mb-3 {% if im.shadow %}drop-shadow-[0_0_5px_rgba(0,0,0,0.5)]{% endif %}" alt="{{im.name}}"/>
-            {% endif %}
-            <span class="text-slate-50 ms-0 text-center font-bold">
-              <p class="text-xl font-display" style="color:{{im.text_color}}; {% if im.shadow %}text-shadow: rgba(0,0,0,0.5) 0 0 5px;{% endif %}">
-                {{im.name}}
-              </p>
-            </span>
-          </div>
+{% raw %}{% load sorl_thumbnail %}
+<div class="{% if obj.background_color %}px-4 py-2{% else %}py-2{% endif %} rounded-lg my-4"
+     style="background-color: {{ obj.background_color }}">
+    {% if obj.show_name %}<h3 class="font-medium">{{ obj.name }}</h3>{% endif %}
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-1">
+        {% for im in obj.images.all %}
+            <div class="hidden md:flex flex-col justify-start"
+                 style="flex-basis: {{ obj.basis }}">
+                {% if im.file %}
+                    {% thumbnail im.file "400x300" crop=im.file.sorl as cropped %}
+                        <div onclick="window.location.assign('{{ im.link }}');"
+                             class="h-auto w-full min-w-[13rem] aspect-1 {% if obj.rectangular %}max-h-[13rem]{% endif %} drop-shadow-md  relative flex bg-cover {% if obj.zoom %}transform transition duration-200 hover:scale-105{% endif %} cursor-pointer"
+                             style="border-radius: {{ obj.rounding }}px;
+                                    {% if im.file %} background-image: url({{ cropped.url }});
+                                    {% else %} background-color:{{ im.bg_color }};
+                                    {% endif %}">
+                        {% endthumbnail %}
+                    {% else %}
+                        <div onclick="window.location.assign('{{ im.link }}');"
+                             class="h-auto w-full p-6 min-w-[13rem] {% if obj.rectangular %}max-h-[13rem]{% endif %} drop-shadow-md  relative flex items-center bg-cover {% if obj.zoom %}transform transition duration-200 hover:scale-105{% endif %} cursor-pointer"
+                             style="border-radius: {{ obj.rounding }}px;
+                                    aspect-ratio : 1 / 1;
+                                    background-color:{{ im.bg_color }}">
+                        {% endif %}
+                        <div class="flex flex-row items-end justify-between w-full gap-4 p-6 bg-gradient-to-b from-black/90 to-black-10">
+                            <div class="flex flex-col justify-between h-full flex-grow">
+                                <span class="text-6xl xl:text-5xl 2xl:text-7xl mb-8 font-thin {% if obj.shadow %}text-shadow-sm shadow-gray-800{% endif %}"
+                                      style="color:{{ im.text_color }}">{{ im.name }}</span>
+                                <span class="text-3xl font-thin {% if obj.shadow %}text-shadow-sm shadow-gray-800{% endif %}"
+                                      style="color:{{ im.text_color }}">{{ im.icon_text }}</span>
+                            </div>
+                            {% if im.icon %}
+                                <div>
+                                    <img src="{{ im.icon.url }}"
+                                         class="text-slate-50 h-20 ml-0 {% if obj.shadow %}icon-shadow{% endif %}"
+                                         alt="{{ im.name }}" />
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full max-w-full flex flex-col items-center md:hidden">
+                    <div onclick="window.location.assign('{{ im.link }}');"
+                         class="px-7 h-52 w-full max-w-full drop-shadow-md relative flex  items-center bg-cover"
+                         style="border-radius: {{ obj.rounding }}px;
+                                background-color:{{ im.bg_color }}">
+                        <div class="flex flex-row w-full">
+                            <div class="flex flex-col items-start justify-between flex-grow">
+                                <span class="text-5xl font-bold mb-8 {% if obj.shadow %}text-shadow-sm shadow-gray-800{% endif %}"
+                                      style="color:{{ im.text_color }}">{{ im.name }}</span>
+                                <span class="text-3xl {% if obj.shadow %}text-shadow-sm shadow-gray-800{% endif %}"
+                                      style="color:{{ im.text_color }}">{{ im.icon_text }}</span>
+                            </div>
+                            {% if im.icon %}
+                                <img src="{{ im.icon.url }}"
+                                     class="h-16 {% if obj.shadow %}icon-shadow{% endif %}"
+                                     alt="{{ im.name }}" />
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    </div>
-    <div class="mb-6 w-full max-w-full flex flex-col items-center md:hidden">
-    {% if im.file %}
-      {% thumbnail im.file "800x200" crop=im.file.sorl as cropped %}
-        <div onclick="window.location.assign('{{ im.link }}');" class="px-7 h-52 w-full max-w-full drop-shadow-md relative flex  items-center bg-cover" style="border-radius: {{obj.rounding}}px;  {% if im.file and im.bg_color %} background:linear-gradient(0deg, {{im.bg_color}}BB, {{im.bg_color}}BB), url({{cropped.url}}); {% elif im.file %} background-image: url({{cropped.url}}); {% else %} background-color:{{im.bg_color}}; {% endif %}">
-      {% endthumbnail %}
-    {% else %}
-      <div onclick="window.location.assign('{{ im.link }}');" class="px-7 h-52 w-full max-w-full drop-shadow-md relative flex  items-center bg-cover" style="border-radius: {{obj.rounding}}px; background-color:{{im.bg_color}};">
-    {% endif %}
-        <div class="flex flex-row items-center">
-          {% if im.icon %}
-            <img src="{{im.icon.url}}" class="text-slate-50 h-32 {% if im.shadow %}drop-shadow-[0_0_5px_rgba(0,0,0,0.5)]{% endif %}" alt="{{im.name}}"/>
-          {% endif %}
-          <span class="text-slate-50 ms-6 lg:ms-0 text-3xl font-bold font-display" style="color:{{im.text_color}}; {% if im.shadow %}text-shadow: rgba(0,0,0,0.5) 0 0 5px;{% endif %}">{{im.name}}</span>
-        </div>
-      </div>
-    </div>
-  {% endfor %}
-</div>
-{% endblock %}{% endraw %}
-
+    </div>{% endraw %}

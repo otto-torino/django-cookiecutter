@@ -61,6 +61,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # APPLICATIONS
 INSTALLED_APPS = (
     '{{ cookiecutter.core_name }}',
+    {% if cookiecutter.use_translations == 'y' %}'modeltranslation',{% endif %}
     {% if cookiecutter.admin == 'django-baton' %}'baton',{% elif cookiecutter.admin == 'django-suit' %}'suit',{% elif cookiecutter.admin == 'django-grappelli' %}'grappelli',{% endif %}
     'django.contrib.sites',
     'django.contrib.admin',
@@ -143,14 +144,17 @@ NPM_BIN_PATH = '/usr/bin/npm'
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = '{{ cookiecutter.language_code }}'
+LANGUAGE_CODE = '{{ cookiecutter.default_language}}'
+{% if cookiecutter.default_language == 'it' %}LANGUAGES = (
+    ("it", _("Italiano")),
+){% else %}LANGUAGES = (
+    ("en", _("English")),
+){% endif %}
+{% if cookiecutter.use_translations == 'y' %}MODELTRANSLATION_DEFAULT_LANGUAGE = "it"{% endif %}
 
 TIME_ZONE = '{{ cookiecutter.timezone }}'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)

@@ -1,4 +1,4 @@
-{% raw %}from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
@@ -56,7 +56,7 @@ def render_page(request, p):
     else:
         template = loader.get_template(DEFAULT_TEMPLATE)
     date = p.modified
-    for block in p.content_blocks.all():
+    for block in p.content_blocks.for_content():
         if block.modified > date:
             date = block.modified
     response = HttpResponse(template.render({"page": p, "updated": date}, request))
@@ -86,4 +86,4 @@ def page_content_rss_feed_content(request, page_content_id):
         "pages/page_content_rss_feed_content.html",
         ctx,
     )
- {% endraw %}
+ 

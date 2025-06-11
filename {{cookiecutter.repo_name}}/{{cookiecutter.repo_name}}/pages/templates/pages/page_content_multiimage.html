@@ -1,10 +1,8 @@
-{% raw %}{% extends 'pages/page_content_base.html' %}
-{% load components %}
-
-{% block inner_block %}
+{% raw %}<div class="{% if obj.background_color %}px-4 py-4{% endif %}"{% if obj.background_color %} style="background-color: {{ obj.background_color }}{% endif %}">
+  {% if obj.show_name %}<h2>{{ obj.name }}</h2>{% endif %}
   {% if obj.type == 'carousel' %}
-      {% include 'pages/carousel/responsive_carousel.html' with obj=obj only %}
-    {% elif obj.type == 'grid' %}
-      {% include 'pages/grid/grid.html' with obj=obj only %}
-    {% endif %}
-{% endblock %}{% endraw %}
+    {% include 'pages/carousel/responsive_carousel.html' with obj=obj only %}
+  {% elif obj.type == 'grid' %}
+    {% include 'pages/grid/grid.html' with obj=obj only %}
+  {% endif %}
+</div>{% endraw %}

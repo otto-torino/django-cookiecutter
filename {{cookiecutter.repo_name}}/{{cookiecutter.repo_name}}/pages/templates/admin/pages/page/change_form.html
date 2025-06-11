@@ -2,5 +2,5 @@
 {% load i18n %}
 {% block object-tools-items %}
 {{ block.super }}
-    <button onclick="window.location.href=`{% url 'admin:pages_page_edit_content' object_id %}`" class="btn btn-secondary mx-4"><i class="material-symbols-outlined me-2">edit</i>{% trans 'Contents' %}</button>
+    <button onclick="window.location.href=`{% url 'admin:pages_page_edit_content' object_id %}`" class="btn btn-secondary"><i class="material-symbols-outlined me-2">edit</i>{% trans 'Contents' %}</button>
 {% endblock %}{% endraw %}

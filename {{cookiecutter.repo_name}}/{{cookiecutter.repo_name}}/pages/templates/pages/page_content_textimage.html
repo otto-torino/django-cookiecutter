@@ -1,90 +1,43 @@
-{% raw %}{% extends 'pages/page_content_base.html' %}
-{% load static components %}
-
-{% block inner_block %}
-  <style>
-    {# handle custom column width #}
-    @media screen and (min-width: 768px) {
-        .md\:grid-cols-2-custom-{{ obj.id }} {
-            grid-template-columns: {{ obj.left_column_width }}% auto;
-        }
-    }
-  </style>
-
-  {% if obj.use_accordion %}
-    {% accordion id=obj.get_unique_id|add:"accordion" name=obj.name bg=obj.background_color %}
-      <div class="p-2">
-        <div class="grid grid-cols-1 md:grid-cols-2-custom-{{ obj.id }} gap-8">
-          <div>
+{% raw %}{% load static components %}
+<div id="{{obj.get_unique_id}}" class="{% if obj.full_width %}{% else %}md:max-w-5xl md:mx-auto px-6 md:px-2 lg:px-0{% endif %}" {% if obj.background_color %}style="background-color: {{ obj.background_color }}{% endif %}">
+{% if obj.use_accordion %}
+    {% accordion id=obj.get_unique_id name=obj.name bg=obj.background_color %}
+    <div class="flex {% if obj.image_position == 'top' or obj.image_position == 'bottom' %}flex-col{% endif %} gap-8">
+        <div class="{% if obj.image_position == 'top' or obj.image_position == 'left' %}order-1{% endif %}">
             {{ obj.text|safe }}
-          </div>
-          <div class="col-span-2 md:col-span-1 {% if obj.image_position == 'left' %} -order-1 {% endif %}">
-            <div class="relative">
-              <img class="w-full h-auto" src="{{ obj.image.url }}" onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}-image').click();">
-              {% if obj.show_captions %}
-                {% if obj.credits or obj.caption %}
-                  <div class="text-xs font-semibold bg-primary/80 text-white py-2 px-8 absolute right-0 bottom-0">
-                    {% if obj.caption %}{{ obj.caption }}{% endif %}
-                    {% if obj.credits and obj.caption %} | {% endif %}
-                    {% if obj.credits %} {{ obj.credits }} {% endif %}
-                  </div>
-                {% endif %}
-              {% endif %}
-            </div>
-          </div>
         </div>
-      </div>
-    {% endaccordion %}
-  {% else %}
-    <div class="{% if obj.show_captions %}mb-8{% endif %}">
-      <div class="grid grid-cols-1 md:grid-cols-2-custom-{{ obj.id }} gap-8">
         <div>
-          {{ obj.text|safe }}
-        </div>
-        <div class="relative col-span-2 md:col-span-1 {% if obj.image_position == 'left' %} -order-1 {% endif %}">
-          <img class="w-full h-auto" src="{{ obj.image.url }}" onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}-image').click();">
-          {% if obj.show_captions %}
-            {% if obj.credits or obj.caption %}
-            <div class="text-xs font-semibold bg-primary/80 text-white py-2 px-8 absolute right-0 bottom-0">
-              {% if obj.caption %}{{ obj.caption }}{% endif %}
-              {% if obj.credits and obj.caption %} | {% endif %}
-              {% if obj.credits %} {{ obj.credits }} {% endif %}
-            </div>
+            <img width={{ obj.image.width }} height={{ obj.image.height }} class="w-full h-auto" src="{{ obj.image.url }}" alt="{{ obj.caption }}" />
+            {% if obj.show_captions %}
+                {% if obj.credits or obj.caption %}
+                <p class="ml-2 mt-1 italic text-center">
+                    {{ obj.caption }}
+                    {% if obj.credits and obj.caption %} - {% endif %}
+                    {% if obj.credits %} {{ obj.credits }} {% endif %}
+                </p>
+                {% endif %}
             {% endif %}
-          {% endif %}
         </div>
-      </div>
     </div>
-  {% endif %}
-
-  <div id="{{ obj.get_unique_id }}-image" class="hidden" >
-      <a href="{{obj.image.url}}" id="lightbox-{{ obj.get_unique_id }}-image" data-pswp-width="{{obj.image.width}}" data-pswp-height="{{obj.image.height}}">
-        <img src="{{obj.image.url}}" class="" alt="{{ obj.caption }}" />
-        {% if obj.show_captions %}
-          <span class="pswp-caption-content">
-            {% if obj.caption %}{{ obj.caption }} {% endif %} 
-            <em>{% if obj.credits %} by {{ obj.credits }} {% endif %}</em>
-          </span>
-        {% endif %}
-      </a>
-  </div>
-  
-  <script type="text/javascript">
-    (function () {
-      var lightbox = new PhotoSwipeLightbox({
-        gallery: '#{{ obj.get_unique_id }}-image',
-        showHideAnimationType: 'fade',
-        children: 'a',
-        pswpModule: PhotoSwipe 
-      });
-      const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
-        // Plugins options, for example:
-        type: 'below',
-      });
-      lightbox.init();
-    })()
-  </script>
-
-{% endblock inner_block %}{% endraw %}
-
-
+    {% endaccordion %}
+{% else %}
+    {% if obj.show_name %}<h2>{{ obj.name }}</h2>{% endif %}
+    <div class="flex {% if obj.image_position == 'top' or obj.image_position == 'bottom' %}flex-col{% endif %} gap-8">
+        <div class="{% if obj.image_position == 'top' or obj.image_position == 'left' %}order-1{% endif %}">
+            {{ obj.text|safe }}
+        </div>
+        <div>
+            <img width={{ obj.image.width }} height={{ obj.image.height }} class="w-full h-auto" src="{{ obj.image.url }}" alt="{{ obj.caption }}" />
+            {% if obj.show_captions %}
+                {% if obj.credits or obj.caption %}
+                <p class="ml-2 mt-1 italic text-center">
+                    {{ obj.caption }}
+                    {% if obj.credits and obj.caption %} - {% endif %}
+                    {% if obj.credits %} {{ obj.credits }} {% endif %}
+                </p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+</div>{% endraw %}

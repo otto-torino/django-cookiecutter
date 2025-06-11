@@ -1,7 +1,12 @@
 {% raw %}{% load thumbnail %}
-{% thumbnail image "600x500" crop=image.file.sorl as im %}
-  <img
-    srcset="{{ im.url }}" alt="{{ image.caption }}"
-    class="block w-full rounded-lg object-cover object-center"
-  >
-  {% endthumbnail %}{% endraw %}
+{% if content.crop %}
+    {% thumbnail image content.crop_size crop=image.file.sorl as im %}
+        <img src="{{ im.url }}"
+             alt="{{ image.caption|default_if_none:"" }}"
+             class="block w-full object-cover object-center" />
+    {% endthumbnail %}
+{% else %}
+        <img src="{{ image.file.url }}"
+             alt="{{ image.caption|default_if_none:"" }}"
+             class="block w-full object-cover object-center" />
+{% endif %}{% endraw %}
