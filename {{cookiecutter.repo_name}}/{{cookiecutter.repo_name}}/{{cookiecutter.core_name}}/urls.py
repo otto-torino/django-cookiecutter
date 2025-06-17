@@ -19,38 +19,66 @@ from django.conf import settings
 from django.views.generic import TemplateView
 from django.views import static
 from django.contrib.staticfiles.views import serve
+from django.contrib.sitemaps.views import sitemap
+{% if cookiecutter.use_translation == 'y' %}
+from django.conf.urls.i18n import i18n_patterns
+{% endif %}
+
+sitemaps = {
+    # add here your sitemaps
+}
 
 urlpatterns = [
-    # reload
+    # sitemap
+    path(
+        "sitemap.xml",
+        sitemap,
+        {"sitemaps": sitemaps},
+    ),
+    
+    # robots
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots'),
+]
+
+
+# User-facing URL patterns that can be translated
+translatable_urlpatterns = [
+    # browser reload
     path("__reload__/", include("django_browser_reload.urls")),
     # admin
     path('admin/', admin.site.urls),
     path('baton/', include('baton.urls')),
-    re_path(r'^$', TemplateView.as_view(template_name='home.html'),
-            name='home'),
     # ckeditor uploader
     path('ckeditor/', include('ckeditor_uploader.urls')),
     # taggit autosuggest
-    re_path("^taggit_autosuggest/", include("taggit_autosuggest.urls")),
-    # pages
-    path("p/", include("pages.urls", namespace="pages")),
+    path("taggit_autosuggest/", include("taggit_autosuggest.urls")),
     {% if cookiecutter.use_filer == 'y' %}
     # filer
     path('filer/', include('filer.urls')),
     {% endif %}
+
+    # home
+    path('',TemplateView.as_view(template_name='home.html'), name='home'),
+    # pages
+    path("p/", include("pages.urls", namespace="pages")),
 ]
 
+{% if cookiecutter.use_translation == 'y' %}
+# Prepend language code prefixes to translatable URLs
+urlpatterns += i18n_patterns(
+    *translatable_urlpatterns
+)
+{% else %}
+# Add translatable URLs directly without language prefixes
+urlpatterns += translatable_urlpatterns
+{% endif %}
+
+
 if settings.DEBUG:
-    urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$',
-                static.serve,
-                {'document_root': settings.MEDIA_ROOT}),
-    ]
-    urlpatterns += [
-        re_path(r'^static/(?P<path>.*)$', serve),
-    ]
-    # debug toolbar
-    import debug_toolbar
-    urlpatterns += [
-        re_path(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+    # Serve media files from MEDIA_ROOT
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    # Django Debug Toolbar
+    urlpatterns = [
+        path('__debug__/', include('debug_toolbar.urls')),
+    ] + urlpatterns
