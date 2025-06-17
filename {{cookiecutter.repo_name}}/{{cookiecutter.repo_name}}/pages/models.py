@@ -632,7 +632,7 @@ class PageContentBoxItem(models.Model):
     )
     icon = models.FileField(
         verbose_name=_("icon"),
-        upload_to="park-life/",
+        upload_to="pages/box_menu_items/",
         help_text="upload an svg icon",
         blank=True,
         null=True,
