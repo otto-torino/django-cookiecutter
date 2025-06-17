@@ -20,12 +20,14 @@ from django.views.generic import TemplateView
 from django.views import static
 from django.contrib.staticfiles.views import serve
 from django.contrib.sitemaps.views import sitemap
+from page.sitemap import PageSitemap
 {% if cookiecutter.use_translation == 'y' %}
 from django.conf.urls.i18n import i18n_patterns
 {% endif %}
 
 sitemaps = {
-    # add here your sitemaps
+    'pages': PageSitemap,
+    # add here other sitemaps
 }
 
 urlpatterns = [
