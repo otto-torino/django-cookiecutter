@@ -6,11 +6,12 @@
     {{ obj.description | safe }}
     <div class="flex justify-center mt-4">
         {% if obj.platform == 1 %}
-            <iframe class="aspect-[16/9]" style="width: {{ obj.width_percent }}%" src="https://www.youtube.com/embed/{{ obj.video_id }}?si=dgIQWWWBNsOjoeNJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            <iframe data-src="https://www.youtube.com/embed/{{ obj.video_id }}?si=dgIQWWWBNsOjoeNJ" data-cookierulez="marketing" class="aspect-[16/9]" style="width: {{ obj.width_percent }}%"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         {% elif obj.platform == 2 %}
-            <iframe src="https://player.vimeo.com/video/{{ obj.video_id }}?h=5a5572cc05" class="aspect-[16/9]" style="width: {{ obj.width_percent }}%" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            <iframe data-src="https://player.vimeo.com/video/{{ obj.video_id }}?h=5a5572cc05" data-cookierulez="marketing" class="aspect-[16/9]" style="width: {{ obj.width_percent }}%" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         {% elif obj.platform == 3 %}
-            <iframe class="aspect-[16/9]" style="width: {{ obj.width_percent }}%" src="https://clips.twitch.tv/embed?{{ obj.video_id }}&parent={{ request.get_host|replace:":8000|" }}" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+            <iframe data-src="https://clips.twitch.tv/embed?{{ obj.video_id }}&parent={{ request.get_host|replace:":8000|" }}" data-cookierulez="marketing" class="aspect-[16/9]" style="width: {{ obj.width_percent }}%" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
         {% endif %}
   </div>
-</div>{% endraw %}
+</div>
+{% endraw %}
