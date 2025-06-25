@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     'ckeditor',
     'ckeditor_uploader',
     'django_user_agents',
@@ -89,8 +90,9 @@ INSTALLED_APPS = (
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}'sorl.thumbnail',{% endif %}
     'taggit',
     'mptt',
-    'lineup.apps.LineupConfig',
+    'lineup',
     'pages',
+    'search_app',
     {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'baton.autodiscover',
 )

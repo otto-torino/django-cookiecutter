@@ -28,11 +28,19 @@ if context["use_cabinet"] != "y":
     shutil.rmtree("./{{ cookiecutter.repo_name }}/cabinet")
 
 if context["use_translations"] != "y":
-    os.remove("./{{ cookiecutter.repo_name }}/pages/translation.py")
-    os.remove("./{{ cookiecutter.repo_name }}/cabinet/translation.py")
-    os.remove(
+    pages_translation_file = "./{{ cookiecutter.repo_name }}/pages/translation.py"
+    cabinet_translation_file = "./{{ cookiecutter.repo_name }}/cabinet/translation.py"
+    core_translation_file = (
         "./{{ cookiecutter.repo_name }}/{{ cookiecutter.core_name }}/translation.py"
     )
+    if os.path.exists(pages_translation_file):
+        os.remove(pages_translation_file)
+        
+    if os.path.exists(cabinet_translation_file):
+        os.remove(cabinet_translation_file)
+        
+    if os.path.exists(core_translation_file):
+        os.remove(core_translation_file)
 
 shutil.move("gitignore", ".gitignore")
 

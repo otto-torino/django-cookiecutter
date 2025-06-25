@@ -21,7 +21,7 @@ from django.views import static
 from django.contrib.staticfiles.views import serve
 from django.contrib.sitemaps.views import sitemap
 from page.sitemap import PageSitemap
-{% if cookiecutter.use_translation == 'y' %}
+{% if cookiecutter.use_translations == 'y' %}
 from django.conf.urls.i18n import i18n_patterns
 {% endif %}
 
@@ -62,16 +62,16 @@ translatable_urlpatterns = [
     # home
     path('',TemplateView.as_view(template_name='home.html'), name='home'),
     # pages
-    path("p/", include("pages.urls", namespace="pages")),
+    path("p/", include("pages.urls")),
+    # searcg
+    path('search/', include('search_app.urls')),
 ]
 
-{% if cookiecutter.use_translation == 'y' %}
-# Prepend language code prefixes to translatable URLs
+{% if cookiecutter.use_translations == 'y' %}
 urlpatterns += i18n_patterns(
     *translatable_urlpatterns
 )
 {% else %}
-# Add translatable URLs directly without language prefixes
 urlpatterns += translatable_urlpatterns
 {% endif %}
 

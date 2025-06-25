@@ -21,6 +21,7 @@ from django_extensions.db.models import TimeStampedModel
 from taggit.managers import ContentType
 from taggit_autosuggest.managers import TaggableManager
 from .managers import PageContentQuerySet, PageManager
+from search_app.models import Searchable
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ class AccordionBlock(models.Model):
         verbose_name_plural = _("accordions")
 
 
-class Page(TimeStampedModel):
+class Page(TimeStampedModel, Searchable):
     DRAFT = 1
     PUBLISHED = 2
     ARCHIVED = 3
@@ -153,6 +154,31 @@ class Page(TimeStampedModel):
         null=True,
         help_text=_("default to page tags"),
     )
+
+    search_fields = [
+        # Page fields
+        'title',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+
+        # PageContent fields
+        'content_blocks__pagecontenttext__content',
+        'content_blocks__pagecontentimage__caption',
+        'content_blocks__pagecontentimage__credits',
+        'content_blocks__pagecontenttextimage__text',
+        'content_blocks__pagecontenttextimage__caption',
+        'content_blocks__pagecontenttextimage__credits',
+        'content_blocks__pagecontentmultiimage__images__caption',
+        'content_blocks__pagecontentmultiimage__images__credits',
+        'content_blocks__pagecontentboxmenu__images__name',
+        'content_blocks__pagecontentmap__text',
+        'content_blocks__pagecontentmap__items__name',
+        'content_blocks__pagecontentmap__items__caption',
+        'content_blocks__pagecontentvideo__description',
+        'content_blocks__pagecontentvideo__credits',
+        'content_blocks__pagecontentlayout__layout_items__text',
+    ]
 
     objects: PageManager = PageManager()  # pyright: ignore
 

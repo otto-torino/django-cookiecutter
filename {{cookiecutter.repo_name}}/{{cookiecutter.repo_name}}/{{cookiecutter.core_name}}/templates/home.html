@@ -1,10 +1,11 @@
 {% raw %}{% extends 'base.html' %}
-
+{% load search_tags %}
 {% block content %}
     <div class="ui container">
         <section>
             <h1>{% endraw %}{{ cookiecutter.project_name }}{% raw %}</h1>
             <p>{% endraw %}{{ cookiecutter.project_description }}{% raw %}</p>
+            {{ search_widget }}
         </section>
     </div>
 {% endblock %}
