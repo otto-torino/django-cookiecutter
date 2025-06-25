@@ -17,7 +17,7 @@ from django.urls import path, re_path, include
 from baton.autodiscover import admin
 from django.conf import settings
 from django.views.generic import TemplateView
-from django.views import static
+from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
 from django.contrib.sitemaps.views import sitemap
 from pages.sitemap import PageSitemap
