@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 from django.views import static
 from django.contrib.staticfiles.views import serve
 from django.contrib.sitemaps.views import sitemap
-from page.sitemap import PageSitemap
+from pages.sitemap import PageSitemap
 {% if cookiecutter.use_translations == 'y' %}
 from django.conf.urls.i18n import i18n_patterns
 {% endif %}
