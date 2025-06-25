@@ -63,7 +63,7 @@ translatable_urlpatterns = [
     path('',TemplateView.as_view(template_name='home.html'), name='home'),
     # pages
     path("p/", include("pages.urls")),
-    # searcg
+    # search
     path('search/', include('search_app.urls')),
 ]
 

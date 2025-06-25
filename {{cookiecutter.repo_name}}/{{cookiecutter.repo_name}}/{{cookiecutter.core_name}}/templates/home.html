@@ -5,7 +5,7 @@
         <section>
             <h1>{% endraw %}{{ cookiecutter.project_name }}{% raw %}</h1>
             <p>{% endraw %}{{ cookiecutter.project_description }}{% raw %}</p>
-            {{ search_widget }}
+            {% search_widget %}
         </section>
     </div>
 {% endblock %}
