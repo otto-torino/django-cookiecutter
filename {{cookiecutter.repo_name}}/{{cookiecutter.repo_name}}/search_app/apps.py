@@ -7,6 +7,3 @@ from django.apps import AppConfig
 class SearchAppConfig(AppConfig):
     name = 'search_app'
     verbose_name = "Search"
-
-    def ready(self):
-        from . import components  # noqa
