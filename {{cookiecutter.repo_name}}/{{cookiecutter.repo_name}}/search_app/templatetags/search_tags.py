@@ -3,14 +3,6 @@ from django.urls import reverse
 
 register = template.Library()
 
-@register.filter(name='klass')
-def klass(value):
-    """
-    Returns the verbose name of the instance's class.
-    e.g., for a Post object, this might return "Blog Post".
-    """
-    return value.__class__._meta.verbose_name
-
 
 @register.inclusion_tag('search_app/search_widget.html')
 def search_widget():
