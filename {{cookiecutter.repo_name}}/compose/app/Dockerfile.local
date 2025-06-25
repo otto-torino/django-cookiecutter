@@ -28,7 +28,15 @@ WORKDIR /home/app/{{cookiecutter.repo_name}}
 RUN ./bin/ansible_local
 
 RUN mkdir /root/.ssh && chmod 0700 /root/.ssh
-RUN ssh-keyscan {{cookiecutter.domain}} >> ~/.ssh/known_hosts
+
+# --- INSTRUCTIONS ---
+# Uncomment the following line ONLY WHEN your domain is live and reachable via SSH.
+# This command adds your server's SSH key to the container, which is useful for
+# automated deployments or other SSH operations.
+# For now, it is left commented out to allow the initial build to succeed even without a live server.
+#
+# RUN ssh-keyscan {{cookiecutter.domain}} >> ~/.ssh/known_hosts
+
 RUN apt-get -y install gettext
 
 
