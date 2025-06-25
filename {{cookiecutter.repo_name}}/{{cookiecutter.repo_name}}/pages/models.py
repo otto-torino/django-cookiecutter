@@ -192,9 +192,8 @@ class Page(TimeStampedModel, Searchable):
 
     def get_absolute_url(self):
         # Handle script prefix manually because we bypass reverse()
-        active_lang = get_language()
         return iri_to_uri(
-            get_script_prefix().rstrip("/") + f"/{active_lang}/p{self.url}"
+            get_script_prefix().rstrip("/") + f"/p{self.url}"
         )
 
     def has_map_content(self):
