@@ -1,4 +1,4 @@
-{% now "U" as now %}
+{% raw %}{% now "U" as now %}
 <div id="pagecontentmapdrawer_map_{{ now }}"
      style="max-width: 100%;
             width: 1000px;
@@ -41,4 +41,4 @@
         map._map.invalidateSize();
     }, 500)
 })(Baton.jQuery)
-</script>
+</script>{% endraw %}

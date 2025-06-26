@@ -1,4 +1,4 @@
-{% extends 'pages/page_content_base.html' %}
+{% raw %}{% extends 'pages/page_content_base.html' %}
 
 {% block inner_block %}
   <div class="{% if obj.show_captions %}mb-8{% endif %}">
@@ -48,6 +48,6 @@
     })()
   </script>
   
-{% endblock inner_block %}
+{% endblock inner_block %}{% endraw %}
 
 

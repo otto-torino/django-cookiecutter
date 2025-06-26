@@ -1,4 +1,4 @@
-{% load i18n pages_tags %}
+{% raw %}{% load i18n pages_tags %}
 {% random_uid as uid %}
 <div class="mb-2">
   <a class="btn btn-sm btn-secondary" onclick="generateEmpty{{ uid }}(this)" id="layout-grid-item-empty-{{ uid }}"><span class="material-symbols-outlined">edit_note</span> {% trans "empty" %}</a>
@@ -19,4 +19,4 @@
 }
       `);
   }
-</script>
+</script>{% endraw %}

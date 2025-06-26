@@ -1,4 +1,4 @@
-{% load static components %}
+{% raw %}{% load static components %}
 
 <details
     id="{{ attributes.id }}"
@@ -19,4 +19,4 @@
         {% render_slot slots.inner_block %}
     </div>
 
-</details>
+</details>{% endraw %}

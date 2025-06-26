@@ -1,4 +1,4 @@
-{% load thumbnail %}
+{% raw %}{% load thumbnail %}
 {% if content.crop %}
     {% thumbnail image content.crop_size crop=image.file.sorl as im %}
         <img src="{{ im.url }}"
@@ -9,4 +9,4 @@
         <img src="{{ image.file.url }}"
              alt="{{ image.caption|default_if_none:"" }}"
              class="block w-full object-cover object-center" />
-{% endif %}
+{% endif %}{% endraw %}

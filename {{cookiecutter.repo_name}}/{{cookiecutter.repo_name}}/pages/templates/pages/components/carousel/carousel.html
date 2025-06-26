@@ -1,4 +1,4 @@
-{% load thumbnail static components %} {# Swiper HTML Layout#}
+{% raw %}{% load thumbnail static components %} {# Swiper HTML Layout#}
 <div class="{{config.swiper_theme}}">
     <div id="{{ attributes.id }}" class="swiper" {%if attributes.height%} style="height: {{attributes.height}};"{%endif%}>
     {# Additional required wrapper #}
@@ -60,4 +60,4 @@
       ...(hasScrollbar && { scrollbar: { el: '.swiper-scrollbar' } }),
     })
   })()
-</script>
+</script>{% endraw %}
