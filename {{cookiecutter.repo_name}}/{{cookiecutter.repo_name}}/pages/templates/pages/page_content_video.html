@@ -1,8 +1,7 @@
-{% raw %}{% load static components pages_tags %}
+{% extends 'pages/page_content_base.html' %}
+{% load static components pages_tags %}
 
-<div id="{{obj.get_unique_id}}" class="{% if obj.background_color %}px-4 py-2{% else %}py-2{% endif %}" style="background-color: {{ obj.background_color }}">
-    {% if obj.show_name %}<h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>{% endif %}
-
+{% block inner_block %}
     {{ obj.description | safe }}
     <div class="flex justify-center mt-4">
         {% if obj.platform == 1 %}
@@ -12,6 +11,6 @@
         {% elif obj.platform == 3 %}
             <iframe data-src="https://clips.twitch.tv/embed?{{ obj.video_id }}&parent={{ request.get_host|replace:":8000|" }}" data-cookierulez="marketing" class="aspect-[16/9]" style="width: {{ obj.width_percent }}%" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
         {% endif %}
-  </div>
-</div>
-{% endraw %}
+    </div>
+{% endblock inner_block %}
+

@@ -1,14 +1,17 @@
-{% raw %}<div{% if obj.background_color %} class="p-2" style="background-color: {{ obj.background_color }}"{% endif %}>
-    {% if obj.show_name %}<h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>{% endif %}
+{% extends 'pages/page_content_base.html' %}
+{% load components %}
+
+{% block inner_block %}
     {{ obj.text|safe }}
-    <div class="mt-6 w-full {% if obj.full_width %}{% else %}md:max-w-5xl md:mx-auto px-6 md:px-2 lg:px-0{% endif %}" id="map{{ obj.id }}" style="height: {{ obj.height }}px;"></div>
+    <div class="mt-6 z-0" id="map{{ obj.id }}" style="height: {{ obj.height }}px;"></div>
+
     <script>
         (function () {
             var map = L.map('map{{ obj.id }}', {
                 fullscreenControl: {
                     pseudoFullscreen: false
                 }
-            }).setView([45,7], {{ obj.zoom | default:"8" }});
+            }).setView([45,7], 8);
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
@@ -40,7 +43,7 @@
                       html: `<span style="${markerHtmlStyles}" />`
                     })
                     L.marker(coords, { icon }).addTo(map)
-            .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`){% if item.open_popup %}.openPopup(){% endif %};
+                     .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`);
                     bounds.extend(coords)
                 {% elif item.shape == 'POLYLINE' %}
                     coords = {{ item.coordinates | safe }};
@@ -50,7 +53,7 @@
                         opacity: 0.5,
                         smoothFactor: 1
                     }).addTo(map)
-                      .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`){% if item.open_popup %}.openPopup(){% endif %};
+                      .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`);
                     coords.forEach(function (coord) {
                         bounds.extend(coord);
                     })
@@ -62,7 +65,7 @@
                         opacity: 0.5,
                         smoothFactor: 1
                     }).addTo(map)
-                      .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`){% if item.open_popup %}.openPopup(){% endif %};
+                      .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`);
                     coords.forEach(function (coord) {
                         bounds.extend(coord);
                     })
@@ -76,25 +79,19 @@
                         smoothFactor: 1
                     })
                     shape.addTo(map)
-                         .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`){% if item.open_popup %}.openPopup(){% endif %};
+                         .bindPopup(`<strong style="font-weight: 700">{% if item.link %}<a href="{{ item.link }}">{% endif %}{{ item.name }}{% if item.link %}</a>{% endif %}</strong><p>{{ item.caption|default_if_none:"" }}</p>`);
                     bounds.extend(shape.getBounds());
                 {% endif %}
             {% endfor %}
     
             map.fitBounds(bounds);
-            {% if obj.zoom %}
-                map.setZoom({{ obj.zoom }});
-            {% endif %}
     
             const resizeObserver = new ResizeObserver(() => {
                 map.invalidateSize();
                 map.fitBounds(bounds);
-                {% if obj.zoom %}
-                    map.setZoom({{ obj.zoom }});
-                {% endif %}
             });
             resizeObserver.observe(document.getElementById('map{{ obj.id }}'));
         })()
         
     </script>
-</div>{% endraw %}
+{% endblock %}

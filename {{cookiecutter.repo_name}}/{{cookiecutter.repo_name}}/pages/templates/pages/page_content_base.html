@@ -1,0 +1,25 @@
+<div id="{{obj.get_unique_id}}" class="{% if not obj.use_accordion %} mb-8 {% endif %} {% if obj.background_color %} py-4 {% endif %}" style="background-color: {{ obj.background_color }}">
+  <div class="relative px-5 {% if not obj.full_width %} md:max-w-5xl md:mx-auto {% endif %}">
+    {% if obj.show_name %}
+      <a {% if obj.url %}href={{ obj.url }}{% endif %} class="{% if not obj.url %}pointer-events-none{% endif %}">
+        <h3>{{ obj.name }}</h3>
+      </a>
+    {% endif %}
+    {% block inner_block %}{% endblock inner_block %}
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const currentElement = document.getElementById("{{ obj.get_unique_id }}");
+      if (currentElement) {
+        const nextSibling = currentElement.nextElementSibling;
+        if (
+          nextSibling &&
+          !nextSibling.id.startsWith("Text") &&
+          !nextSibling.id.startsWith("Attachment")
+        ) {
+          currentElement.classList.add("mb-8");
+        }
+      }
+    });
+  </script>
+</div>

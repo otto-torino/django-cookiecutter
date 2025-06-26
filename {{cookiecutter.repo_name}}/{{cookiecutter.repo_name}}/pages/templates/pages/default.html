@@ -1,4 +1,4 @@
-{% raw %}{% extends 'page.html' %}
+{% extends 'page.html' %}
 {% load i18n core sorl_thumbnail %}
 {% block title %}{{ page.title }} | {{ block.super }}{% endblock %}
 {% block meta_title %}
@@ -79,15 +79,16 @@
 
 {% block top_css %}max-w-screen overflow-hidden relative{% endblock top_css %}
 {% block hero %}
-    <div class="relative lg:border-r-[40px] lg:border-secondary">
+    <div class="relative">
         {% thumbnail page.image "1920x500" crop=page.image.sorl as cropped %}
-        <img src={{ cropped.url }} alt="image" class="hidden lg:block w-full" width="1920" height="500" />
+            <img src={{ cropped.url }} alt="image" class="hidden lg:block w-full" width="1920" height="500" />
         {% endthumbnail %}
         {% thumbnail page.image "800x400" crop=page.image.sorl as cropped %}
-        <img src={{ cropped.url }} alt="image" class="lg:hidden w-full" width="800" height="400" />
+            <img src={{ cropped.url }} alt="image" class="lg:hidden w-full" width="800" height="400" />
         {% endthumbnail %}
-        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/80 via-black/30 to-black/0 text-center leading-tight"></div>
-        <h1>{{ page.title }}</h1>
+        <div class="md:max-w-5xl md:mx-auto px-5">
+            <h1>{{ page.title }}</h1>
+        </div>
     </div>
 {% endblock hero %}
 
@@ -106,4 +107,4 @@
             {% endfor %}
         </div>
     </main>
-{% endblock %}{% endraw %}
+{% endblock %}

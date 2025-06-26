@@ -1,19 +1,12 @@
-{% raw %}{% load static components %}
-<div class="{% if obj.full_width %}{% else %}md:w-[64rem] md:mx-auto px-6 md:px-2 lg:px-0{% endif %}">
+{% extends 'pages/page_content_base.html' %}
+{% load static components %}
+
+{% block inner_block %}
     {% if obj.use_accordion %}
-        {% accordion id=obj.get_unique_id name=obj.name bg=obj.background_color %}
-            <div class="{% if obj.background_color %}px-4 py-4{% else %}py-2{% endif %} rounded-lg">{{ obj.content|safe }}</div>
+        {% accordion id=obj.get_unique_id|add:"accordion" name=obj.name collapsed %}      
+            {{ obj.content|safe }}      
         {% endaccordion %}
-    {% else %}
-    <div id="{{ obj.get_unique_id }}"
-         class="{% if obj.background_color %}px-4 py-2{% else %}py-2{% endif %} space-y-4"
-        style="{% if obj.background_color %}background-color: {{ obj.background_color }};{% endif %}{% if obj.text_color %}color: {{ obj.text_color }};{% endif %}">
-        {% if obj.show_name %}
-            <a {% if obj.url %}href={{ obj.url }}{% endif %}>
-                <h2 class="text-2xl text-corange mb-4">{{ obj.name }}</h2>
-            </a>
-        {% endif %}
-        {{ obj.content|safe }}
-    </div>
+    {% else %}    
+        {{ obj.content|safe }}    
     {% endif %}
-</div>{% endraw %}
+{% endblock inner_block %}

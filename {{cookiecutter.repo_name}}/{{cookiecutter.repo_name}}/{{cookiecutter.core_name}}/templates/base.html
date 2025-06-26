@@ -43,14 +43,16 @@
         </head>
         <body class="{% block body_css %}{% endblock body_css %}">
             {% block navbar %}
-                <div class="bg-rose-700 color-white p-4">
-                    {% endraw %}{{ cookiecutter.project_name }}{% raw %}
+                <div class="bg-rose-800 color-white py-5">
+                    <a href="{% url 'home' %}" class="md:max-w-5xl md:mx-auto px-5">
+                        {{ pref.site_title }}
+                    </a>
                 </div>
             {% endblock navbar %}
             {% block jumbotron %}{% endblock jumbotron %}
             {% block content %}{% endblock content %}
             <footer>
-                <div class="container">
+                <div class="md:max-w-5xl md:mx-auto px-5">
                 </div>
             </footer>
 

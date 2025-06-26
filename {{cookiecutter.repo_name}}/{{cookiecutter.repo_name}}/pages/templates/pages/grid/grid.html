@@ -1,4 +1,4 @@
-{% raw %}{% if bootstrap %}
+{% if bootstrap %}
 <div id="{{ obj.get_unique_id }}" class="container-fluid">
     <div class="row g-2">
         {% for image in obj.images.all %}
@@ -46,4 +46,4 @@
         lightbox.init();
         console.log('Lightbox', lightbox) // eslint-disable-line
     })()
-</script>{% endraw %}
+</script>
