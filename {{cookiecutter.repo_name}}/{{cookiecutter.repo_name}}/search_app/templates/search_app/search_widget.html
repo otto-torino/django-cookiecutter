@@ -1,19 +1,21 @@
 {% raw %}{% load i18n %}
 
 <form method="get" action="{{ search_url }}" class="my-4">
-    <div class="relative">
-        <input 
-            type="text" 
-            name="q" 
-            class="w-full py-3 px-4 text-base border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="{% trans "Search the site..." %}"
-            aria-label="{% trans "Search the site..." %}"
-        >
-        <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-blue-600" aria-label="{% trans "Execute search" %}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-        </button>
-    </div>
+    <label class="input input-xl w-full">
+        <svg class="h-[1.2em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <g
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2.5"
+                fill="none"
+                stroke="currentColor"
+            >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+            </g>
+        </svg>
+        <input type="search" name="q" class="grow" placeholder="Search" />            
+    </label>
+    <button type="submit" class="sr-only">{% trans "Submit" %}</button>
 </form>
 {% endraw %}

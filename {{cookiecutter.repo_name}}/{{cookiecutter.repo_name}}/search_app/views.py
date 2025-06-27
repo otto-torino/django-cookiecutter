@@ -8,6 +8,8 @@ from django.contrib.postgres.search import (
 from django.apps import apps
 from .models import Searchable
 from collections import defaultdict
+from django.utils.translation import get_language
+from django.conf import settings
 
 def search_view(request):
     """
@@ -19,10 +21,11 @@ def search_view(request):
     - Aggregates and groups the results by model, then ranks them.
     """
     query_text = request.GET.get('q', '').strip()
-    
-    # Use a defaultdict to group results
     grouped_results = defaultdict(list)
     total_results_count = 0
+    current_language = get_language()
+    LANG_TO_PG_CONFIG = dict(settings.LANGUAGES)
+    pg_search_config = LANG_TO_PG_CONFIG.get(current_language, 'simple')
 
     context = {
         'query': query_text,
@@ -31,7 +34,7 @@ def search_view(request):
     }
 
     if query_text:
-        search_query = SearchQuery(query_text, search_type='websearch')
+        search_query = SearchQuery(query_text, config=pg_search_config, search_type='websearch')
         all_models = apps.get_models()
         
         searchable_models = [
@@ -52,7 +55,7 @@ def search_view(request):
             search_vector = SearchVector(*search_fields)
 
             headline_annotations = {
-                f'headline_{field}': SearchHeadline(field, search_query, **headline_options)
+                f'headline_{field}': SearchHeadline(field, search_query, config=pg_search_config, **headline_options)
                 for field in search_fields
             }
 
@@ -60,7 +63,7 @@ def search_view(request):
                 search=search_vector,
                 rank=SearchRank(search_vector, search_query),
                 **headline_annotations
-            ).filter(search=search_query)
+            ).filter(search=search_query).order_by('id', '-rank').distinct('id')
             
             if queryset.exists():
                 model_verbose_name_plural = model._meta.verbose_name_plural.title()
@@ -88,6 +91,7 @@ def search_view(request):
         for model_name, results_list in grouped_results.items():
             results_list.sort(key=lambda r: r.rank, reverse=True)
             total_results_count += len(results_list)
+            
 
         # Convert defaultdict to a regular dict for the template
         context['grouped_results'] = dict(grouped_results)

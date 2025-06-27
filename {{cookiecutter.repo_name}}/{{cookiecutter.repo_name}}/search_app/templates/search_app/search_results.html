@@ -1,74 +1,93 @@
 {% raw %}{% extends "base.html" %}
-{% load search_tags %}
+{% load i18n search_tags components %}
 
 {% block content %}
-<div class="container mx-auto max-w-4xl px-4 py-8">
-        
-    <h1 class="text-4xl font-bold text-gray-900 mb-4">Search</h1>
-    <p class="text-lg text-gray-600 mb-8">Search for content across the entire site.</p>
+<div class="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div class="flex flex-col gap-8">
 
-    <!-- Search Form -->
-    <form method="get" action="{% url 'search_app:search' %}" class="mb-12">
-        <div class="relative">
-            <input 
-                type="text" 
-                name="q" 
-                value="{{ query|default:'' }}" 
-                class="w-full p-4 pr-12 text-lg border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                placeholder="e.g., django performance"
-            >
-            <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-blue-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </button>
+        <div class="text-center">
+            <h1 class="text-4xl font-extrabold tracking-tight text-base-content sm:text-5xl lg:text-6xl">
+                {% trans "Site Search" %}
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-lg text-base-content/70">
+                {% trans "Find resources, pages, and more across the entire site." %}
+            </p>
         </div>
-    </form>
 
-    <!-- Search Results -->
-    {% if query %}
-        <div class="results-container">
-            <h2 class="text-2xl font-semibold text-gray-800 border-b pb-3 mb-6">
-                {% if total_results_count > 0 %}
-                    Found {{ total_results_count }} result{{ total_results_count|pluralize }} for "<span class="text-blue-600">{{ query }}</span>"
-                {% else %}
-                    No results found for "<span class="text-blue-600">{{ query }}</span>"
-                {% endif %}
-            </h2>
-
-            <div class="space-y-4">
-                {% for model_name, results_list in grouped_results.items %}
-                    <details class="group bg-white shadow-md rounded-lg border border-gray-200" {% if forloop.first %}open{% endif %}>
-                        <summary class="flex justify-between items-center p-4 cursor-pointer list-none">
-                            <h3 class="text-xl font-semibold text-gray-800">{{ model_name }} ({{ results_list|length }})</h3>
-                            <span class="transition-transform transform group-open:rotate-180">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </span>
-                        </summary>
-                        <div class="p-4 border-t border-gray-200">
-                             <ul class="space-y-6">
-                                {% for item in results_list %}
-                                    <li class="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                        <a href="{{ item.get_absolute_url }}" class="block">
-                                            <h4 class="text-lg font-bold text-blue-700 hover:underline">{{ item }}</h4>
-                                            <p class="text-gray-700 mt-2 text-sm">
-                                                {{ item.headline|safe }}
-                                            </p>
-                                            <span class="text-xs font-mono text-green-600 mt-3 inline-block">Relevance Score: {{ item.rank|floatformat:4 }}</span>
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </details>
-                {% empty %}
-                     <div class="text-center py-12">
-                        <p class="text-gray-500 text-lg">Try refining your search terms or check for typos.</p>
-                    </div>
-                {% endfor %}
+        <form method="get" action="{% url 'search_app:search' %}" class="w-full max-w-xl mx-auto">
+            <div class="join w-full">
+                <label class="input input-bordered join-item input-lg flex-grow flex items-center gap-2">
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 16 16"
+                        fill="currentColor" 
+                        class="w-5 h-5 opacity-70"
+                    >
+                <path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" />
+            </svg>
+                    <input type="search" name="q" class="grow" placeholder="{% trans 'Search for...' %}" value="{{ query|default:'' }}" />
+                </label>
+                <button type="submit" class="btn btn-primary btn-lg join-item">{% trans "Search" %}</button>
             </div>
-        </div>
-    {% endif %}
-        
+        </form>
+
+        {% if query %}
+            <div class="results-container mt-8">
+                <h2 class="text-2xl font-bold border-b border-base-300 pb-4 mb-6">
+                    {% if total_results_count > 0 %}
+                        {% blocktrans trimmed count counter=total_results_count %}
+                            Found {{ counter }} result for
+                        {% plural %}
+                            Found {{ counter }} results for
+                        {% endblocktrans %}
+                        "<span class="badge badge-primary badge-lg align-middle">{{ query }}</span>"
+                    {% else %}
+                        {% trans "No results found for" %} "<span class="badge badge-primary badge-lg align-middle">{{ query }}</span>"
+                    {% endif %}
+                </h2>
+
+                {% if total_results_count > 0 %}
+                    <div class="join join-vertical w-full gap-2">
+                        {% for model_name, results_list in grouped_results.items %}
+                            {% accordion id=model_name is_open=True %}
+                                {% slot "header" %}
+                                    <span class="text-xl font-medium">{{ model_name }}</span>
+                                    <span class="badge badge-neutral">{{ results_list|length }}</span>
+                                {% endslot %}
+                                <ul class="flex flex-col gap-4 p-4 bg-base-200/20">
+                                    {% for item in results_list %}
+                                        <li>
+                                            <a href="{{ item.get_absolute_url }}" class="card card-compact bg-base-100 hover:bg-base-200 transition-colors duration-200 shadow-sm border border-base-300">
+                                                <div class="card-body">
+                                                    <div class="flex justify-between items-start flex-wrap">
+                                                        <h4 class="card-title text-primary hover:underline">{{ item }}</h4>
+                                                        {% if user.is_superuser %} 
+                                                            <div class="badge badge-outline">{% trans "Score" %}: {{ item.rank|floatformat:4 }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <p class="text-base-content/80 mt-1">{{ item.headline|safe }}</p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endaccordion %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-16 px-6 bg-base-200 rounded-lg">
+                        <svg class="mx-auto h-12 w-12 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <h3 class="mt-2 text-2xl font-semibold text-base-content">{% trans "No results" %}</h3>
+                        <p class="mt-1 text-lg text-base-content/70">
+                            {% trans "Try refining your search terms or check for typos." %}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    </div>
 </div>
 {% endblock content %}{% endraw %}
