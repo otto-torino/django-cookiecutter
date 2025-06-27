@@ -99,6 +99,9 @@ INSTALLED_APPS = (
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    {% if cookiecutter.use_translations == 'y' %}
+    'django.middleware.locale.LocaleMiddleware',
+    {% endif %}
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -123,6 +126,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
                 'preferences_utils.context_processors.preferences.pref',
                 '{{ cookiecutter.core_name }}.context_processors.debug',
                 '{{ cookiecutter.core_name }}.context_processors.absurl',
@@ -148,9 +152,9 @@ NPM_BIN_PATH = '/usr/bin/npm'
 
 LANGUAGE_CODE = '{{ cookiecutter.default_language}}'
 {% if cookiecutter.default_language == 'it' %}LANGUAGES = (
-    ("it", _("Italiano")),
+    ("it", "italian"),
 ){% else %}LANGUAGES = (
-    ("en", _("English")),
+    ("en", "english"),
 ){% endif %}
 {% if cookiecutter.use_translations == 'y' %}MODELTRANSLATION_DEFAULT_LANGUAGE = "{{ cookiecutter.default_language}}"{% endif %}
 
