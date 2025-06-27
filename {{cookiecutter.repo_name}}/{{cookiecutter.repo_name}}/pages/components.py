@@ -6,6 +6,13 @@ from dataclasses import asdict, dataclass
 @component.register("accordion")
 class Accordion(component.Component):
     template_name = "pages/components/accordion.html"
+    slots = ("inner_block", "header")
+
+    def get_context(self, *args, **kwargs):
+        return {
+            "attributes": kwargs, 
+            "slots": self.slots_dict
+        }
 
 @dataclass
 class CarouselConfig:
