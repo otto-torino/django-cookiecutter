@@ -1,5 +1,5 @@
 {% raw %}{% extends 'page.html' %}
-{% load i18n core sorl_thumbnail %}
+{% load i18n humanize core sorl_thumbnail %}
 {% block title %}{{ page.title }} | {{ block.super }}{% endblock %}
 {% block meta_title %}
     {% if page.meta_title %}
@@ -95,7 +95,7 @@
 {% block content %}
     <main>
         {% if page.last_updated %}
-            <div class="flex justify-center mt-6 text-gray-400 text-sm">{% trans 'Ultimo aggiornamento:' %} {{ updated }}</div>
+            <div class="flex justify-center mt-6 text-gray-400 text-sm">{% trans 'Ultimo aggiornamento:' %} {{ updated|naturaltime }}</div>
         {% endif %}
         <div id="content-blocks" class="flex flex-col py-4 text-lg">
             {% for content_block in page.content_blocks.for_content %}

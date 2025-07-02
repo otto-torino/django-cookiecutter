@@ -60,17 +60,23 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # APPLICATIONS
 INSTALLED_APPS = (
+    # Initial apps
     '{{ cookiecutter.core_name }}',
     {% if cookiecutter.use_translations == 'y' %}'modeltranslation',{% endif %}
     'baton',
+
+    # Django default apps
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+
+    # Third party apps
     'ckeditor',
     'ckeditor_uploader',
     'django_user_agents',
@@ -80,20 +86,23 @@ INSTALLED_APPS = (
     'subject_imagefield',
     "colorfield",
     'tailwind',
-    'django_web_components',
-    #'theme',
+    'django_web_components',    
     'django_browser_reload',
     {% if cookiecutter.use_filer == 'y' %}'filer',
     'easy_thumbnails',{% endif %}
+    {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'django_cleanup',
     {% if cookiecutter.use_simple_captcha == 'y' %}'captcha',{% endif %}
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}'sorl.thumbnail',{% endif %}
     'taggit',
     'mptt',
     'lineup',
+
+    # Custom apps
     'pages',
-    'search_app',
-    {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
+    #'theme',
+    'search_app',    
+
     'baton.autodiscover',
 )
 
