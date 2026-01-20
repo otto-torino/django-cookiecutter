@@ -48,18 +48,27 @@ def render_page(request, p):
         from django.contrib.auth.views import redirect_to_login
 
         return redirect_to_login(request.path)
-    # If page is not pusblished, raise 404
-    if not p.status == Page.PUBLISHED:
+    
+    # If page is not pusblished and user does not have permission to edit, raise 404
+    if p.status != Page.PUBLISHED and not request.user.has_perm('pages.change_page'):
         raise Http404
+    
     if p.template_name:
         template = loader.select_template((p.template_name, DEFAULT_TEMPLATE))
     else:
         template = loader.get_template(DEFAULT_TEMPLATE)
+
     date = p.modified
     for block in p.content_blocks.for_content():
         if block.modified > date:
             date = block.modified
-    response = HttpResponse(template.render({"page": p, "updated": date}, request))
+
+    context = {
+        "page": p,
+        "updated": date,
+    }
+    
+    response = HttpResponse(template.render(context, request))
     return response
 
 
