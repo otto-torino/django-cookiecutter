@@ -15,10 +15,7 @@
           - libpq-dev
           - postgresql-client
           - postgresql-client-common
-
-    - name: Install psycopg2 python package
-      pip:
-        name: psycopg2
+          - python3-psycopg2
 
     - name: Create the db user
       postgresql_user:
