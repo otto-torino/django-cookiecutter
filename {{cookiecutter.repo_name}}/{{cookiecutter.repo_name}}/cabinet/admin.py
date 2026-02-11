@@ -8,11 +8,18 @@ from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 from sorl.thumbnail import get_thumbnail
+from django.urls import reverse
 
 
 @admin.register(File)
 class FileAdmin(CKEditorFilebrowserMixin, FileAdminBase):
-    list_display = ["admin_thumbnail", "admin_file_name", "admin_details", "admin_url"]
+    list_display = [
+        "admin_thumbnail",
+        "admin_file_name",
+        "admin_details",
+        "admin_url",
+        "permalink",
+    ]
     list_display_links = ["admin_thumbnail", "admin_file_name"]
 
     @admin.display(description="")
@@ -70,6 +77,31 @@ class FileAdmin(CKEditorFilebrowserMixin, FileAdminBase):
                     instance.download_file.url, instance.download_file.url
                 )
             )
+        return ""
+
+    @admin.display(description=_("Permalink"))
+    def permalink(self, instance):
+        # Function to generate the HTML with the clipboard functionality and icon change
+        def get_permalink_html(link):
+            js_template = (
+                "var linkElement = event.currentTarget; "
+                "navigator.clipboard.writeText('{url}').then(function() {{ "
+                "var icon = linkElement.querySelector('i'); "
+                "if (icon) {{ "
+                "icon.classList.remove('fa-clipboard'); "
+                "icon.classList.add('fa-check'); "
+                "}} "
+                "}}).catch(function(err) {{ console.error('Could not copy text: ', err); }});"
+            )
+            js_code = js_template.format(url=link)
+            return mark_safe(
+                '{} <a href="javascript:void(0)" onclick="{}"> <span class="material-symbols-outlined">content_copy</span></a>'.format(
+                    link, js_code
+                )
+            )
+
+        if hasattr(instance, "file") and instance.file and instance.file.name:
+            return get_permalink_html(reverse("cabinet:permalink", args=[instance.id]))
         return ""
 
 
