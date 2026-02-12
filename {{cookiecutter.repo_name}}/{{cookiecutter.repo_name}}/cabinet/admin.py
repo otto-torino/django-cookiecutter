@@ -81,27 +81,13 @@ class FileAdmin(CKEditorFilebrowserMixin, FileAdminBase):
 
     @admin.display(description=_("Permalink"))
     def permalink(self, instance):
-        # Function to generate the HTML with the clipboard functionality and icon change
-        def get_permalink_html(link):
-            js_template = (
-                "var linkElement = event.currentTarget; "
-                "navigator.clipboard.writeText('{url}').then(function() {{ "
-                "var icon = linkElement.querySelector('i'); "
-                "if (icon) {{ "
-                "icon.classList.remove('fa-clipboard'); "
-                "icon.classList.add('fa-check'); "
-                "}} "
-                "}}).catch(function(err) {{ console.error('Could not copy text: ', err); }});"
-            )
-            js_code = js_template.format(url=link)
+        if hasattr(instance, "file") and instance.file and instance.file.name:
+            link = reverse("cabinet:permalink", args=[instance.id])
             return mark_safe(
-                '{} <a href="javascript:void(0)" onclick="{}"> <span class="material-symbols-outlined">content_copy</span></a>'.format(
-                    link, js_code
+                '{} <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(\'{}\')"> <i class="material-symbols-outlined d-inline-block ms-2">content_copy</a>'.format(
+                    link, link
                 )
             )
-
-        if hasattr(instance, "file") and instance.file and instance.file.name:
-            return get_permalink_html(reverse("cabinet:permalink", args=[instance.id]))
         return ""
 
 
