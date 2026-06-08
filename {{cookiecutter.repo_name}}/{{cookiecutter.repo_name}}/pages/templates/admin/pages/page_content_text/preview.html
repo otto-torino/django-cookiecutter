@@ -1,8 +1,9 @@
-{% raw %}<div style="{% if obj.background_color %}background-color: {{ obj.background_color }};{% endif %}{% if obj.text_color %}color: {{ obj.text_color }};{% endif %}">
+{% raw %}{% load editor_js_filters %}
+<div style="{% if obj.background_color %}background-color: {{ obj.background_color }};{% endif %}{% if obj.text_color %}color: {{ obj.text_color }};{% endif %}">
   {% if object.show_name %}
     <a {% if object.url %}href={{ object.url }}{% endif %}>
       <h3 class="font-medium">{{ object.name }}</h3>
     </a>
   {% endif %}
-  {{ object.content | safe }}
+  {{ object.content|render_editor_js }}
 </div>{% endraw %}

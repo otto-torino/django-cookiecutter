@@ -77,8 +77,7 @@ INSTALLED_APPS = (
     'django.contrib.postgres',
 
     # Third party apps
-    'ckeditor',
-    'ckeditor_uploader',
+    'editor_js',
     'django_user_agents',
     'django_extensions',
     'compressor',
@@ -237,37 +236,11 @@ CABINET_FILE_MODEL = "cabinet.File"
 # TAGGIT
 TAGGIT_CASE_INSENSITIVE = True
 
-# CKEDITOR
-CKEDITOR_UPLOAD_PATH = 'ckeditor/'
-CKEDITOR_JQUERY_URL = ''
-CKEDITOR_IMAGE_BACKEND = 'pillow'
-CKEDITOR_CONFIGS = {
-    'default': {
-        'skin': 'moono',
-        'toolbar_Basic': [
-                ['Source', '-', 'Bold', 'Italic']
-        ],
-        'toolbar_Full': [
-                ['Styles', 'Format', 'Bold', 'Italic', 'Underline', 'Strike', 'SpellChecker', 'Undo', 'Redo'], # noqa
-                ['NumberedList','BulletedList'],
-                ['Link','Unlink','Anchor'],
-                '/',
-                ['Image', 'Flash', 'Table', 'HorizontalRule'],
-                ['TextColor', 'BGColor'],
-                ['SpecialChar'], ['PasteFromWord', 'PasteText'], ['Source']
-        ],
-        'toolbar': 'Full',
-        'resize_dir': 'both',
-        'resize_minWidth': 300,
-        'height': 291,
-        'width': '100%',
-        'filebrowserWindowWidth': 940,
-        'filebrowserWindowHeight': 725,
-        'removePlugins': 'stylesheetparser',
-        'allowedContent': True,
-        'extraAllowedContent': 'iframe[*]',
-        'stylesSet': 'core_styles:/static/{{ cookiecutter.core_name }}/src/js/ckeditor_styles.js',
-    }
+# EDITOR.JS
+EDITOR_JS = {
+    "CSS_FILES": [
+        "{{ cookiecutter.core_name }}/src/css/editor_js.css",
+    ],
 }
 
 {% if cookiecutter.use_filer == 'y' %}

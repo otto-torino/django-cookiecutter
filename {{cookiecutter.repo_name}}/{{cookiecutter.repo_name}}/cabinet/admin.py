@@ -1,6 +1,5 @@
 from django.utils.safestring import mark_safe
 from cabinet.base_admin import FileAdminBase
-from cabinet.ckeditor import CKEditorFilebrowserMixin
 from cabinet.models import File
 from django.contrib import admin
 from django.template.defaultfilters import filesizeformat
@@ -11,7 +10,7 @@ from sorl.thumbnail import get_thumbnail
 
 
 @admin.register(File)
-class FileAdmin(CKEditorFilebrowserMixin, FileAdminBase):
+class FileAdmin(FileAdminBase):
     list_display = ["admin_thumbnail", "admin_file_name", "admin_details", "admin_url"]
     list_display_links = ["admin_thumbnail", "admin_file_name"]
 

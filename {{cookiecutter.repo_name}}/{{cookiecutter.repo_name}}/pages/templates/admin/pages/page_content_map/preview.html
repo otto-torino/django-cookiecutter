@@ -1,6 +1,7 @@
-{% raw %}<div style="background-color: {{ object.background_color }}">
+{% raw %}{% load editor_js_filters %}
+<div style="background-color: {{ object.background_color }}">
     {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
-    {{ object.text | safe }}
+    {{ object.text|render_editor_js }}
     <div id="map{{ object.id }}" style="height: {{ object.height }}px;"></div>
     <script>
         (function () {

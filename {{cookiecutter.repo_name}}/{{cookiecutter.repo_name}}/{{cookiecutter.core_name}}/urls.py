@@ -21,6 +21,9 @@ from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
 from django.contrib.sitemaps.views import sitemap
 from pages.sitemap import PageSitemap
+{% if cookiecutter.use_cabinet == 'y' %}
+from cabinet.views import editor_js_image_upload
+{% endif %}
 {% if cookiecutter.use_translations == 'y' %}
 from django.conf.urls.i18n import i18n_patterns
 {% endif %}
@@ -50,8 +53,10 @@ translatable_urlpatterns = [
     # admin
     path('admin/', admin.site.urls),
     path('baton/', include('baton.urls')),
-    # ckeditor uploader
-    path('ckeditor/', include('ckeditor_uploader.urls')),
+    {% if cookiecutter.use_cabinet == 'y' %}
+    path('editor-js/editor-js-image-upload/', editor_js_image_upload, name='editor_js_image_upload'),
+    {% endif %}
+    path('editor-js/', include('editor_js.urls')),
     # taggit autosuggest
     path("taggit_autosuggest/", include("taggit_autosuggest.urls")),
     {% if cookiecutter.use_filer == 'y' %}

@@ -1,5 +1,5 @@
 {% raw %}{% extends 'pages/page_content_base.html' %}
-{% load static components %}
+{% load static components editor_js_filters %}
 
 {% block inner_block %}
 
@@ -15,7 +15,7 @@
                         flex: 1;
                     {% endif %}
                  ">
-                {{ obj.text|safe }}
+                {{ obj.text|render_editor_js }}
             </div>
 
             <div style="{% if obj.image_position == 'left' and obj.left_column_width %}width: {{ obj.left_column_width }}%{% endif %}">
@@ -43,7 +43,7 @@
                         flex: 1;
                     {% endif %}
                  ">
-                {{ obj.text|safe }}
+                {{ obj.text|render_editor_js }}
             </div>
 
             <div style="

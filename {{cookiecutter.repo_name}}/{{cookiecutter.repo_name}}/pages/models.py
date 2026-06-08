@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import logging
 
-from ckeditor_uploader.fields import RichTextUploadingField
 from colorfield.fields import ColorField
 from baton.fields import BatonAiImageField
 from django.apps import apps
@@ -18,6 +17,7 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django_extensions.db.models import TimeStampedModel
+from editor_js.fields import EditorJSField
 from taggit.managers import ContentType
 from taggit_autosuggest.managers import TaggableManager
 from .managers import PageContentQuerySet, PageManager
@@ -298,7 +298,7 @@ class PageContent(TimeStampedModel):
 
 
 class PageContentText(PageContent, AccordionBlock):
-    content = RichTextUploadingField(verbose_name=_("content"), blank=True)
+    content = EditorJSField(verbose_name=_("content"), blank=True, null=True)
     url = models.CharField(_("url"), blank=True, null=True)
     text_color = ColorField(
         _("text color"),
@@ -405,7 +405,7 @@ class PageContentTextImage(PageContent, AccordionBlock):
         ("top", _("Top")),
         ("bottom", _("Bottom")),
     )
-    text = RichTextUploadingField(verbose_name=_("text"), blank=True)
+    text = EditorJSField(verbose_name=_("text"), blank=True, null=True)
     # specify the width of the left column in percentage
     left_column_width = models.IntegerField(
         _("left column width (%)"),
@@ -734,7 +734,7 @@ class PageContentRssFeed(PageContent):
 
 
 class PageContentMap(PageContent):
-    text = RichTextUploadingField(verbose_name=_("content"), blank=True)
+    text = EditorJSField(verbose_name=_("content"), blank=True, null=True)
     height = models.IntegerField(verbose_name=_("height (px)"), default=400)
     zoom = models.IntegerField(
         verbose_name=_("zoom"),
@@ -824,7 +824,7 @@ class PageContentVideo(PageContent):
         (TWITCH, _("Twitch")),
     )
 
-    description = RichTextUploadingField(verbose_name=_("description"), blank=True)
+    description = EditorJSField(verbose_name=_("description"), blank=True, null=True)
     credits = models.TextField(_("credits"), blank=True, null=True)
     platform = models.IntegerField(
         _("platform"), choices=PLATFORM_CHOICES, default=YOUTUBE
@@ -961,7 +961,7 @@ class PageContentLayoutItem(models.Model):
         null=True,
         limit_choices_to={"layout_content": True},
     )
-    text = RichTextUploadingField(verbose_name=_("text"), blank=True, null=True)
+    text = EditorJSField(verbose_name=_("text"), blank=True, null=True)
     text_position = models.PositiveSmallIntegerField(
         _("tex position"), choices=POSITION_CHOICES, default=TOP
     )

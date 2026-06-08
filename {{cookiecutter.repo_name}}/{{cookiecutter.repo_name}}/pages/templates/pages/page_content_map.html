@@ -1,8 +1,8 @@
 {% raw %}{% extends 'pages/page_content_base.html' %}
-{% load components %}
+{% load components editor_js_filters %}
 
 {% block inner_block %}
-    {{ obj.text|safe }}
+    {{ obj.text|render_editor_js }}
     <div class="mt-6 z-0" id="map{{ obj.id }}" style="height: {{ obj.height }}px;"></div>
 
     <script>

@@ -22,7 +22,7 @@ Project details:
 
 * django db settings managed with environment variables
 * some must-have (in my opinion) packages installed:
-  * [django-ckeditor](https://github.com/django-ckeditor/django-ckeditor)
+  * [dj-editor-js](https://github.com/otto-torino/django-editor-js)
   * [django-cleanup](https://github.com/un1t/django-cleanup)
   * [django-preferences-utils](https://github.com/otto-torino/django-preferences-utils)
   * [django-user_agents](https://github.com/selwin/django-user_agents)
@@ -37,7 +37,7 @@ Project details:
   * [django-filer](https://github.com/stefanfoulis/django-filer) (optional)
   * [django-compressor](https://github.com/django-compressor/django-compressor)
   * [django-tailwind](https://github.com/timonweb/django-tailwind)
-  * pages with integrated ckeditor
+  * pages with integrated Editor.js
 
 ### Frontend
 

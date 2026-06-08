@@ -1,4 +1,5 @@
-{% raw %}<style>
+{% raw %}{% load editor_js_filters %}
+<style>
     {{ object.render_wrapper_css }}
     {% for item in object.layout_items.all %}
     {{ item.render_item_css }}
@@ -9,13 +10,13 @@
         {% for item in object.layout_items.all %}
         <div class="grid-item-{{ item.id }}">
             {% if item.text and item.text_position == item.TOP %}
-                {{ item.text | safe }}
+                {{ item.text|render_editor_js }}
             {% endif %}
             {% if item.content %}
                 {% include item.content.content_object.get_preview_template with object=item.content.content_object %}
             {% endif %}
             {% if item.text and item.text_position == item.BOTTOM %}
-                {{ item.text | safe }}
+                {{ item.text|render_editor_js }}
             {% endif %}
         </div>
         {% endfor %}

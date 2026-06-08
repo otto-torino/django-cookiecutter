@@ -1,8 +1,8 @@
 {% raw %}{% extends 'pages/page_content_base.html' %}
-{% load static components pages_tags %}
+{% load static components pages_tags editor_js_filters %}
 
 {% block inner_block %}
-    {{ obj.description | safe }}
+    {{ obj.description|render_editor_js }}
     <div class="flex justify-center mt-4">
         {% if obj.platform == 1 %}
             <iframe data-src="https://www.youtube.com/embed/{{ obj.video_id }}?si=dgIQWWWBNsOjoeNJ" data-cookierulez="marketing" class="aspect-[16/9]" style="width: {{ obj.width_percent }}%"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -13,4 +13,3 @@
         {% endif %}
     </div>
 {% endblock inner_block %}{% endraw %}
-

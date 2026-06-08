@@ -1,4 +1,4 @@
-{% raw %}{% load pages_tags %}
+{% raw %}{% load pages_tags editor_js_filters %}
 <style>
     .video-iframe {
         aspect-ratio: 16 / 9;
@@ -6,7 +6,7 @@
 </style>
 <div style="background-color: {{ object.background_color }}">
     {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}
-    {{ object.description | safe }}
+    {{ object.description|render_editor_js }}
     <div class="d-flex justify-content-center">
         {% if object.platform == 1 %}
             <iframe class="video-iframe" style="width: {{ object.width_percent }}%" src="https://www.youtube.com/embed/{{ object.video_id }}?si=dgIQWWWBNsOjoeNJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>

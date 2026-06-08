@@ -26,10 +26,11 @@ TEMPLATES[0]['OPTIONS']['debug'] = True
 EMAIL_HOST = 'mailhog'
 EMAIL_PORT = 1025
 
-# CKEDITOR
-CKEDITOR_CONFIGS['default']['contentsCss'] = [
-    STATIC_URL + '{{ cookiecutter.core_name }}/src/scss/styles.css',
-    STATIC_URL + '{{ cookiecutter.core_name }}/src/css/ckeditor.css']
+# EDITOR.JS
+EDITOR_JS["CSS_FILES"] = [
+    "{{ cookiecutter.core_name }}/src/scss/styles.css",
+    "{{ cookiecutter.core_name }}/src/css/editor_js.css",
+]
 
 # DEBUG_TOOLBAR
 JQUERY_URL = ''
