@@ -7,11 +7,18 @@ from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 from sorl.thumbnail import get_thumbnail
+from django.urls import reverse
 
 
 @admin.register(File)
 class FileAdmin(FileAdminBase):
-    list_display = ["admin_thumbnail", "admin_file_name", "admin_details", "admin_url"]
+    list_display = [
+        "admin_thumbnail",
+        "admin_file_name",
+        "admin_details",
+        "admin_url",
+        "permalink",
+    ]
     list_display_links = ["admin_thumbnail", "admin_file_name"]
 
     @admin.display(description="")
@@ -67,6 +74,17 @@ class FileAdmin(FileAdminBase):
             return mark_safe(
                 '{} <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(\'{}\')"> <i class="material-symbols-outlined d-inline-block ms-2">content_copy</a>'.format(
                     instance.download_file.url, instance.download_file.url
+                )
+            )
+        return ""
+
+    @admin.display(description=_("Permalink"))
+    def permalink(self, instance):
+        if hasattr(instance, "file") and instance.file and instance.file.name:
+            link = reverse("cabinet:permalink", args=[instance.id])
+            return mark_safe(
+                '{} <a href="javascript:void(0)" onclick="navigator.clipboard.writeText(\'{}\')"> <i class="material-symbols-outlined d-inline-block ms-2">content_copy</a>'.format(
+                    link, link
                 )
             )
         return ""

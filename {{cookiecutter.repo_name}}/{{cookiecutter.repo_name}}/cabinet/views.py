@@ -2,6 +2,7 @@ from pathlib import Path
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 from PIL import Image
@@ -64,3 +65,8 @@ def editor_js_image_upload(request):
             },
         }
     )
+
+
+def permalink(request, file_id):
+    file = get_object_or_404(get_file_model(), pk=file_id)
+    return redirect(file.file.url)

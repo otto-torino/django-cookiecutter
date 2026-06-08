@@ -1,1 +1,1 @@
-remote ansible_ssh_host={{ cookiecutter.domain }}
+remote ansible_ssh_host={{ cookiecutter.domain }} ansible_user=root ansible_become_password=""

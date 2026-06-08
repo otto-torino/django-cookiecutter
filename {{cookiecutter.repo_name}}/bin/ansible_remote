@@ -3,10 +3,10 @@
 # Setup of the remote environment
 
 # http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" && pwd)"
 
 echo "=================="
 echo "Remote Provisioning"
 echo "=================="
 
-ansible-playbook --inventory-file="$DIR/provisioning/ansible_remote_inventory" --private-key="~/.ssh/id_rsa" --extra-vars "@$DIR/provisioning/ansible_remote_variables" --extra-vars "base_dir=$DIR" "$DIR/provisioning/playbooks/remote.yml"
+ansible-playbook --inventory-file="$DIR/provisioning/ansible_remote_inventory" --extra-vars "@$DIR/provisioning/ansible_remote_variables" --extra-vars "base_dir=$DIR" "$DIR/provisioning/playbooks/remote.yml"

@@ -63,6 +63,10 @@ translatable_urlpatterns = [
     # filer
     path('filer/', include('filer.urls')),
     {% endif %}
+    {% if cookiecutter.use_cabinet == 'y' %}
+    # cabinet
+    path("cabinet/", include("cabinet.urls", namespace="cabinet")),
+    {% endif %}
 
     # home
     path('',TemplateView.as_view(template_name='home.html'), name='home'),

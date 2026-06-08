@@ -1,49 +1,12 @@
 {% raw %}{% extends 'page.html' %}
-{% load i18n humanize core sorl_thumbnail %}
+{% load i18n static humanize core sorl_thumbnail search_tags %}
 {% block title %}{{ page.title }} | {{ block.super }}{% endblock %}
-{% block meta_title %}
-    {% if page.meta_title %}
-        {{ page.meta_title }}
-    {% else %}
-        {{ page.title }}
-    {% endif %}
-{% endblock %}
-{% block meta_og_title %}
-    {% if page.meta_title %}
-        {{ page.meta_title }}
-    {% else %}
-        {{ page.title }}
-    {% endif %}
-{% endblock %}
-{% block meta_tw_title %}
-    {% if page.meta_title %}
-        {{ page.meta_title }}
-    {% else %}
-        {{ page.title }}
-    {% endif %}
-{% endblock %}
-{% load static i18n %}
-{% block meta_description %}
-    {% if page.meta_description %}
-        {{ page.meta_description }}
-    {% else %}
-        {{ page.content|truncatewords:20 }}
-    {% endif %}
-{% endblock %}
-{% block meta_og_description %}
-    {% if page.meta_description %}
-        {{ page.meta_description }}
-    {% else %}
-        {{ page.content|truncatewords:20 }}
-    {% endif %}
-{% endblock %}
-{% block meta_tw_description %}
-    {% if page.meta_description %}
-        {{ page.meta_description }}
-    {% else %}
-        {{ page.content|truncatewords:20 }}
-    {% endif %}
-{% endblock %}
+{% block meta_title %}{{ page.meta_title|default:page.title }}{% endblock %}
+{% block meta_og_title %}{{ page.meta_title|default:page.title }}{% endblock %}
+{% block meta_tw_title %}{{ page.meta_title|default:page.title }}{% endblock %}
+{% block meta_description %}{{ page.meta_description }}{% endblock %}
+{% block meta_og_description %}{{ page.meta_description }}{% endblock %}
+{% block meta_tw_description %}{{ page.meta_description }}{% endblock %}
 {% block meta_keywords %}
     {% if page.meta_keywords %}
         {{ page.meta_keywords }}

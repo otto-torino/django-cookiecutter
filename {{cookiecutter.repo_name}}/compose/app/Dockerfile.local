@@ -39,4 +39,3 @@ RUN mkdir /root/.ssh && chmod 0700 /root/.ssh
 
 RUN apt-get -y install gettext
 
-
