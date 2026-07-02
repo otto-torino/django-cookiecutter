@@ -1,0 +1,62 @@
+# Production stack. Assumes:
+# - Docker + Docker Compose are already installed on the host (out of scope here).
+# - A shared, long-lived Traefik instance already runs on the host, attached to
+#   the external `traefik-public` network, and terminates TLS/ACME - this compose
+#   file does NOT define a traefik service, only labels the app for it.
+# - A `{{ cookiecutter.repo_name }}/.env` file already exists on the host (created
+#   once manually, never committed) providing SECRET_KEY/DB_*/DJANGO_SETTINGS_MODULE.
+#
+# Deploy: docker compose -f docker-compose.production.yml up -d --build
+
+services:
+
+  db:
+    image: postgres:16
+    container_name: {{cookiecutter.repo_name}}_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "{{ cookiecutter.db_user }}"
+      POSTGRES_PASSWORD: "{{ cookiecutter.db_user_pwd }}"
+      POSTGRES_DB: "db{{ cookiecutter.repo_name }}"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - db-data-prod:/var/lib/postgresql/data/
+    networks:
+      - default
+
+  app:
+    build:
+      context: ./
+      dockerfile: ./compose/app/Dockerfile.production
+    image: {{cookiecutter.repo_name}}_app_prod
+    container_name: {{cookiecutter.repo_name}}_app_prod
+    restart: unless-stopped
+    env_file:
+      - ./{{ cookiecutter.repo_name }}/.env
+    volumes:
+      - media-data:/app/media
+    depends_on:
+      - db
+    networks:
+      - default
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.{{cookiecutter.repo_name}}.rule=Host(`{{ cookiecutter.domain }}`)"
+      - "traefik.http.routers.{{cookiecutter.repo_name}}.entrypoints=websecure"
+      - "traefik.http.routers.{{cookiecutter.repo_name}}.tls=true"
+      - "traefik.http.routers.{{cookiecutter.repo_name}}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.{{cookiecutter.repo_name}}.loadbalancer.server.port=8000"
+      # Both the router and the network below must match whatever name/entrypoint/
+      # certresolver convention the host's shared Traefik instance already uses.
+
+networks:
+  default:
+  traefik-public:
+    external: true
+
+volumes:
+  db-data-prod:
+    driver: local
+  media-data:
+    driver: local

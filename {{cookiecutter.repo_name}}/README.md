@@ -34,11 +34,6 @@
   dotenv set DB_PASSWORD ***
   dotenv set PYTHONUNBUFFERED true
   dotenv set LC_ALL en_US.UTF-8
-  dotenv set REMOTE_USER ***
-  dotenv set REMOTE_USER_PWD ***
-  dotenv set REMOTE_DB ***
-  dotenv set REMOTE_DB_USER ***
-  dotenv set REMOTE_DB_PASSWORD ***
   ```
 
 - Create some dirs
@@ -52,7 +47,7 @@
 - Start the project
 
     ```
-    ./cli.py --start
+    make start
     ```
 
 - Enjoy
@@ -61,64 +56,45 @@
     google-chrome http://localhost:8000
     ```
 
-## CLI (development, remote setup and deploy)
+## Makefile (development)
 
-Your new cool installation comes with a command line interface you can use to launch commands that will be executed in the docker container.
+Your new cool installation comes with a Makefile you can use to launch commands that will be executed in the docker container.
 
 | Command | Description |
 |---------|-------------|
-| `--help` | Prints the help summary |
-| `--start` | Starts the development environment |
-| `--stop` | Stops the development environment |
-| `--clean` | Removes containers and volumes |
-| `--shell` | Opens a shell in the app container |
-| `--createsuperuser` | Creates a superuser account |
-| `--manage [command]` | Executes `python manage.py [command]` in the app container |
-| `--remote [command]` | Executes a command in the remote production server |
+| `make start` | Starts the development environment |
+| `make stop` | Stops the development environment |
+| `make clean` | Removes containers and volumes |
+| `make shell` | Opens a shell in the app container |
+| `make createsuperuser` | Creates a superuser account |
+| `make manage cmd="..."` | Executes `python manage.py [command]` in the app container |
+| `make reset-db` | Drops all tables in the local dev database |
 
-Let's see in the detail the remote commands:
+## Production / Deploy
 
-| Remote command | Description |
-|----------------|-------------|
-| `setup` | Executes the setup of the remote machine (install necessary packages, creates users, folders and db) |
-| `createReleaseArchive` | Craetes a release archive in the `releases` folder |
-| `deploy` | Performs a deploy in production |
-| `rollback` | Rollbacks to the previous release in production |
-| `getRemoteRevision` | Returns the current revision deployed in production |
-| `logs` | Displays production logs |
-| `dumpDbSnapshot` | Dumps and downloads a production db snapshot |
-| `loadDbSnapshot` | Dumps and downloads a production db snapshot and loads it in the local db |
-| `loadDb` | Loads the current production db already downloaded in the local db |
-| `offline` | Puts the site in maintenance mode |
-| `online` | Removes the maintenance mode |
-| `reloadServer` | Reloads the web server |
-| `restartUwsgi` | Restarts uWSGI service |
-| `restart` | Restarts services and reloads the web server |
+Production runs entirely in Docker (app, Postgres, and it's fronted by Traefik as a reverse proxy) and is
+deployed by the GitHub Actions workflow at `.github/workflows/deploy.yml`, which triggers on every push to
+`main` and runs on a **self-hosted runner with direct access to the target host** (Docker/Docker Compose are
+assumed to already be installed there).
 
-### Autocompletion
+Before the first deploy, on the target host:
 
-The provided cli supports autocompletion through [argcomplete](https://github.com/kislyuk/argcomplete). If you want to benefit of it (not mandatory), you need to install it on your machine and activate it globally.
+- Create `{{ cookiecutter.repo_name }}/.env` manually (never committed) with production values for
+  `SECRET_KEY`, `DB_NAME`/`DB_USER`/`DB_PASSWORD`, and
+  `DJANGO_SETTINGS_MODULE={{ cookiecutter.core_name }}.settings.production`.
+- Make sure a shared Traefik instance is already running on the host, attached to an external Docker network
+  named `traefik-public` (see the `networks:` section of `docker-compose.production.yml`) with a
+  `letsencrypt` cert resolver configured — adjust the labels in that file if your Traefik setup uses
+  different names.
 
-#### Ubuntu
+After that, deploy is just `git push` to `main`. To deploy/restart manually from the host:
 
 ```bash
-pip install argcomplete
-mkdir ~/.bash_completion.d
-activate-global-python-argcomplete --dest=~/.bash_completion.d
-echo ". ~/.bash_completion.d/python-argcomplete" >> ~/.bashrc
+docker compose -f docker-compose.production.yml up -d --build
 ```
 
-#### OSX
-
-The problem with OSX is that it comes with a quite old version of bash which does not support all recent source command options.
-Better update it.
+View production logs with:
 
 ```bash
-brew install bash
-sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'
-chsh -s /usr/local/bin/bash
-pip install argcomplete
-activate-global-python-argcomplete
-echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
-echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
+docker compose -f docker-compose.production.yml logs -f app
 ```

@@ -13,10 +13,12 @@ LOGGING['handlers']['file']['filename'] = BASE_DIR / '../logs/{{cookiecutter.rep
 
 INSTALLED_APPS += (
     'debug_toolbar',
+    'django_browser_reload',
 )
 
 MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
 ) + MIDDLEWARE
 
 TEMPLATES[0]['OPTIONS']['debug'] = True

@@ -2,7 +2,7 @@
 
 Yet another django cookiecutter template.
 
-> It provides a fully working dev environment in a docker container, a convenient cli with autocompletion to perform common tasks, an ansible command to set up the remote machine and fabric scripts with many deploy utilities.
+> It provides a fully working dev environment in a docker container, a Makefile to perform common tasks, and a fully Dockerized production setup deployed via GitHub Actions.
 
 ## Dependencies
 
@@ -15,8 +15,8 @@ Yet another django cookiecutter template.
 
 * Local environment running inside 4 docker containers, one for the app, one for the database, one for the mail service and one for tailwind.
 * Development ready django project with all packages installed and database created and ready to go.
-* Set of bin commands to perform common tasks.
-* Set of production bin commands to perform machine setup (ansible) and deploy (fabric).
+* Makefile with common dev tasks.
+* Fully Dockerized production stack (app + Postgres, fronted by Traefik) deployed via GitHub Actions on a self-hosted runner.
 
 Project details:
 
@@ -83,83 +83,41 @@ Then you should answer some questions:
 | Author | String | The application author |
 | Email | String | The admin e-mail used to send erro e-mails with trace |
 | Ubuntu Version | Enum<br>20.04 \| 22.04 \| latest  | The ubuntu version used for the docker container |
-| Remote User | String | The remote user used during deploy |
-| Remote Password | String | The remote user password |
 | Domain | String | The domain of the deployed application |
-| Db User | String | Remote database user used by the application |
-| Db User Password | String | Remote database user password |
-| Web App Dir | String | Deploy path of the application |
+| Db User | String | Database user used by the application (also used by the production Postgres container) |
+| Db User Password | String | Database user password |
 
 After that:
 
 Start the project
 
-    ./cli.py --start
+    make start
 
 Enjoy
 
-## CLI
+## Makefile
 
-Your new cool installation comes with a command line interface you can use to launch commands that will be executed in the docker container.
+Your new cool installation comes with a Makefile you can use to launch commands that will be executed in the docker container.
 
 | Command | Description |
 |---------|-------------|
-| `--help` | Prints the help summary |
-| `--start` | Starts the development environment |
-| `--stop` | Stops the development environment |
-| `--clean` | Removes containers and volumes |
-| `--shell` | Opens a shell in the app container |
-| `--createsuperuser` | Creates a superuser account |
-| `--manage [command]` | Executes `python manage.py [command]` in the app container |
-| `--remote [command]` | Executes a command in the remote production server |
-
-Let's see in the detail the remote commands:
-
-| Remote command | Description |
-|----------------|-------------|
-| `setup` | Executes the setup of the remote machine (install necessary packages, creates users, folders and db) |
-| `createReleaseArchive` | Craetes a release archive in the `releases` folder |
-| `deploy` | Performs a deploy in production |
-| `rollback` | Rollbacks to the previous release in production |
-| `getRemoteRevision` | Returns the current revision deployed in production |
-| `dumpDbSnapshot` | Dumps and downloads a production db snapshot |
-| `loadDbSnapshot` | Dumps and downloads a production db snapshot and loads it in the local db |
-| `loadDb` | Loads the current production db already downloaded in the local db |
-| `offline` | Puts the site in maintenance mode |
-| `online` | Removes the maintenance mode |
-| `reloadServer` | Reloads the web server |
-| `restartUwsgi` | Restarts uWSGI service |
-| `restart` | Restarts services and reloads the web server |
+| `make start` | Starts the development environment |
+| `make stop` | Stops the development environment |
+| `make clean` | Removes containers and volumes |
+| `make shell` | Opens a shell in the app container |
+| `make createsuperuser` | Creates a superuser account |
+| `make manage cmd="..."` | Executes `python manage.py [command]` in the app container |
+| `make reset-db` | Drops all tables in the local dev database |
 
 > After the first start, uncomment the theme app inside the settings common file.
 
-### Autocompletion
+## Production / Deploy
 
-The provided cli supports autocompletion through [argcomplete](https://github.com/kislyuk/argcomplete). If you want to benefit of it (not mandatory), you need to install it on your machine and activate it globally.
-
-#### Ubuntu
-
-```bash
-pip install argcomplete
-mkdir ~/.bash_completion.d
-activate-global-python-argcomplete --dest=~/.bash_completion.d
-echo ". ~/.bash_completion.d/python-argcomplete" >> ~/.bashrc
-```
-
-#### OSX
-
-The problem with OSX is that it comes with a quite old version of bash which does not support all recent source command options.
-Better update it.
-
-```bash
-brew install bash
-sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'
-chsh -s /usr/local/bin/bash
-pip install argcomplete
-activate-global-python-argcomplete
-echo ". /usr/local/etc/bash_completion.d/python-argcomplete" >> ~/.bashrc
-echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
-```
+Production runs entirely in Docker (app + Postgres containers, fronted by a shared Traefik reverse proxy
+already running on the host) and deploys via the `.github/workflows/deploy.yml` GitHub Actions workflow,
+triggered on every push to `main` and running on a self-hosted runner with direct access to the target host.
+See the generated project's own README for the exact one-time host setup (a manually created `.env` and a
+pre-existing `traefik-public` Docker network) and manual deploy/log commands.
 
 ## Starting from cloned project
 
@@ -176,12 +134,7 @@ echo "[ -r ~/.bashrc ] && source ~/.bashrc" >> ~/.bash_profile
     DB_PASSWORD=...
     PYTHONUNBUFFERED=true
     LC_ALL=en_US.UTF-8
-    REMOTE_USER=...
-    REMOTE_USER_PWD=...
-    REMOTE_DB=...
-    REMOTE_DB_USER=...
-    REMOTE_DB_PASSWORD=...
     SECRET_KEY=...
   ```
 
-* Launch `./cli.py --start`
+* Launch `make start`

@@ -1,6 +1,0 @@
----
-provisioning: 'local'
-domain: 'localhost'
-db_user: '{{ cookiecutter.db_user }}'
-db_password: '{{ cookiecutter.db_user_pwd }}'
-db_name: 'db{{ cookiecutter.repo_name }}'

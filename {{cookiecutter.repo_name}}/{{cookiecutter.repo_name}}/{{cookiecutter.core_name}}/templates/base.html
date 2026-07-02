@@ -27,11 +27,9 @@
             {% endblock meta %}
 
             {% tailwind_preload_css %}
-		    {% tailwind_css %}
-            
-            {% compress css %}
-            {% comment %} <link type="text/x-scss" href="{% static 'core/src/scss/styles.scss' %}" rel="stylesheet" media="screen" /> {% endcomment %}
-            {% endcompress %}
+            {% tailwind_css %}
+
+            {% compress css %}{% endcompress %}
 
             {% block extra_css %}{% endblock extra_css %}
 

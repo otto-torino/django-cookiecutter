@@ -78,7 +78,6 @@ INSTALLED_APPS = (
 
     # Third party apps
     'editor_js',
-    'django_user_agents',
     'django_extensions',
     'compressor',
     'preferences_utils',
@@ -86,15 +85,10 @@ INSTALLED_APPS = (
     "colorfield",
     'tailwind',
     'django_web_components',    
-    'django_browser_reload',
-    {% if cookiecutter.use_filer == 'y' %}'filer',
-    'easy_thumbnails',{% endif %}
     {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'django_cleanup',
-    {% if cookiecutter.use_simple_captcha == 'y' %}'captcha',{% endif %}
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}'sorl.thumbnail',{% endif %}
     'taggit',
-    'mptt',
     'lineup',
 
     # Custom apps
@@ -116,8 +110,6 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django_user_agents.middleware.UserAgentMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
 )
 
 ROOT_URLCONF = '{{ cookiecutter.core_name }}.urls'
@@ -142,9 +134,6 @@ TEMPLATES = [
             "builtins": [
                 "django_web_components.templatetags.components",
             ],
-            'libraries': {
-                'sorl_thumbnail': 'sorl.thumbnail.templatetags.thumbnail',
-            },
         },
     },
 ]
@@ -185,11 +174,6 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-# Compressor
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'django_libsass.SassCompiler'),
-)
-
 # ADMIN
 
 YEAR = datetime.now().year
@@ -206,12 +190,6 @@ BATON = {
             {'type': 'model', 'app': 'sites', 'name': 'site', 'label': 'Sites',},
             {'type': 'model', 'app': 'core', 'name': 'preferences', 'label': 'Settings',},
         ]},
-        {% if cookiecutter.use_filer == 'y' %}
-            {'type': 'title', 'label': 'Resources',  'apps': ('filer', ), 'icon': 'storage', 'children': [
-                {'type': 'app', 'name': 'filer', 'label': 'File manager',},
-            ]},
-        {% endif %}
-
         {% if cookiecutter.use_cabinet == 'y' %}
             {'type': 'title', 'label': 'Resources',  'apps': ('cabinet', ), 'icon': 'storage', 'children': [
                 {'type': 'model', 'app': 'cabinet', 'name': 'file', 'label': _('File manager'),},
@@ -242,17 +220,6 @@ EDITOR_JS = {
         "{{ cookiecutter.core_name }}/src/css/editor_js.css",
     ],
 }
-
-{% if cookiecutter.use_filer == 'y' %}
-THUMBNAIL_HIGH_RESOLUTION = True
-THUMBNAIL_PROCESSORS = (
-    'easy_thumbnails.processors.colorspace',
-    'easy_thumbnails.processors.autocrop',
-    #'easy_thumbnails.processors.scale_and_crop',
-    'filer.thumbnail_processors.scale_and_crop_with_subject_location',
-    'easy_thumbnails.processors.filters',
-)
-{% endif %}
 
 # LOGGING
 

@@ -1,0 +1,67 @@
+# Multi-stage production image: everything (app, Tailwind build, collectstatic)
+# happens in the builder stage, the runtime stage only ships what's needed to run
+# gunicorn - no Node/build toolchain in the final image.
+
+FROM python:3.12-slim-bookworm AS builder
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ={{ cookiecutter.timezone }} \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DJANGO_SETTINGS_MODULE={{ cookiecutter.core_name }}.settings.production
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        libpq-dev \
+        libjpeg-dev \
+        zlib1g-dev \
+        libffi-dev \
+        libssl-dev \
+        gettext \
+        curl \
+        ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+WORKDIR /app
+
+COPY {{cookiecutter.repo_name}}/requirements/ requirements/
+RUN pip install --no-cache-dir -r requirements/production.txt
+
+COPY {{cookiecutter.repo_name}}/ .
+
+# Builds theme/static/css/dist/styles.css via npm (same command the old fabric
+# deploy task used), then bakes static assets into the image.
+RUN python manage.py tailwind install --no-input && python manage.py tailwind build
+RUN python manage.py collectstatic --noinput
+RUN python manage.py compilemessages
+
+FROM python:3.12-slim-bookworm
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ={{ cookiecutter.timezone }} \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DJANGO_SETTINGS_MODULE={{ cookiecutter.core_name }}.settings.production \
+    PATH="/opt/venv/bin:$PATH"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libpq5 \
+        libjpeg62-turbo \
+        zlib1g \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /app/media
+
+WORKDIR /app
+
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /app /app
+COPY compose/app/entrypoint.production.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 8000
+ENTRYPOINT ["/entrypoint.sh"]

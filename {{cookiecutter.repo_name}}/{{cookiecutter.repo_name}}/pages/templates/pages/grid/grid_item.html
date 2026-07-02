@@ -1,4 +1,4 @@
-{% raw %}{% load thumbnail %}
+{% raw %}{% load sorl_thumbnail %}
 {% if content.crop %}
     {% thumbnail image content.crop_size crop=image.file.sorl as im %}
         <img src="{{ im.url }}"

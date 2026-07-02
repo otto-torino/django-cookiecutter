@@ -1,45 +1,28 @@
 pip>=21.2.2
-concurrent-log-handler==0.9.25
-cryptography==42.0.5
-psycopg2==2.9.9
-python-dotenv==1.0.1
-Django==5.2.1
-dj-editor-js==0.2.0
-django-compressor==4.5.1
-django-picklefield==3.1
-django-cleanup==8.1.0
-django-extensions==3.2.3
-django-filter==25.1
-django-getenv==1.3.2
-django-taggit==5.0.1
-django-taggit-autosuggest==0.4.1
-django-browser-reload==1.12.1
-django-tailwind==4.0.1
-django-libsass==0.9
-django-user-agents==0.4.0
-django-mptt==0.16.0
-django-colorfield==0.11.0
-django-imagefield==0.18.0
+concurrent-log-handler==0.9.29
+psycopg2==2.9.12
+python-dotenv==1.2.2
+Django==6.0.6
+dj-editor-js==0.3.0
+django-compressor==4.6.0
+django-cleanup==9.0.0
+django-extensions==4.1
+django-taggit==6.1.0
+django-taggit-autosuggest==0.4.2
+django-tailwind==4.5.0
+django-colorfield==0.14.0
 django-lineup==1.0.0
-django-markdownx==4.0.7
 {% if cookiecutter.use_translations == 'y' %}
-django-modeltranslation==0.19.13
+django-modeltranslation==0.20.3
 {% endif %}
 django-preferences-utils==0.1.0
 django-subject-imagefield==0.2.13
-django-baton==5.2.0
-{% if cookiecutter.use_filer == 'y' %}
-django-filer==2.2.3
-easy-thumbnails==2.8.5
-{% endif %}
+django-baton==5.5.0
 {% if cookiecutter.use_sorl_thumbnail == 'y' %}
-sorl-thumbnail==12.10.0
-{% endif %}
-{% if cookiecutter.use_simple_captcha == 'y' %}
-django-simple-captcha==0.6.0
+sorl-thumbnail==13.0.0
 {% endif %}
 {% if cookiecutter.use_cabinet == 'y' %}
-django-tree-queries==0.16.1
+django-tree-queries==0.24.0
 {% endif %}
 django-web-components==0.2.0
-feedparser==6.0.11
+feedparser==6.0.12

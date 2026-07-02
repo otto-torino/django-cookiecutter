@@ -1,0 +1,20 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker compose -f docker-compose.production.yml build app
+
+      - name: Deploy
+        run: docker compose -f docker-compose.production.yml up -d
+
+      - name: Clean up dangling images
+        run: docker image prune -f

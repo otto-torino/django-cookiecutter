@@ -3,6 +3,7 @@ tags
 *.pyc
 .mypy_cache
 __pycache__/
+CLAUDE.md
 
 # Installer logs
 pip-log.txt

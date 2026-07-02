@@ -59,10 +59,6 @@ translatable_urlpatterns = [
     path('editor-js/', include('editor_js.urls')),
     # taggit autosuggest
     path("taggit_autosuggest/", include("taggit_autosuggest.urls")),
-    {% if cookiecutter.use_filer == 'y' %}
-    # filer
-    path('filer/', include('filer.urls')),
-    {% endif %}
     {% if cookiecutter.use_cabinet == 'y' %}
     # cabinet
     path("cabinet/", include("cabinet.urls", namespace="cabinet")),
@@ -85,10 +81,12 @@ urlpatterns += translatable_urlpatterns
 {% endif %}
 
 
-if settings.DEBUG:
-    # Serve media files from MEDIA_ROOT
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files from MEDIA_ROOT. There's no separate web server (e.g. nginx) in
+# front of the app in production - Traefik only reverse-proxies to it - so Django
+# itself must serve MEDIA_URL in all environments, not just DEBUG.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+if settings.DEBUG:
     # Django Debug Toolbar
     urlpatterns = [
         path('__debug__/', include('debug_toolbar.urls')),

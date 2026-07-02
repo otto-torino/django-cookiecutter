@@ -1,16 +1,23 @@
-FROM ubuntu:{{ cookiecutter.ubuntu_version }}
+FROM python:3.12-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ={{ cookiecutter.timezone }}
 
 RUN apt-get update && \
-    apt-get install -y \
-        ansible \
-        python3 \
-	    locales \
-        openssh-client \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        libpq-dev \
+        libjpeg-dev \
+        zlib1g-dev \
+        libffi-dev \
+        libssl-dev \
+        gettext \
+        locales \
         postgresql-client \
-        git
+        git \
+        wget \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN localedef -f UTF-8 -i en_US en_US.utf8
 
@@ -24,18 +31,3 @@ RUN /bin/bash -c "ln -s $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules/np
 
 COPY . ./home/app/{{cookiecutter.repo_name}}
 WORKDIR /home/app/{{cookiecutter.repo_name}}
-
-RUN ./bin/ansible_local
-
-RUN mkdir /root/.ssh && chmod 0700 /root/.ssh
-
-# --- INSTRUCTIONS ---
-# Uncomment the following line ONLY WHEN your domain is live and reachable via SSH.
-# This command adds your server's SSH key to the container, which is useful for
-# automated deployments or other SSH operations.
-# For now, it is left commented out to allow the initial build to succeed even without a live server.
-#
-# RUN ssh-keyscan {{cookiecutter.domain}} >> ~/.ssh/known_hosts
-
-RUN apt-get -y install gettext
-
