@@ -1,9 +1,9 @@
 {% raw %}{% if bootstrap %}
-<div id="{{ obj.get_unique_id }}" class="container-fluid">
+<div id="{{ obj.get_unique_id }}" class="js-pswp-gallery container-fluid">
     <div class="row g-2">
         {% for image in obj.images.all %}
             <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-                <a data-pswp-width="{{ image.file.width }}" data-pswp-height="{{ image.file.height }}" data-pswp-src="{{ image.file.url }}">
+                <a class="js-lightbox-item" data-pswp-width="{{ image.file.width }}" data-pswp-height="{{ image.file.height }}" data-pswp-src="{{ image.file.url }}">
                     {% include 'pages/grid/grid_item.html' with image=image content=obj %}
                 </a>
                 {% if image.caption %}<p class="small text-muted mb-0">{{ image.caption|default_if_none:"" }}</p>{% endif %}
@@ -13,10 +13,10 @@
     </div>
 </div>
 {% else %}
-<div id="{{ obj.get_unique_id }}" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1">
+<div id="{{ obj.get_unique_id }}" class="js-pswp-gallery grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1">
     {% for image in obj.images.all %}
         <div class="flex flex-col justify-end">
-            <a data-pswp-width="{{ image.file.width }}" data-pswp-height="{{ image.file.height }}" data-pswp-src="{{ image.file.url }}">
+            <a class="js-lightbox-item" data-pswp-width="{{ image.file.width }}" data-pswp-height="{{ image.file.height }}" data-pswp-src="{{ image.file.url }}">
                 {% include 'pages/grid/grid_item.html' with image=image content=obj %}
             </a>
             <div class="pswp-caption-content {% if not obj.show_captions %}hidden{% endif %}">
@@ -27,23 +27,4 @@
     {% endfor %}
 </div>
 {% endif %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.4.4/photoswipe.min.css" integrity="sha512-LFWtdAXHQuwUGH9cImO9blA3a3GfQNkpF2uRlhaOpSbDevNyK1rmAjs13mtpjvWyi+flP7zYWboqY+8Mkd42xA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://unpkg.com/photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css">
-<script type="module">
-    import PhotoSwipeLightbox from 'https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.4.4/photoswipe-lightbox.esm.min.js';
-    import PhotoSwipeDynamicCaption from "https://cdnjs.cloudflare.com/ajax/libs/photoswipe-dynamic-caption-plugin/1.2.7/photoswipe-dynamic-caption-plugin.esm.js"
-    (function () {
-        var lightbox = new PhotoSwipeLightbox({
-            gallery: '#{{ obj.get_unique_id }}',
-            showHideAnimationType: 'fade',
-            children: 'a',
-            pswpModule: () => import('https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.4.4/photoswipe.esm.min.js'),
-        });
-        const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
-            // Plugins options, for example:
-            type: 'below',
-        });
-        lightbox.init();
-        console.log('Lightbox', lightbox) // eslint-disable-line
-    })()
-</script>{% endraw %}
+{% endraw %}

@@ -1,12 +1,19 @@
 {% raw %}{% extends 'pages/page_content_base.html' %}
 
 {% block inner_block %}
-  <div class="{% if obj.show_captions %}mb-8{% endif %}">
-    <img 
-      class="w-full h-auto cursor-pointer" 
-      src="{{ obj.image_content.url }}" 
-      alt="{{ obj.caption }}{% if obj.credits %} by {{ obj.credits }}{% endif %}" 
-      onclick="javascript:getElementById('lightbox-{{ obj.get_unique_id }}-image').click();" />
+  <div class="js-pswp-gallery {% if obj.show_captions %}mb-8{% endif %}">
+    <a href="{{ obj.image_content.url }}" class="js-lightbox-item block cursor-zoom-in" data-pswp-width="{{ obj.image_content.width }}" data-pswp-height="{{ obj.image_content.height }}">
+      <img 
+        class="w-full h-auto" 
+        src="{{ obj.image_content.url }}" 
+        alt="{{ obj.caption }}{% if obj.credits %} by {{ obj.credits }}{% endif %}" />
+      {% if obj.show_captions %}
+        <span class="pswp-caption-content">
+          {% if obj.caption %}{{ obj.caption }} {% endif %} 
+          <em>{% if obj.credits %} by {{ obj.credits }}{% endif %}</em>
+        </span>
+      {% endif %}
+    </a>
   
     {% if obj.show_captions %}
       {% if obj.credits or obj.caption %}
@@ -20,34 +27,6 @@
     {% endif %}
   </div>
 
-  <div id="{{ obj.get_unique_id }}-image" class="hidden" >
-    <a href="{{obj.image_content.url}}" id="lightbox-{{ obj.get_unique_id }}-image" data-pswp-width="{{obj.image_content.width}}" data-pswp-height="{{obj.image_content.height}}">
-      <img src="{{obj.image_content.url}}" class="" alt="{{ obj.caption }}{% if obj.credits %} by {{ obj.credits }}{% endif %}" />
-      {% if obj.show_captions %}
-        <span class="pswp-caption-content">
-          {% if obj.caption %}{{ obj.caption }} {% endif %} 
-          <em>{% if obj.credits %} by {{ obj.credits }}{% endif %}</em>
-        </span>
-      {% endif %}
-    </a>
-  </div>
-
-  <script type="text/javascript">
-    (function () {
-      var lightbox = new PhotoSwipeLightbox({
-        gallery: '#{{ obj.get_unique_id }}-image',
-        showHideAnimationType: 'fade',
-        children: 'a',
-        pswpModule: PhotoSwipe 
-      });
-      const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
-        // Plugins options, for example:
-        type: 'below',
-      });
-      lightbox.init();
-    })()
-  </script>
-  
 {% endblock inner_block %}{% endraw %}
 
 

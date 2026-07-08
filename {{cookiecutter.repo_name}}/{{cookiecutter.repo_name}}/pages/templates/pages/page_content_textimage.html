@@ -19,7 +19,17 @@
             </div>
 
             <div style="{% if obj.image_position == 'left' and obj.left_column_width %}width: {{ obj.left_column_width }}%{% endif %}">
-                <img width={{ obj.image.width }} height={{ obj.image.height }} class="w-full h-auto" src="{{ obj.image.url }}" alt="{% if obj.caption %} {{ obj.caption }} {% endif %}" />
+                <div class="js-pswp-gallery">
+                    <a href="{{ obj.image.url }}" class="js-lightbox-item block cursor-zoom-in" data-pswp-width="{{ obj.image.width }}" data-pswp-height="{{ obj.image.height }}">
+                        <img width={{ obj.image.width }} height={{ obj.image.height }} class="w-full h-auto" src="{{ obj.image.url }}" alt="{% if obj.caption %} {{ obj.caption }} {% endif %}" />
+                        {% if obj.show_captions %}
+                        <span class="pswp-caption-content">
+                            {% if obj.caption %} {{ obj.caption }} {% endif %}
+                            <em>{% if obj.credits %} by {{ obj.credits }} {% endif %}</em>
+                        </span>
+                        {% endif %}
+                    </a>
+                </div>
                 {% if obj.show_captions %}
                     {% if obj.credits or obj.caption %}
                     <p class="ml-2 mt-1 italic text-center">
@@ -53,7 +63,17 @@
                         flex: 1;
                     {% endif %}
                  ">
-                <img width={{ obj.image.width }} height={{ obj.image.height }} class="w-full h-auto" src="{{ obj.image.url }}" alt="{% if obj.caption %} {{ obj.caption }} {% endif %}" />
+                <div class="js-pswp-gallery">
+                    <a href="{{ obj.image.url }}" class="js-lightbox-item block cursor-zoom-in" data-pswp-width="{{ obj.image.width }}" data-pswp-height="{{ obj.image.height }}">
+                        <img width={{ obj.image.width }} height={{ obj.image.height }} class="w-full h-auto" src="{{ obj.image.url }}" alt="{% if obj.caption %} {{ obj.caption }} {% endif %}" />
+                        {% if obj.show_captions %}
+                        <span class="pswp-caption-content">
+                            {% if obj.caption %} {{ obj.caption }} {% endif %}
+                            <em>{% if obj.credits %} by {{ obj.credits }} {% endif %}</em>
+                        </span>
+                        {% endif %}
+                    </a>
+                </div>
                 {% if obj.show_captions %}
                     {% if obj.credits or obj.caption %}
                     <p class="ml-2 mt-1 italic text-center">
@@ -66,33 +86,5 @@
             </div>
         </div>
     {% endif %}
-
-    <div id="{{ obj.get_unique_id }}-image" class="hidden" >
-        <a href="{{ obj.image.url }}" id="lightbox-{{ obj.get_unique_id }}-image" data-pswp-width="{{ obj.image.width }}" data-pswp-height="{{ obj.image.height }}">
-            <img src="{{ obj.image.url }}" class="" alt="{% if obj.caption %} {{ obj.caption }} {% endif %}" />
-            {% if obj.show_captions %}
-            <span class="pswp-caption-content">
-                {% if obj.caption %} {{ obj.caption }} {% endif %} 
-                <em>{% if obj.credits %} by {{ obj.credits }} {% endif %}</em>
-            </span>
-            {% endif %}
-        </a>
-    </div>
-    
-    <script type="text/javascript">
-        (function () {
-            var lightbox = new PhotoSwipeLightbox({
-                gallery: '#{{ obj.get_unique_id }}-image',
-                showHideAnimationType: 'fade',
-                children: 'a',
-                pswpModule: PhotoSwipe 
-            });
-            const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {
-                // Plugins options, for example:
-                type: 'below',
-            });
-            lightbox.init();
-        })()
-    </script>
 
 {% endblock inner_block %}{% endraw %}
