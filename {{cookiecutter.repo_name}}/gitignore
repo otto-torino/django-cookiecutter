@@ -4,6 +4,7 @@
 .virtualenv
 {{ cookiecutter.repo_name }}/media
 {{ cookiecutter.repo_name }}/static
+{{ cookiecutter.repo_name }}/theme/static/css/dist/styles.css
 logs
 tags
 .gutctags
