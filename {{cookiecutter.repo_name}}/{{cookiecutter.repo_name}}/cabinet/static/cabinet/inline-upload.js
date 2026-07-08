@@ -33,6 +33,12 @@ django.jQuery(function ($) {
         wrap.find(".cabinet-inline-field input").val(data.pk)
         wrap.find(".cabinet-inline-upload input").val("")
         wrap.find(".cabinet-inline-field strong>a").text(data.name)
+        var thumb = wrap.find(".cabinet-inline-thumb")
+        if (data.image_url) {
+          thumb.attr("src", data.image_url).show()
+        } else {
+          thumb.attr("src", "").hide()
+        }
       },
     })
   }

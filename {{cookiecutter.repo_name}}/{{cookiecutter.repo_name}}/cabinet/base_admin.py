@@ -500,7 +500,12 @@ class FileAdminBase(FolderAdminMixin):
         f.file = form.cleaned_data["file"]
         f.save()
 
-        return JsonResponse({"success": True, "pk": f.pk, "name": str(f)})
+        return JsonResponse({
+            "success": True,
+            "pk": f.pk,
+            "name": str(f),
+            "image_url": f.image_file.url if f.image_file.name else "",
+        })
 
     top_fields = ["folder", "caption", "copyright"]
     advanced_fields = ["_overwrite"]

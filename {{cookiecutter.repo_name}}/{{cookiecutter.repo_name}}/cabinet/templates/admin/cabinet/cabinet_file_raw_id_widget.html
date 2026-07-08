@@ -1,7 +1,7 @@
 {% raw %}<div class="cabinet-inline-wrap" data-url="{% url 'admin:cabinet_upload' %}">
   <div class="cabinet-inline-field">
     {% include "admin/widgets/foreign_key_raw_id.html" %}
-    {% if cabinet.instance.image_file %}<img src="{{ cabinet.instance.image_file.url }}" alt="" style="max-width:4rem;max-height:4rem;margin-left:0.5rem;" />{% endif %} {# TODO replace thumbnail after inline upload #}
+    <img class="cabinet-inline-thumb" src="{% if cabinet.instance.image_file %}{{ cabinet.instance.image_file.url }}{% endif %}" alt="" style="max-width:4rem;max-height:4rem;margin-left:0.5rem;{% if not cabinet.instance.image_file %}display:none;{% endif %}" />
   </div>
   <div class="cabinet-inline-upload">
     {{ cabinet.upload_form.folder }}
