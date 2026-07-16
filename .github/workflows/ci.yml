@@ -1,0 +1,196 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  template:
+    name: Template (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: default
+            use_cabinet: "n"
+            use_sorl_thumbnail: "y"
+            use_translations: "n"
+            default_language: it
+            migration_apps: ""
+          - name: cabinet
+            use_cabinet: "y"
+            use_sorl_thumbnail: "y"
+            use_translations: "n"
+            default_language: it
+            migration_apps: cabinet
+          - name: translations
+            use_cabinet: "n"
+            use_sorl_thumbnail: "n"
+            use_translations: "y"
+            default_language: en
+            migration_apps: ""
+          - name: all-features
+            use_cabinet: "y"
+            use_sorl_thumbnail: "n"
+            use_translations: "y"
+            default_language: en
+            migration_apps: cabinet
+
+    services:
+      postgres:
+        image: postgres:15.18-bookworm
+        env:
+          POSTGRES_DB: ci_project
+          POSTGRES_USER: ci_project
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci_project -d ci_project"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DJANGO_SETTINGS_MODULE: core.settings.test
+      SECRET_KEY: ci-secret-key-0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdef
+      DB_HOST: 127.0.0.1
+      DB_PORT: "5432"
+      DB_NAME: ci_project
+      DB_USER: ci_project
+      DB_PASSWORD: ci_password
+      POSTGRES_DB: ci_project
+      POSTGRES_USER: ci_project
+      POSTGRES_PASSWORD: ci_password
+      APP_PORT: "8080"
+      ALLOWED_HOSTS: example.com
+      CSRF_TRUSTED_ORIGINS: https://example.com
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.13"
+
+      - name: Install template tooling
+        run: python -m pip install cookiecutter==2.6.0 ruff==0.12.5
+
+      - name: Install PostgreSQL build dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends libpq-dev
+
+      - name: Render template
+        run: >-
+          cookiecutter "$GITHUB_WORKSPACE"
+          --no-input
+          --accept-hooks no
+          --output-dir "$RUNNER_TEMP/rendered"
+          project_name="CI ${{ matrix.name }}"
+          repo_name=ci-project
+          use_cabinet=${{ matrix.use_cabinet }}
+          use_sorl_thumbnail=${{ matrix.use_sorl_thumbnail }}
+          use_translations=${{ matrix.use_translations }}
+          default_language=${{ matrix.default_language }}
+
+      - name: Install generated project
+        working-directory: ${{ runner.temp }}/rendered/ci-project/ci-project
+        run: python -m pip install -r requirements/production.txt
+
+      - name: Compile and lint Python
+        working-directory: ${{ runner.temp }}/rendered/ci-project/ci-project
+        run: |
+          python -m compileall -q .
+          ruff check . --select E9,F63,F7,F82
+
+      - name: Generate and verify migrations
+        working-directory: ${{ runner.temp }}/rendered/ci-project/ci-project
+        run: |
+          python manage.py makemigrations core tagall pages ${{ matrix.migration_apps }}
+          python manage.py makemigrations core tagall pages ${{ matrix.migration_apps }} --check --dry-run
+
+      - name: Run Django checks and tests
+        working-directory: ${{ runner.temp }}/rendered/ci-project/ci-project
+        run: |
+          python manage.py migrate --noinput
+          python manage.py test --verbosity 2
+          DJANGO_SETTINGS_MODULE=core.settings.production python manage.py check --deploy
+
+      - name: Create Compose env file
+        working-directory: ${{ runner.temp }}/rendered/ci-project/ci-project
+        run: |
+          printf '%s\n' \
+            'DJANGO_SETTINGS_MODULE=core.settings.local' \
+            'SECRET_KEY=ci-secret-key-0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ-abcdef' \
+            'DB_HOST=db' \
+            'DB_PORT=5432' \
+            'DB_NAME=ci_project' \
+            'DB_USER=ci_project' \
+            'DB_PASSWORD=ci_password' \
+            'POSTGRES_DB=ci_project' \
+            'POSTGRES_USER=ci_project' \
+            'POSTGRES_PASSWORD=ci_password' \
+            > .env
+
+      - name: Validate Compose files
+        working-directory: ${{ runner.temp }}/rendered/ci-project
+        run: |
+          docker compose -f docker-compose.yml config --quiet
+          docker compose -f docker-compose.staging.yml config --quiet
+          docker compose -f docker-compose.production.yml config --quiet
+
+  production-image:
+    name: Full generation and production image
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SECRET_KEY: ci-production-secret-key-0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ
+      DB_NAME: ci_production
+      DB_USER: ci_production
+      DB_PASSWORD: ci_password
+      APP_PORT: "8080"
+      ALLOWED_HOSTS: example.com
+      CSRF_TRUSTED_ORIGINS: https://example.com
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.13"
+
+      - name: Install Cookiecutter
+        run: python -m pip install cookiecutter==2.6.0
+
+      - name: Generate and bootstrap project
+        run: >-
+          cookiecutter "$GITHUB_WORKSPACE"
+          --no-input
+          --output-dir "$RUNNER_TEMP/rendered"
+          project_name="CI Production"
+          repo_name=ci-production
+
+      - name: Stop development services
+        if: always()
+        working-directory: ${{ runner.temp }}/rendered/ci-production
+        run: docker compose down --volumes --remove-orphans
+
+      - name: Build production image
+        working-directory: ${{ runner.temp }}/rendered/ci-production
+        run: docker compose -f docker-compose.production.yml build app

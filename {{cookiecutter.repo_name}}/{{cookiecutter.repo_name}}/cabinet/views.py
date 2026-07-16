@@ -48,7 +48,7 @@ def editor_js_image_upload(request):
             status=400,
         )
 
-    folder, _ = Folder.objects.get_or_create(parent=None, name="Editor.js")
+    folder, _created = Folder.objects.get_or_create(parent=None, name="Editor.js")
     file_model = get_file_model()
     cabinet_file = file_model(
         folder=folder,
