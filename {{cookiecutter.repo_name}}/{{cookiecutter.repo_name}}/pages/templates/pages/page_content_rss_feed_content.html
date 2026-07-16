@@ -1,14 +1,23 @@
-{% raw %}{% load pages_tags %}
+{% raw %}{% load i18n pages_tags %}
+{% if feed_error %}
+    <p class="text-center text-red-700">{% trans "The RSS feed is temporarily unavailable." %}</p>
+{% endif %}
 <div class="columns-1 md:columns-2 lg:columns-3">
     {% for entry in entries %}
         <div class="max-w-md h-full rounded-lg overflow-hidden w-12/12 shadow-lg   transform transition duration-200 bg-beige-50 cursor-pointer mb-6">
-            {% if entry.media_thumbnail.0 %}<img src="{{ entry.media_thumbnail.0.url }}" class="w-full">{% endif %}
+            {% if entry.thumbnail_url %}<img src="{{ entry.thumbnail_url }}" class="w-full" alt="">{% endif %}
 <div class="px-6 py-4 ">
-    <time class="text-sm font-bold text-emerald-600 text-center block">{{ entry.published_parsed|struct2datetime|date:"DATE_FORMAT" }}</time>
+                {% if entry.published_parsed %}
+                    <time class="text-sm font-bold text-emerald-600 text-center block">{{ entry.published_parsed|struct2datetime|date:"DATE_FORMAT" }}</time>
+                {% endif %}
                 <h5 class="text-center">
-                    <a href="{{ entry.link }}" target="_blank" class="fw-bold">{{ entry.title }}</a>
+                    {% if entry.link %}
+                        <a href="{{ entry.link }}" target="_blank" rel="noopener noreferrer" class="fw-bold">{{ entry.title }}</a>
+                    {% else %}
+                        {{ entry.title }}
+                    {% endif %}
                 </h5>
-                <p class="">{{ entry.summary|safe }}</p>
+                <p>{{ entry.summary }}</p>
             </div>
         </div>
     {% endfor %}

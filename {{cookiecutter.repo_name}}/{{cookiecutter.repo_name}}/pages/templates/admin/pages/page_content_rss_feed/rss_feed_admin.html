@@ -1,17 +1,26 @@
-{% raw %}{% load pages_tags %}
+{% raw %}{% load i18n pages_tags %}
+{% if feed_error %}
+    <p class="alert alert-warning">{% trans "The RSS feed is temporarily unavailable." %}</p>
+{% endif %}
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for entry in entries %}
         <div class="col">
             <div class="card">
-                {% if entry.media_thumbnail.0 %}<img src="{{ entry.media_thumbnail.0.url }}" class="card-img-top">{% endif %}
+                {% if entry.thumbnail_url %}<img src="{{ entry.thumbnail_url }}" class="card-img-top" alt="">{% endif %}
                 <div class="card-body">
-                    <p class="card-text text-center">
-                        <small class="text-body-secondary">{{ entry.published_parsed|struct2datetime|date:"DATE_FORMAT" }}</small>
-                    </p>
+                    {% if entry.published_parsed %}
+                        <p class="card-text text-center">
+                            <small class="text-body-secondary">{{ entry.published_parsed|struct2datetime|date:"DATE_FORMAT" }}</small>
+                        </p>
+                    {% endif %}
                     <h5 class="card-title text-center">
-                        <a href="{{ entry.link }}" target="_blank" class="fw-bold">{{ entry.title }}</a>
+                        {% if entry.link %}
+                            <a href="{{ entry.link }}" target="_blank" rel="noopener noreferrer" class="fw-bold">{{ entry.title }}</a>
+                        {% else %}
+                            {{ entry.title }}
+                        {% endif %}
                     </h5>
-                    <p class="card-text">{{ entry.summary|safe }}</p>
+                    <p class="card-text">{{ entry.summary }}</p>
                 </div>
             </div>
         </div>

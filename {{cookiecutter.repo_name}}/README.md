@@ -104,6 +104,23 @@ is allowed to discover. Search fails with `ImproperlyConfigured` when this
 policy is omitted, preventing a new searchable model from exposing all its
 records by default.
 
+## Remote RSS feeds
+
+RSS blocks fetch only HTTP or HTTPS URLs that resolve exclusively to public IP
+addresses. Redirects are validated again, responses have timeout and size
+limits, successful downloads are cached, and feed text and links are sanitized
+before rendering. RSS previews require a staff account, while public RSS block
+endpoints inherit the access policy of their page.
+
+The limits can be customized in Django settings:
+
+| Setting | Default | Description |
+|---|---:|---|
+| `RSS_FEED_TIMEOUT` | `5` | Network timeout in seconds |
+| `RSS_FEED_MAX_BYTES` | `2097152` | Maximum response size |
+| `RSS_FEED_CACHE_TIMEOUT` | `300` | Successful response cache duration in seconds |
+| `RSS_FEED_MAX_REDIRECTS` | `3` | Maximum number of redirects |
+
 ## Deployments
 
 Staging and production use the same Docker architecture on the

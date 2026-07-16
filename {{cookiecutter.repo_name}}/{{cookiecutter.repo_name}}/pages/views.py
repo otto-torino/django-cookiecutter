@@ -1,14 +1,19 @@
+import logging
+
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_GET
 
-from pages.handlers import consume_rss_feed
+from pages.handlers import FeedFetchError, consume_rss_feed
 
 from .models import Page, PageContentRssFeed
 
 DEFAULT_TEMPLATE = "pages/default.html"
+logger = logging.getLogger(__name__)
 
 # This view is called from PageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
@@ -72,27 +77,43 @@ def render_page(request, p):
     return response
 
 
+def _rss_context(page_content):
+    try:
+        entries = consume_rss_feed(page_content.rss_feed_url)
+    except FeedFetchError:
+        logger.warning(
+            "Unable to fetch RSS feed for page content %s",
+            page_content.pk,
+            exc_info=True,
+        )
+        return {"entries": [], "feed_error": True}
+    return {"entries": entries[: page_content.num_items], "feed_error": False}
+
+
+@require_GET
+@staff_member_required
 def page_content_rss_feed_preview(request, page_content_id):
     page_content = get_object_or_404(PageContentRssFeed, id=page_content_id)
-    feed = consume_rss_feed(page_content.rss_feed_url)
-    ctx = {
-        "entries": feed.entries[: page_content.num_items],
-    }
     return render(
         request,
         "admin/pages/page_content_rss_feed/rss_feed_admin.html",
-        ctx,
+        _rss_context(page_content),
     )
 
 
+@require_GET
 def page_content_rss_feed_content(request, page_content_id):
-    page_content = get_object_or_404(PageContentRssFeed, id=page_content_id)
-    feed = consume_rss_feed(page_content.rss_feed_url)
-    ctx = {
-        "entries": feed.entries[: page_content.num_items],
-    }
+    site = get_current_site(request)
+    page_content = get_object_or_404(
+        PageContentRssFeed.objects.select_related("page"),
+        id=page_content_id,
+        enabled=True,
+        page__sites=site,
+    )
+    if not page_content.page.is_accessible_by(request.user):
+        raise Http404
     return render(
         request,
         "pages/page_content_rss_feed_content.html",
-        ctx,
+        _rss_context(page_content),
     )
