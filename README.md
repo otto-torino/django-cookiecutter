@@ -1,144 +1,135 @@
 # Django Cookiecutter
 
-Yet another django cookiecutter template.
+![Django 6](https://img.shields.io/badge/Django-6.0-092E20?logo=django&logoColor=white)
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![Cookiecutter](https://img.shields.io/badge/template-Cookiecutter-D4AA00)
 
-> It provides a fully working dev environment in a docker container, a Makefile to perform common tasks, and a fully Dockerized production setup deployed via GitHub Actions.
+A Cookiecutter template for a Docker-based Django project, with a ready-to-use
+local environment and automated staging and production deployments through
+GitHub Actions.
 
-## Dependencies
+## Requirements
 
-* [cookiecutter](https://github.com/cookiecutter/cookiecutter)
-* [docker-compose](https://docs.docker.com/)
+- [Cookiecutter](https://cookiecutter.readthedocs.io/)
+- [Docker Engine](https://docs.docker.com/engine/install/)
+- [Docker Compose](https://docs.docker.com/compose/install/) (the `docker compose` plugin)
 
-> Please follow [this article](https://www.jujens.eu/posts/en/2017/Jul/02/docker-userns-remap/) in order to use Linux user namespaces to fix permissions in docker volumes.
+On Linux, consider enabling
+[Docker user namespace remapping](https://docs.docker.com/engine/security/userns-remap/)
+to avoid permission issues with bind-mounted files.
 
-## Features
+## What is included
 
-* Local environment running inside 4 docker containers, one for the app, one for the database, one for the mail service and one for tailwind.
-* Development ready django project with all packages installed and database created and ready to go.
-* Makefile with common dev tasks.
-* Fully Dockerized deployment (app with embedded Postgres), fronted by the
-  host's Nginx and deployed via GitHub Actions on a self-hosted runner.
+The generated project provides:
 
-Project details:
+- Django 6 with PostgreSQL;
+- a local Docker Compose stack with the Django app, PostgreSQL, MailHog and a
+  Tailwind watcher;
+- Tailwind CSS 4 and daisyUI;
+- a custom user model, pages, search and an optional file cabinet app;
+- Editor.js, django-baton, django-compressor, django-cleanup,
+  django-extensions, django-lineup, django-preferences-utils,
+  django-subject-imagefield, django-taggit and django-web-components;
+- optional django-modeltranslation and sorl-thumbnail integration;
+- a Makefile for common development tasks;
+- self-contained Docker deployments for staging and production, published only
+  on project-specific loopback ports and deployed through GitHub Actions.
 
-* django db settings managed with environment variables
-* some must-have (in my opinion) packages installed:
-  * [dj-editor-js](https://github.com/otto-torino/django-editor-js)
-  * [django-cleanup](https://github.com/un1t/django-cleanup)
-  * [django-preferences-utils](https://github.com/otto-torino/django-preferences-utils)
-  * [django-user_agents](https://github.com/selwin/django-user_agents)
-  * [django-extensions](https://github.com/django-extensions/django-extensions)
-  * [django-simple-captcha](https://github.com/mbi/django-simple-captcha)
-  * [django-subject-imagefield](https://github.com/otto-torino/django-subject-imagefield)
-  * [django-taggit](https://github.com/alex/django-taggit)
-  * [sorl-thumbnail](https://github.com/jazzband/sorl-thumbnail)
-  * [django-debug-toolbar](https://github.com/django-debug-toolbar/django-debug-toolbar)
-  * [django-baton](https://github.com/otto-torino/django-baton)
-  * [django-modeltranslation](https://github.com/otto-torino/django-baton) (optional)
-  * [django-filer](https://github.com/stefanfoulis/django-filer) (optional)
-  * [django-compressor](https://github.com/django-compressor/django-compressor)
-  * [django-tailwind](https://github.com/timonweb/django-tailwind)
-  * pages with integrated Editor.js
+Frontend vendor assets include Air Datepicker, PhotoSwipe, Ramda, Swiper and
+Tocca.
 
-### Frontend
+## Create a project
 
-#### Vendor
-
-* tailwind
-* air-datepicker
-* ramda
-* swiper
-* tocca
-
-## Getting started
-
-Install cookiecutter
+Install Cookiecutter:
 
 ```bash
-pip install cookiecutter
+python -m pip install cookiecutter
 ```
 
-Install docker-compose, see the [official docs](https://docs.docker.com/compose/install/).
-
-Run the cookiecutter command
+Generate the project:
 
 ```bash
 cookiecutter https://github.com/otto-torino/django-cookiecutter
 ```
 
-Then you should answer some questions:
+The generator asks for the following values:
 
-| Question | Type | Description |
-|----------|------|-------------|
-| Project Name | String | The project name, site title |
-| Project Description | String | The project description, site meta description |
-| Repo Name | String | The repository name |
-| Core Name | String | Name of the main application module |
-| Use filer | Boolean<br>y/n | Whether to install django-filer or not |
-| Use cabinet | Boolean<br>y/n | Whether to include custom cabinet app or not |
-| Use sorl thumbnail | Boolean<br>y/n | Whether to install sorl-thumbnail or not |
-| Use captcha | Boolean<br>y/n | Whether to install django-simple-captcha or not |
-| Use Translations        | Boolean<br>y/n | Whether to install django-modeltranslation or not |
-| Default language | Enum<br>it \| en | The language code and languages django setting |
-| Timezone | String | The timezone django setting |
-| Author | String | The application author |
-| Email | String | The admin e-mail used to send erro e-mails with trace |
-| Ubuntu Version | Enum<br>20.04 \| 22.04 \| latest  | The ubuntu version used for the docker container |
-| Domain | String | The domain of the deployed application |
-| Db User | String | Database user used by the application (also used by the production Postgres container) |
-| Db User Password | String | Database user password |
+| Option | Type | Description |
+|---|---|---|
+| `project_name` | String | Project name and site title |
+| `project_description` | String | Project description and default meta description |
+| `repo_name` | String | Repository and Python package directory name |
+| `use_cabinet` | `y` / `n` | Include the custom cabinet app |
+| `use_sorl_thumbnail` | `y` / `n` | Include sorl-thumbnail |
+| `use_translations` | `y` / `n` | Include django-modeltranslation |
+| `default_language` | `it` / `en` | Default Django language |
+| `timezone` | String | Django and container timezone |
+| `author` | String | Repository owner and Django admin name |
+| `email` | String | Address that receives Django error emails |
+| `staging_port` | Integer | Host loopback port used by the staging deployment |
+| `production_port` | Integer | Host loopback port used by the production deployment |
+| `db_user` | String | Local PostgreSQL user; also used as the generated default |
+| `db_user_pwd` | String | Local PostgreSQL password |
 
-After that:
+After rendering the template, the post-generation hook automatically:
 
-Start the project
+1. removes optional modules that were not selected;
+2. builds the local Docker images;
+3. creates `.virtualenv` and installs the Python dependencies;
+4. creates the initial migrations;
+5. initializes the Tailwind app with daisyUI;
+6. starts the local stack in the background.
 
-    make start
+The application is then available at <http://localhost:8000> and the MailHog
+interface at <http://localhost:8025>.
 
-Enjoy
+> Project generation runs Docker commands and therefore requires a working
+> Docker daemon. The generated directory is already initialized for local
+> development; use its own README for clone setup and deployment instructions.
 
-## Makefile
+## Development commands
 
-Your new cool installation comes with a Makefile you can use to launch commands that will be executed in the docker container.
+Run these commands from the root of the generated project:
 
 | Command | Description |
-|---------|-------------|
-| `make start` | Starts the development environment |
-| `make stop` | Stops the development environment |
-| `make clean` | Removes containers and volumes |
-| `make shell` | Opens a shell in the app container |
-| `make createsuperuser` | Creates a superuser account |
-| `make manage cmd="..."` | Executes `python manage.py [command]` in the app container |
-| `make reset-db` | Drops all tables in the local dev database |
+|---|---|
+| `make start` | Start the development environment |
+| `make stop` | Stop the development environment |
+| `make clean` | Remove containers and volumes |
+| `make shell` | Open a shell in the app container |
+| `make createsuperuser` | Create a Django superuser |
+| `make manage cmd="..."` | Run a Django management command |
+| `make reset-db` | Drop and recreate all tables in the local database |
 
-> After the first start, uncomment the theme app inside the settings common file.
+For example:
 
-## Staging deploy
+```bash
+make manage cmd="migrate"
+```
 
-Staging runs in Docker and is deployed by
-`.github/workflows/deploy_staging.yml` on pushes to `staging`. The workflow
-runs on the self-hosted `zoro` runner and publishes the application only on a
-project-specific `127.0.0.1:200xx` port.
+## Deployments
 
-The host's Nginx proxies the public domain to that loopback port and Certbot
-manages TLS. See the generated project's README for GitHub Environment
-configuration, the one-time Nginx host setup and manual deploy/log commands.
+The generated project contains separate but equivalent staging and production
+deployments:
 
-## Starting from cloned project
+| | Staging | Production |
+|---|---|---|
+| Branch | `staging` | `main` |
+| Workflow | `deploy_staging.yml` | `deploy_production.yml` |
+| Compose file | `docker-compose.staging.yml` | `docker-compose.production.yml` |
+| Default loopback port | `staging_port` | `production_port` |
+| GitHub Environment | `staging` | `production` |
 
-* Create the `.virtualenv` directory into the root directory
-* Create the `logs` directory into the root directory
-* Create a `.env` file in the `root/project-name/project-name` directory with the following content:
+Each deployment runs Django, Gunicorn and PostgreSQL in one self-contained
+container. The service binds to `127.0.0.1`; the host's Nginx instance proxies
+the public domain to that port and Certbot manages TLS.
 
-  ```
-    DJANGO_SETTINGS_MODULE=core.settings.local
-    DB_NAME=...
-    DB_HOST=db
-    DB_PORT=5432
-    DB_USER=...
-    DB_PASSWORD=...
-    PYTHONUNBUFFERED=true
-    LC_ALL=en_US.UTF-8
-    SECRET_KEY=...
-  ```
+Each GitHub Environment must define:
 
-* Launch `make start`
+- secrets: `SECRET_KEY`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`;
+- variables: `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`;
+- optional secret: `WEBHOOK_KCHAT`, for deploy notifications.
+
+See the generated project's README for Nginx configuration, TLS setup, manual
+deploys and log commands.

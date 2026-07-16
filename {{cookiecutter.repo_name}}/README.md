@@ -1,124 +1,144 @@
 # {{ cookiecutter.project_name }}
 
+![Django 6](https://img.shields.io/badge/Django-6.0-092E20?logo=django&logoColor=white)
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+
 {{ cookiecutter.project_description }}
 
-## Getting Started
+## Requirements
 
-- Clone the repository
+- [Git](https://git-scm.com/)
+- [Docker Engine](https://docs.docker.com/engine/install/)
+- [Docker Compose](https://docs.docker.com/compose/install/) (the `docker compose` plugin)
 
-    ```
-    git clone https://github.com/{{ cookiecutter.author }}/{{ cookiecutter.repo_name }}.git
-    ```
+## Local development
 
-- Change directory
+When this project is created directly with Cookiecutter, the generation hook
+builds the images, initializes the Python virtual environment and Tailwind app,
+creates the initial migrations and starts the services automatically.
 
-    ```
-    cd [repo_name]/[repo_name]
-    ```
+To set up an existing clone instead:
 
-- Create a `.env` file
+1. Clone the repository and enter its root directory:
 
-    ```
-    touch .env
-    ```
+   ```bash
+   git clone https://github.com/{{ cookiecutter.author }}/{{ cookiecutter.repo_name }}.git
+   cd {{ cookiecutter.repo_name }}
+   ```
 
-- Config the environment
+2. Create the directories used by the bind-mounted virtual environment and
+   application logs:
 
-  ```
-  dotenv set DJANGO_SETTINGS_MODULE core.settings.local
-  dotenv set SECRET_KEY "***"
-  dotenv set DB_NAME db{{ cookiecutter.repo_name }}
-  dotenv set DB_HOST db
-  dotenv set DB_PORT 5432
-  dotenv set DB_USER {{ cookiecutter.db_user }}
-  dotenv set DB_PASSWORD ***
-  dotenv set PYTHONUNBUFFERED true
-  dotenv set LC_ALL en_US.UTF-8
-  ```
+   ```bash
+   mkdir -p .virtualenv logs
+   ```
 
-- Create some dirs
+3. Create `{{ cookiecutter.repo_name }}/.env` with the local settings:
 
-    ```
-    cd ..
-    mkdir .virtualenv
-    mkdir logs
-    ```
+   ```dotenv
+   DJANGO_SETTINGS_MODULE=core.settings.local
+   SECRET_KEY=replace-with-a-local-secret-key
+   DB_NAME=db{{ cookiecutter.repo_name }}
+   DB_HOST=db
+   DB_PORT=5432
+   DB_USER={{ cookiecutter.db_user }}
+   DB_PASSWORD={{ cookiecutter.db_user_pwd }}
+   PYTHONUNBUFFERED=true
+   LC_ALL=en_US.UTF-8
+   ```
 
-- Start the project
+4. Build and start the development environment:
 
-    ```
-    make start
-    ```
+   ```bash
+   make start
+   ```
 
-- Enjoy
+The first start installs the Python and Tailwind dependencies and applies the
+database migrations. The local services are:
 
-    ```
-    google-chrome http://localhost:8000
-    ```
+| Service | Address | Description |
+|---|---|---|
+| Django | <http://localhost:8000> | Development server |
+| MailHog | <http://localhost:8025> | Email web interface |
+| PostgreSQL | `localhost:5434` | Database access from the host |
+| debugpy | `localhost:5678` | Python debugger |
 
-## Makefile (development)
+## Development commands
 
-Your new cool installation comes with a Makefile you can use to launch commands that will be executed in the docker container.
+Run these commands from the repository root:
 
 | Command | Description |
-|---------|-------------|
-| `make start` | Starts the development environment |
-| `make stop` | Stops the development environment |
-| `make clean` | Removes containers and volumes |
-| `make shell` | Opens a shell in the app container |
-| `make createsuperuser` | Creates a superuser account |
-| `make manage cmd="..."` | Executes `python manage.py [command]` in the app container |
-| `make reset-db` | Drops all tables in the local dev database |
+|---|---|
+| `make start` | Start the development environment |
+| `make stop` | Stop the development environment |
+| `make clean` | Remove containers and volumes |
+| `make shell` | Open a shell in the app container |
+| `make createsuperuser` | Create a Django superuser |
+| `make manage cmd="..."` | Run a Django management command |
+| `make reset-db` | Drop and recreate all tables in the local database |
 
-## Deploy (staging & production)
+For example:
 
-Both environments run in Docker using the same convention as the other projects
-on the self-hosted `zoro` runner. They are structurally identical and differ
-only in git branch, published port, and GitHub Environment:
+```bash
+make manage cmd="migrate"
+```
+
+## Deployments
+
+Staging and production use the same self-contained Docker architecture on the
+self-hosted `zoro` runner. They differ by branch, published loopback port and
+GitHub Environment:
 
 | | Staging | Production |
 |---|---|---|
-| GitHub Actions workflow | `.github/workflows/deploy_staging.yml` | `.github/workflows/deploy_production.yml` |
+| Workflow | `.github/workflows/deploy_staging.yml` | `.github/workflows/deploy_production.yml` |
 | Compose file | `docker-compose.staging.yml` | `docker-compose.production.yml` |
 | Deploys on push to | `staging` | `main` |
-| Published port (loopback) | `127.0.0.1:{{ cookiecutter.staging_port }}` | `127.0.0.1:{{ cookiecutter.production_port }}` |
+| Published address | `127.0.0.1:{{ cookiecutter.staging_port }}` | `127.0.0.1:{{ cookiecutter.production_port }}` |
 | GitHub Environment | `staging` | `production` |
 
-For each environment:
+In both environments:
 
-- the app image contains Gunicorn **and** PostgreSQL (single self-contained
-  container);
-- the stack publishes only its loopback port — no Traefik, no external network;
-- the host's Nginx routes the public domain to that loopback port;
-- Certbot on the host manages the public TLS certificate;
-- `.env.deploy` is generated from the GitHub Environment secrets/variables and
-  removed after the job.
+- the application image contains Gunicorn and PostgreSQL in one container;
+- database and uploaded media use environment-specific Docker volumes;
+- the service is exposed only on its `127.0.0.1` port;
+- the host's Nginx instance proxies the public domain to that port;
+- Certbot on the host manages TLS;
+- the workflow creates `.env.deploy` from GitHub configuration and removes it
+  after the deployment.
 
 ### GitHub configuration
 
-Create **two** GitHub Environments — `staging` and `production` — and configure
-each one independently (a project has both `staging` and `main` branches, so the
-same secret names resolve to different values per Environment):
+Create the `staging` and `production` GitHub Environments and configure each one
+independently.
 
-- **Required Environment Secrets:** `SECRET_KEY`, `DB_NAME`, `DB_USER`,
-  `DB_PASSWORD`.
-- **Required Environment Variables:** `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS`
-  (e.g. `esempio.com` / `https://esempio.com` — comma-separate multiple values).
-- **Optional Environment Secret:** `WEBHOOK_KCHAT` (KChat deploy notifications;
-  skipped if empty).
+Required Environment secrets:
 
-The deploy **will not start** unless every required secret and variable is set
-for the target Environment: the workflow aborts with an `::error::` before
-building, and the Compose files declare these values as mandatory
-(`${VAR:?...}`) so the container also refuses to come up without them. There is
-no baked domain fallback.
+- `SECRET_KEY`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
 
-### Nginx / TLS on the server
+Required Environment variables:
 
-Configure an Nginx virtual host that proxies the public domain to the published
-port of the target environment (replace `example.com` with the real domain, and
-use `{{ cookiecutter.production_port }}` for production, `{{ cookiecutter.staging_port }}`
-for staging):
+- `ALLOWED_HOSTS`, for example `example.com,www.example.com`
+- `CSRF_TRUSTED_ORIGINS`, for example
+  `https://example.com,https://www.example.com`
+
+`WEBHOOK_KCHAT` is an optional Environment secret used for deployment
+notifications. The workflow skips the notification when it is empty.
+
+The workflow validates every required value before building. The Compose files
+also declare those values as mandatory, so a deployment cannot silently start
+with fallback credentials or domains.
+
+### Nginx and TLS
+
+Create one Nginx virtual host for each environment. Replace `example.com` and
+the port below with the target environment's domain and port
+(`{{ cookiecutter.production_port }}` for production or
+`{{ cookiecutter.staging_port }}` for staging):
 
 ```nginx
 server {
@@ -136,7 +156,7 @@ server {
 }
 ```
 
-Enable the virtual host and validate Nginx:
+Enable and validate the virtual host:
 
 ```bash
 ln -s /etc/nginx/sites-available/example.com \
@@ -144,23 +164,41 @@ ln -s /etc/nginx/sites-available/example.com \
 nginx -t && systemctl reload nginx
 ```
 
-After the public DNS points to the server, configure TLS:
+After the public DNS points to the server, enable TLS:
 
 ```bash
 certbot --nginx -d example.com
 ```
 
-### Manual deploy / logs
+### Manual deployment
 
-To deploy/restart manually from the host (swap `production` for `staging` as
-needed):
+For a manual deployment, create `.env.deploy` in the repository root. The file
+is ignored by Git and must be protected as a secret:
 
-```bash
-docker compose --env-file .env.deploy -f docker-compose.production.yml up -d --build
+```dotenv
+SECRET_KEY=replace-with-a-production-secret-key
+ALLOWED_HOSTS=example.com
+CSRF_TRUSTED_ORIGINS=https://example.com
+DB_NAME={{ cookiecutter.repo_name | replace('-', '_') }}
+DB_USER={{ cookiecutter.db_user }}
+DB_PASSWORD=replace-with-a-database-password
+APP_PORT={{ cookiecutter.production_port }}
 ```
 
-View logs with:
+Deploy or restart production with:
 
 ```bash
-docker compose -f docker-compose.production.yml logs -f app
+docker compose --env-file .env.deploy -f docker-compose.production.yml \
+  up -d --build --force-recreate --remove-orphans
 ```
+
+For staging, use `docker-compose.staging.yml` and set
+`APP_PORT={{ cookiecutter.staging_port }}`.
+
+Follow the container logs without requiring `.env.deploy`:
+
+```bash
+docker logs -f {{ cookiecutter.repo_name }}_production
+```
+
+Use `{{ cookiecutter.repo_name }}_staging` for staging.
