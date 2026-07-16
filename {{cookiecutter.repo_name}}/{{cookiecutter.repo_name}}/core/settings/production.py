@@ -30,6 +30,16 @@ CSRF_TRUSTED_ORIGINS = [
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
+# HTTPS is terminated by the host's Nginx, which forwards X-Forwarded-Proto.
+# Start HSTS with a short lifetime; increase it only after HTTPS has proved
+# reliable. includeSubDomains and preload intentionally remain disabled.
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = int(getenv('SECURE_HSTS_SECONDS', '3600'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+
 # Paths are container-absolute (see compose/app/Dockerfile.production's WORKDIR /app),
 # not host paths - the app never runs on bare metal in production.
 STATIC_ROOT = getenv('STATIC_ROOT', '/app/static')

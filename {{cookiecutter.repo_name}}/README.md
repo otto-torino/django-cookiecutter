@@ -222,6 +222,13 @@ The workflow validates every required value before building. The Compose files
 also declare those values as mandatory, so a deployment cannot silently start
 with fallback credentials or domains.
 
+Production settings force HTTPS, mark session and CSRF cookies as secure, and
+send HSTS with an initial lifetime of one hour. Once HTTPS has operated
+reliably, set the optional Environment variable `SECURE_HSTS_SECONDS` to a
+longer value such as `31536000`. Keep it at `3600` during initial rollout;
+setting it to `0` disables HSTS. Subdomains and browser preload are deliberately
+not enabled by default.
+
 ### Nginx and TLS
 
 Create one Nginx virtual host for each environment. Replace `example.com` and
@@ -335,6 +342,7 @@ DB_NAME={{ cookiecutter.repo_name | replace('-', '_') }}
 DB_USER={{ cookiecutter.db_user }}
 DB_PASSWORD=replace-with-a-database-password
 APP_PORT=PRODUCTION_PORT
+SECURE_HSTS_SECONDS=3600
 ```
 
 Deploy or restart production with:

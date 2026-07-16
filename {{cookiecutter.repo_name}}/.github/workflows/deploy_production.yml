@@ -25,6 +25,7 @@ jobs:
       DB_PASSWORD: {% raw %}${{ secrets.DB_PASSWORD }}{% endraw %}
       ALLOWED_HOSTS: {% raw %}${{ vars.ALLOWED_HOSTS }}{% endraw %}
       CSRF_TRUSTED_ORIGINS: {% raw %}${{ vars.CSRF_TRUSTED_ORIGINS }}{% endraw %}
+      SECURE_HSTS_SECONDS: {% raw %}${{ vars.SECURE_HSTS_SECONDS }}{% endraw %}
       APP_PORT: {% raw %}${{ vars.{% endraw %}{{ cookiecutter.repo_name | upper | replace('-', '_') }}_PRODUCTION_PORT{% raw %} }}{% endraw %}
       APP_CONTAINER: {{ cookiecutter.repo_name }}_production
       APP_IMAGE: {{ cookiecutter.repo_name }}_production_app
@@ -47,6 +48,7 @@ jobs:
             echo "SECRET_KEY=$SECRET_KEY"
             echo "ALLOWED_HOSTS=$ALLOWED_HOSTS"
             echo "CSRF_TRUSTED_ORIGINS=$CSRF_TRUSTED_ORIGINS"
+            echo "SECURE_HSTS_SECONDS=${SECURE_HSTS_SECONDS:-3600}"
             echo "DB_NAME=$DB_NAME"
             echo "DB_USER=$DB_USER"
             echo "DB_PASSWORD=$DB_PASSWORD"
