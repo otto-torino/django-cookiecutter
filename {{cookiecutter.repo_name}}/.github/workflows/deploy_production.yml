@@ -36,6 +36,7 @@ jobs:
       SERVER_EMAIL: {% raw %}${{ vars.SERVER_EMAIL }}{% endraw %}
       EMAIL_HOST_USER: {% raw %}${{ secrets.EMAIL_HOST_USER }}{% endraw %}
       EMAIL_HOST_PASSWORD: {% raw %}${{ secrets.EMAIL_HOST_PASSWORD }}{% endraw %}
+      LOG_LEVEL: {% raw %}${{ vars.LOG_LEVEL }}{% endraw %}
       APP_PORT: {% raw %}${{ vars.{% endraw %}{{ cookiecutter.repo_name | upper | replace('-', '_') }}_PRODUCTION_PORT{% raw %} }}{% endraw %}
       APP_CONTAINER: {{ cookiecutter.repo_name }}_production
       APP_IMAGE: {{ cookiecutter.repo_name }}_production_app

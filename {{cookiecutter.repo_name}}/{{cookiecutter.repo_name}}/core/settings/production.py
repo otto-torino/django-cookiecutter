@@ -77,12 +77,29 @@ if EMAIL_USE_TLS and EMAIL_USE_SSL:
 STATIC_ROOT = getenv('STATIC_ROOT', '/app/static')
 MEDIA_ROOT = getenv('MEDIA_ROOT', '/app/media')
 
-# Log to stdout only: the container runtime (docker logs / CI) captures it, no
-# host log directory or rotation needed. Every logger below references the
-# 'file' handler by name, so redefining it in place routes them all to stdout
-# without touching per-logger handler lists (e.g. django.request still also
-# mails admins via 'mail_admins').
-LOGGING['handlers']['file'] = LOGGING['handlers']['console']
+# Log each record once to stdout; Docker handles collection and retention.
+# Application/Django loggers propagate to the root console handler, while
+# request errors additionally notify ADMINS through mail_admins.
+LOG_LEVEL = getenv('LOG_LEVEL', 'INFO').strip().upper()
+if LOG_LEVEL not in {'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'}:
+    raise ValueError('LOG_LEVEL must be DEBUG, INFO, WARNING, ERROR or CRITICAL')
+
+LOGGING['handlers'].pop('file', None)
+LOGGING['handlers']['console']['level'] = LOG_LEVEL
+LOGGING['loggers'].pop('', None)
+LOGGING['root'] = {
+    'handlers': ['console'],
+    'level': LOG_LEVEL,
+}
+
+for logger_name in ('django', 'django.template', 'core'):
+    LOGGING['loggers'][logger_name]['handlers'] = []
+    LOGGING['loggers'][logger_name]['propagate'] = True
+
+LOGGING['loggers']['django']['level'] = LOG_LEVEL
+LOGGING['loggers']['core']['level'] = LOG_LEVEL
+LOGGING['loggers']['django.request']['handlers'] = ['mail_admins']
+LOGGING['loggers']['django.request']['propagate'] = True
 
 # WhiteNoise must sit directly after SecurityMiddleware.
 _security_middleware = 'django.middleware.security.SecurityMiddleware'

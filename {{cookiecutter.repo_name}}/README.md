@@ -232,6 +232,11 @@ backend, also define `EMAIL_BACKEND`. TLS and SSL are mutually exclusive; for
 implicit TLS use port `465`, set `EMAIL_USE_TLS=false` and
 `EMAIL_USE_SSL=true`.
 
+Production logs are written once to stdout and collected by Docker. The
+optional Environment variable `LOG_LEVEL` accepts `DEBUG`, `INFO`, `WARNING`,
+`ERROR` or `CRITICAL` and defaults to `INFO`. HTTP errors still use
+`mail_admins` in addition to the single stdout record.
+
 The workflow validates every required value before building. The Compose files
 also declare those values as mandatory, so a deployment cannot silently start
 with fallback credentials or domains.
@@ -366,6 +371,7 @@ EMAIL_USE_SSL=false
 EMAIL_TIMEOUT=10
 DEFAULT_FROM_EMAIL={{ cookiecutter.email }}
 SERVER_EMAIL={{ cookiecutter.email }}
+LOG_LEVEL=INFO
 ```
 
 Deploy or restart production with:

@@ -149,6 +149,7 @@ Each GitHub Environment must define:
 - optional variable: `SECURE_HSTS_SECONDS` (defaults to `3600`);
 - optional SMTP variables and secrets; without `EMAIL_HOST`, messages are
   written to container stdout;
+- optional variable: `LOG_LEVEL` (defaults to `INFO`);
 - optional secret: `WEBHOOK_KCHAT`, for deploy notifications.
 
 The GitHub organization must also expose the repository-specific Actions
