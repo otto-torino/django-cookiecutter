@@ -2,6 +2,7 @@
   const form = document.getElementById('changelist-form')
   const pageId = form.dataset.pageId
   const savePositionUrl = form.dataset.savePositionUrl
+  const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value
 
   // Handle the content type change
   $('#id_content_module').change(function () {
@@ -62,6 +63,7 @@
       data: JSON.stringify(payload),
       contentType: 'application/json',
       dataType: 'json',
+      headers: { 'X-CSRFToken': csrfToken },
     })
   }
 

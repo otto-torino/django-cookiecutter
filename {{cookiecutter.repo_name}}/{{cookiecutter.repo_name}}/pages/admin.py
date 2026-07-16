@@ -13,7 +13,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django.views.decorators.csrf import csrf_exempt
 {% if cookiecutter.use_translations == "y" %}from modeltranslation.admin import TranslationAdmin, TranslationStackedInline{% endif %}
 from pages.admin_views import (
     EditPageContentsView,
@@ -158,7 +157,6 @@ class PageAdmin({% if cookiecutter.use_translations == "y" %}TranslationAdmin, {
         ]
         return custom_urls + urls
 
-    @csrf_exempt
     def save_position(self, request, id):
         return SaveContentBlocksPositionView.as_view()(request, id)
 

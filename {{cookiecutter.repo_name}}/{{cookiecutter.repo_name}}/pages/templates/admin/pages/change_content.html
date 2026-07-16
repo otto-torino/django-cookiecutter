@@ -71,6 +71,7 @@
                 action="" id="changelist-form" data-page-id="{{ page.id }}"
                 data-save-position-url="{% url 'admin:pages_page_save_position' page.id %}"
             >
+            {% csrf_token %}
             {% if page.content_blocks.for_content.count %}
                 <div id="content-blocks-list">
                     {% for content_block in page.content_blocks.for_content %}
