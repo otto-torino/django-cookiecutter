@@ -24,14 +24,14 @@ jobs:
       DB_PASSWORD: {% raw %}${{ secrets.DB_PASSWORD }}{% endraw %}
       ALLOWED_HOSTS: {% raw %}${{ vars.ALLOWED_HOSTS }}{% endraw %}
       CSRF_TRUSTED_ORIGINS: {% raw %}${{ vars.CSRF_TRUSTED_ORIGINS }}{% endraw %}
-      APP_PORT: {{ cookiecutter.production_port }}
+      APP_PORT: {% raw %}${{ vars.{% endraw %}{{ cookiecutter.repo_name | upper | replace('-', '_') }}_PRODUCTION_PORT{% raw %} }}{% endraw %}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Create deploy env file
         run: |
-          for name in SECRET_KEY DB_NAME DB_USER DB_PASSWORD ALLOWED_HOSTS CSRF_TRUSTED_ORIGINS; do
+          for name in SECRET_KEY DB_NAME DB_USER DB_PASSWORD ALLOWED_HOSTS CSRF_TRUSTED_ORIGINS APP_PORT; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing $name deploy value"
               exit 1

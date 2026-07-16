@@ -115,7 +115,7 @@ GitHub Environment:
 | Workflow | `.github/workflows/deploy_staging.yml` | `.github/workflows/deploy_production.yml` |
 | Compose file | `docker-compose.staging.yml` | `docker-compose.production.yml` |
 | Deploys on push to | `staging` | `main` |
-| Published address | `127.0.0.1:{{ cookiecutter.staging_port }}` | `127.0.0.1:{{ cookiecutter.production_port }}` |
+| Global GitHub port variable | `{{ cookiecutter.repo_name | upper | replace('-', '_') }}_STAGING_PORT` | `{{ cookiecutter.repo_name | upper | replace('-', '_') }}_PRODUCTION_PORT` |
 | GitHub Environment | `staging` | `production` |
 
 In both environments:
@@ -149,6 +149,14 @@ Required Environment variables:
 - `CSRF_TRUSTED_ORIGINS`, for example
   `https://example.com,https://www.example.com`
 
+Required global GitHub Actions variables:
+
+- `{{ cookiecutter.repo_name | upper | replace('-', '_') }}_STAGING_PORT`
+- `{{ cookiecutter.repo_name | upper | replace('-', '_') }}_PRODUCTION_PORT`
+
+These variables contain the host loopback ports and must be made available to
+this repository.
+
 `WEBHOOK_KCHAT` is an optional Environment secret used for deployment
 notifications. The workflow skips the notification when it is empty.
 
@@ -159,9 +167,8 @@ with fallback credentials or domains.
 ### Nginx and TLS
 
 Create one Nginx virtual host for each environment. Replace `example.com` and
-the port below with the target environment's domain and port
-(`{{ cookiecutter.production_port }}` for production or
-`{{ cookiecutter.staging_port }}` for staging):
+the port below with the target environment's domain and the value of its global
+GitHub port variable:
 
 The host does not need direct access to Docker volumes: the internal Nginx
 container mounts static and media volumes read-only and serves them itself.
@@ -177,7 +184,7 @@ server {
     client_max_body_size 20M;
 
     location / {
-        proxy_pass http://127.0.0.1:{{ cookiecutter.production_port }};
+        proxy_pass http://127.0.0.1:PRODUCTION_PORT;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -213,7 +220,7 @@ CSRF_TRUSTED_ORIGINS=https://example.com
 DB_NAME={{ cookiecutter.repo_name | replace('-', '_') }}
 DB_USER={{ cookiecutter.db_user }}
 DB_PASSWORD=replace-with-a-database-password
-APP_PORT={{ cookiecutter.production_port }}
+APP_PORT=PRODUCTION_PORT
 ```
 
 Deploy or restart production with:
@@ -223,8 +230,10 @@ docker compose --env-file .env.deploy -f docker-compose.production.yml \
   up -d --build --force-recreate --remove-orphans
 ```
 
-For staging, use `docker-compose.staging.yml` and set
-`APP_PORT={{ cookiecutter.staging_port }}`.
+Replace `PRODUCTION_PORT` with the value of
+`{{ cookiecutter.repo_name | upper | replace('-', '_') }}_PRODUCTION_PORT`.
+For staging, use `docker-compose.staging.yml` and the value of
+`{{ cookiecutter.repo_name | upper | replace('-', '_') }}_STAGING_PORT`.
 
 Follow the container logs without requiring `.env.deploy`:
 

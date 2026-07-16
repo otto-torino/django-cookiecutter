@@ -32,7 +32,7 @@ services:
     container_name: {{ cookiecutter.repo_name }}_staging_nginx
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${APP_PORT:-{{ cookiecutter.staging_port }}}:80"
+      - "127.0.0.1:${APP_PORT:?Set APP_PORT}:80"
     volumes:
       - ./compose/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - {{ cookiecutter.repo_name | replace('-', '_') }}_staging_media:/app/media:ro

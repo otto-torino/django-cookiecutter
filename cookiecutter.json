@@ -22,8 +22,6 @@
   "timezone": "Europe/Rome",
   "author": "otto",
   "email": "logs@otto.srl",
-  "staging_port": "20000",
-  "production_port": "10000",
   "db_user": "{{ cookiecutter.repo_name }}",
   "db_user_pwd": ""
 }

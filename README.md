@@ -69,8 +69,6 @@ The generator asks for the following values:
 | `timezone` | String | Django and container timezone |
 | `author` | String | Repository owner and Django admin name |
 | `email` | String | Address that receives Django error emails |
-| `staging_port` | Integer | Host loopback port used by the staging deployment |
-| `production_port` | Integer | Host loopback port used by the production deployment |
 | `db_user` | String | Local PostgreSQL user; also used as the generated default |
 | `db_user_pwd` | String | Local PostgreSQL password |
 
@@ -120,7 +118,7 @@ deployments:
 | Branch | `staging` | `main` |
 | Workflow | `deploy_staging.yml` | `deploy_production.yml` |
 | Compose file | `docker-compose.staging.yml` | `docker-compose.production.yml` |
-| Default loopback port | `staging_port` | `production_port` |
+| Global GitHub port variable | `<REPO_NAME>_STAGING_PORT` | `<REPO_NAME>_PRODUCTION_PORT` |
 | GitHub Environment | `staging` | `production` |
 
 Each deployment runs Django, Gunicorn and PostgreSQL in the application
@@ -133,6 +131,12 @@ Each GitHub Environment must define:
 - secrets: `SECRET_KEY`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`;
 - variables: `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`;
 - optional secret: `WEBHOOK_KCHAT`, for deploy notifications.
+
+The GitHub organization must also expose the repository-specific Actions
+variables `<REPO_NAME>_STAGING_PORT` and `<REPO_NAME>_PRODUCTION_PORT`. The
+repository name is uppercased and hyphens are replaced with underscores; for
+example, `my-site` uses `MY_SITE_STAGING_PORT` and
+`MY_SITE_PRODUCTION_PORT`.
 
 See the generated project's README for Nginx configuration, TLS setup, manual
 deploys and log commands.
