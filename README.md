@@ -34,8 +34,9 @@ The generated project provides:
   tagging app;
 - optional django-modeltranslation and sorl-thumbnail integration;
 - a Makefile for common development tasks;
-- self-contained Docker deployments for staging and production, published only
-  on project-specific loopback ports and deployed through GitHub Actions.
+- Docker deployments for staging and production with an internal Nginx serving
+  shared static/media volumes, project-specific loopback ports and GitHub
+  Actions.
 
 Frontend vendor assets include Air Datepicker, PhotoSwipe, Ramda, Swiper and
 Tocca.
@@ -122,9 +123,10 @@ deployments:
 | Default loopback port | `staging_port` | `production_port` |
 | GitHub Environment | `staging` | `production` |
 
-Each deployment runs Django, Gunicorn and PostgreSQL in one self-contained
-container. The service binds to `127.0.0.1`; the host's Nginx instance proxies
-the public domain to that port and Certbot manages TLS.
+Each deployment runs Django, Gunicorn and PostgreSQL in the application
+container. An internal Nginx container serves shared static/media volumes and
+proxies dynamic requests to Gunicorn. Only internal Nginx binds to `127.0.0.1`;
+the host's Nginx proxies the public domain to that port and Certbot manages TLS.
 
 Each GitHub Environment must define:
 

@@ -4,6 +4,7 @@ tags
 .mypy_cache
 __pycache__/
 CLAUDE.md
+BOILERPLATE_REVIEW.md
 
 # Installer logs
 pip-log.txt

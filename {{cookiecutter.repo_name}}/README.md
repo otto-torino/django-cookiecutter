@@ -86,7 +86,7 @@ make manage cmd="migrate"
 
 ## Deployments
 
-Staging and production use the same self-contained Docker architecture on the
+Staging and production use the same Docker architecture on the
 self-hosted `zoro` runner. They differ by branch, published loopback port and
 GitHub Environment:
 
@@ -101,9 +101,12 @@ GitHub Environment:
 In both environments:
 
 - the application image contains Gunicorn and PostgreSQL in one container;
-- database and uploaded media use environment-specific Docker volumes;
-- the service is exposed only on its `127.0.0.1` port;
-- the host's Nginx instance proxies the public domain to that port;
+- an internal Nginx container serves static files and uploaded media, then
+  proxies dynamic requests to Gunicorn;
+- database, static files and uploaded media use environment-specific named
+  Docker volumes shared with Nginx where needed;
+- only internal Nginx is exposed on the environment's `127.0.0.1` port;
+- the host's Nginx instance proxies the public domain to that loopback port;
 - Certbot on the host manages TLS;
 - the workflow creates `.env.deploy` from GitHub configuration and removes it
   after the deployment.
@@ -140,11 +143,18 @@ the port below with the target environment's domain and port
 (`{{ cookiecutter.production_port }}` for production or
 `{{ cookiecutter.staging_port }}` for staging):
 
+The host does not need direct access to Docker volumes: the internal Nginx
+container mounts static and media volumes read-only and serves them itself.
+Do not add `/static/` or `/media/` aliases to the host configuration: the
+catch-all proxy below forwards those requests to internal Nginx, which handles
+them before proxying dynamic requests to Gunicorn.
+
 ```nginx
 server {
     listen 80;
     listen [::]:80;
     server_name example.com;
+    client_max_body_size 20M;
 
     location / {
         proxy_pass http://127.0.0.1:{{ cookiecutter.production_port }};
@@ -152,6 +162,7 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
     }
 }
 ```
@@ -202,3 +213,9 @@ docker logs -f {{ cookiecutter.repo_name }}_production
 ```
 
 Use `{{ cookiecutter.repo_name }}_staging` for staging.
+
+Follow the internal Nginx logs with:
+
+```bash
+docker logs -f {{ cookiecutter.repo_name }}_production_nginx
+```

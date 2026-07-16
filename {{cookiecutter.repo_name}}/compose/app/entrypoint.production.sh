@@ -78,6 +78,10 @@ if [ "${SYNC_TRANSLATION_FIELDS:-1}" = "1" ]; then
 fi
 {% endif -%}
 
+if [ "${COLLECTSTATIC_ON_STARTUP:-1}" = "1" ]; then
+  run_as_django python manage.py collectstatic --noinput
+fi
+
 if [ "$#" -eq 0 ] || [ "$1" = "serve" ]; then
   exec gosu django gunicorn core.wsgi:application \
     --bind "0.0.0.0:${PORT:-8000}" \

@@ -81,9 +81,9 @@ urlpatterns += translatable_urlpatterns
 {% endif %}
 
 
-# Serve media files from MEDIA_ROOT. The host's Nginx only reverse-proxies to the
-# application port and cannot read the container volume directly, so Django
-# itself must serve MEDIA_URL in all environments, not just DEBUG.
+# Serve uploaded media through Django during local development. In production,
+# static() registers no route because DEBUG is false; the internal Nginx
+# container serves the shared media volume directly.
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
