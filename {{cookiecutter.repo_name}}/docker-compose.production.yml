@@ -7,6 +7,7 @@ services:
       context: .
       dockerfile: compose/app/Dockerfile.production
     restart: unless-stopped
+    stop_grace_period: 60s
     environment:
       DJANGO_SETTINGS_MODULE: core.settings.production
       SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
@@ -22,6 +23,12 @@ services:
       STATIC_ROOT: /app/static
       MEDIA_ROOT: /app/media
       GUNICORN_WORKERS: ${GUNICORN_WORKERS:-4}
+    healthcheck:
+      test: ["CMD", "/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     volumes:
       - {{ cookiecutter.repo_name | replace('-', '_') }}_production_db:/var/lib/postgresql/data
       - {{ cookiecutter.repo_name | replace('-', '_') }}_production_media:/app/media
@@ -38,7 +45,8 @@ services:
       - {{ cookiecutter.repo_name | replace('-', '_') }}_production_media:/app/media:ro
       - {{ cookiecutter.repo_name | replace('-', '_') }}_production_static:/app/static:ro
     depends_on:
-      - app
+      app:
+        condition: service_healthy
 
 volumes:
   {{ cookiecutter.repo_name | replace('-', '_') }}_production_db:

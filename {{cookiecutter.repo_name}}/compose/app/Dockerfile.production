@@ -41,7 +41,7 @@ RUN SECRET_KEY=docker-build \
     DB_NAME=build \
     DB_USER=build \
     DB_PASSWORD=build \
-    python manage.py tailwind install --no-input \
+    python manage.py tailwind install \
     && python manage.py tailwind build \
     && python manage.py collectstatic --noinput \
     && python manage.py compilemessages
@@ -68,6 +68,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         media-types \
         postgresql \
         postgresql-client \
+        tini \
         zlib1g \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /app/media /var/lib/postgresql/data
@@ -77,10 +78,11 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /app /app
 COPY compose/app/entrypoint.production.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh \
+COPY compose/app/healthcheck.production.sh /healthcheck.sh
+RUN chmod +x /entrypoint.sh /healthcheck.sh \
     && useradd --system --home /app --shell /usr/sbin/nologin django \
     && chown -R django:django /app \
     && chown -R postgres:postgres /var/lib/postgresql
 
 EXPOSE 8000
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]

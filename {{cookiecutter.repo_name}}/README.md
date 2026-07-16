@@ -164,11 +164,14 @@ GitHub Environment:
 In both environments:
 
 - the application image contains Gunicorn and PostgreSQL in one container;
+- `tini` forwards container signals to an entrypoint that stops Gunicorn and
+  PostgreSQL cleanly, with a 60-second shutdown grace period;
 - an internal Nginx container serves static files and uploaded media, then
   proxies dynamic requests to Gunicorn;
 - database, static files and uploaded media use environment-specific named
   Docker volumes shared with Nginx where needed;
 - only internal Nginx is exposed on the environment's `127.0.0.1` port;
+- Nginx starts only after the combined PostgreSQL/Gunicorn healthcheck passes;
 - the host's Nginx instance proxies the public domain to that loopback port;
 - Certbot on the host manages TLS;
 - the workflow creates `.env.deploy` from GitHub configuration and removes it

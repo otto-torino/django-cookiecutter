@@ -1,6 +1,9 @@
 #!/bin/sh
 set -eu
 
+data_dir="${POSTGRES_DATA_DIR:-/var/lib/postgresql/data}"
+child_pid=""
+
 run_as_django() {
   if command -v gosu >/dev/null 2>&1 && [ "$(id -u)" = "0" ]; then
     gosu django "$@"
@@ -9,8 +12,46 @@ run_as_django() {
   fi
 }
 
+start_as_django() {
+  if command -v gosu >/dev/null 2>&1 && [ "$(id -u)" = "0" ]; then
+    gosu django "$@" &
+  else
+    "$@" &
+  fi
+  child_pid=$!
+}
+
+stop_postgres() {
+  if gosu postgres pg_ctl -D "$data_dir" status >/dev/null 2>&1; then
+    echo "Stopping PostgreSQL..."
+    gosu postgres pg_ctl -D "$data_dir" -m fast -w stop
+  fi
+}
+
+forward_signal() {
+  signal="$1"
+  if [ -n "$child_pid" ] && kill -0 "$child_pid" 2>/dev/null; then
+    kill "-$signal" "$child_pid" 2>/dev/null || true
+  fi
+}
+
+cleanup() {
+  status=$?
+  trap - EXIT INT TERM
+
+  if [ -n "$child_pid" ] && kill -0 "$child_pid" 2>/dev/null; then
+    kill -TERM "$child_pid" 2>/dev/null || true
+    wait "$child_pid" 2>/dev/null || true
+  fi
+  stop_postgres
+  exit "$status"
+}
+
+trap 'forward_signal TERM' TERM
+trap 'forward_signal INT' INT
+trap cleanup EXIT
+
 start_postgres() {
-  data_dir="${POSTGRES_DATA_DIR:-/var/lib/postgresql/data}"
   db_name="${DB_NAME:?Set DB_NAME}"
   db_user="${DB_USER:?Set DB_USER}"
   db_password="${DB_PASSWORD:?Set DB_PASSWORD}"
@@ -83,11 +124,18 @@ if [ "${COLLECTSTATIC_ON_STARTUP:-1}" = "1" ]; then
 fi
 
 if [ "$#" -eq 0 ] || [ "$1" = "serve" ]; then
-  exec gosu django gunicorn core.wsgi:application \
+  start_as_django gunicorn core.wsgi:application \
     --bind "0.0.0.0:${PORT:-8000}" \
     --workers "${GUNICORN_WORKERS:-4}" \
     --access-logfile - \
     --error-logfile -
+else
+  "$@" &
+  child_pid=$!
 fi
 
-exec "$@"
+set +e
+wait "$child_pid"
+status=$?
+set -e
+exit "$status"

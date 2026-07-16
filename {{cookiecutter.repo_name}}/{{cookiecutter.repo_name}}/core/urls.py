@@ -49,8 +49,6 @@ urlpatterns = [
 
 # User-facing URL patterns that can be translated
 translatable_urlpatterns = [
-    # browser reload
-    path("__reload__/", include("django_browser_reload.urls")),
     # admin
     path('admin/', admin.site.urls),
     path("baton/create-tags/", TagallCreateTagsView.as_view(), name="baton-create-tags"),
@@ -87,7 +85,8 @@ urlpatterns += translatable_urlpatterns
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
-    # Django Debug Toolbar
+    # Development-only tools
     urlpatterns = [
+        path("__reload__/", include("django_browser_reload.urls")),
         path('__debug__/', include('debug_toolbar.urls')),
     ] + urlpatterns
