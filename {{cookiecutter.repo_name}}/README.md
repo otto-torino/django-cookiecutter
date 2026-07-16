@@ -43,9 +43,18 @@ To set up an existing clone instead:
    DB_HOST=db
    DB_PORT=5432
    DB_USER={{ cookiecutter.db_user }}
-   DB_PASSWORD={{ cookiecutter.db_user_pwd }}
+   DB_PASSWORD=replace-with-a-local-password
+   POSTGRES_DB=db{{ cookiecutter.repo_name }}
+   POSTGRES_USER={{ cookiecutter.db_user }}
+   POSTGRES_PASSWORD=replace-with-the-same-local-password
    PYTHONUNBUFFERED=true
    LC_ALL=en_US.UTF-8
+   ```
+
+   Protect the credentials from other local users:
+
+   ```bash
+   chmod 600 {{ cookiecutter.repo_name }}/.env
    ```
 
 4. Build and start the development environment:
@@ -61,7 +70,7 @@ database migrations. The local services are:
 |---|---|---|
 | Django | <http://localhost:8000> | Development server |
 | MailHog | <http://localhost:8025> | Email web interface |
-| PostgreSQL | `localhost:5434` | Database access from the host |
+| PostgreSQL | `127.0.0.1:5434` | Authenticated database access from the host |
 | debugpy | `localhost:5678` | Python debugger |
 
 ## Development commands

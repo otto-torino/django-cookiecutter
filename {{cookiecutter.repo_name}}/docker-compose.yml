@@ -4,16 +4,19 @@ services:
     image: postgres:latest
     container_name: {{cookiecutter.repo_name}}_postgres
     restart: unless-stopped
+    env_file:
+      - ./{{ cookiecutter.repo_name }}/.env
     environment:
-      POSTGRES_USER: "{{ cookiecutter.db_user }}"
-      POSTGRES_PASSWORD: "{{ cookiecutter.db_user_pwd }}"
-      POSTGRES_DB: "db{{ cookiecutter.repo_name }}"
-      POSTGRES_HOST_AUTH_METHOD: "trust"
       PGDATA: "/var/lib/postgresql/data/pgdata"
     ports:
-      - '5434:5432'
+      - '127.0.0.1:5434:5432'
     volumes:
       - db-data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   mailhog:
     image: mailhog/mailhog
@@ -51,7 +54,8 @@ services:
       - '8000:8000'
       - '8001:8001' # to run pdb
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   tailwind:
     image: {{cookiecutter.repo_name}}_app

@@ -70,16 +70,17 @@ The generator asks for the following values:
 | `author` | String | Repository owner and Django admin name |
 | `email` | String | Address that receives Django error emails |
 | `db_user` | String | Local PostgreSQL user; also used as the generated default |
-| `db_user_pwd` | String | Local PostgreSQL password |
 
 After rendering the template, the post-generation hook automatically:
 
-1. removes optional modules that were not selected;
-2. builds the local Docker images;
-3. creates `.virtualenv` and installs the Python dependencies;
-4. creates the initial migrations;
-5. initializes the Tailwind app with daisyUI;
-6. starts the local stack in the background.
+1. creates the ignored local `.env` with a random Django secret and the chosen
+   database credentials, using file mode `0600`;
+2. removes optional modules that were not selected;
+3. builds the local Docker images;
+4. creates `.virtualenv` and installs the Python dependencies;
+5. creates the initial migrations;
+6. initializes the Tailwind app with daisyUI;
+7. starts the local stack in the background.
 
 The application is then available at <http://localhost:8000> and the MailHog
 interface at <http://localhost:8025>.

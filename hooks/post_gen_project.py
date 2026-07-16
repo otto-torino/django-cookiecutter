@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import os
-import subprocess
+import secrets
 import shutil
+import subprocess
 from collections import OrderedDict
+from pathlib import Path
 
 # --- Definitions ---
 THEME_APP_NAME = "theme"
@@ -11,6 +13,43 @@ theme_path_on_host = os.path.join(THEME_APP_NAME)
 context = {{cookiecutter}}
 repo_name = context["repo_name"]
 core_name = "core"
+
+
+def dotenv_value(value):
+    """Quote a value for Docker Compose and python-dotenv env files."""
+    value = str(value)
+    if "\n" in value or "\r" in value:
+        raise ValueError("Environment values must not contain newlines.")
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def create_local_env():
+    """Create the ignored local environment file required by Compose."""
+    env_path = Path(repo_name) / ".env"
+    db_password = secrets.token_urlsafe(32)
+
+    values = {
+        "DJANGO_SETTINGS_MODULE": "core.settings.local",
+        "SECRET_KEY": secrets.token_urlsafe(50),
+        "DB_NAME": f"db{repo_name}",
+        "DB_HOST": "db",
+        "DB_PORT": "5432",
+        "DB_USER": context["db_user"],
+        "DB_PASSWORD": db_password,
+        "POSTGRES_DB": f"db{repo_name}",
+        "POSTGRES_USER": context["db_user"],
+        "POSTGRES_PASSWORD": db_password,
+        "PYTHONUNBUFFERED": "true",
+        "LC_ALL": "en_US.UTF-8",
+    }
+    content = "".join(
+        f"{name}={dotenv_value(value)}\n" for name, value in values.items()
+    )
+    env_path.write_text(content, encoding="utf-8")
+    env_path.chmod(0o600)
+
+
+create_local_env()
 
 # --- Helper function for docker commands ---
 def docker_run(command, workdir=f"/home/app/{repo_name}"):

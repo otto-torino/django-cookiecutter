@@ -6,9 +6,6 @@
     "*.map",
     "*debug_toolbar/base.html"
   ],
-  "_extensions": [
-    "cookiecutter.extensions.RandomStringExtension"
-  ],
   "project_name": "My New Project",
   "project_description": "My New Project description",
   "repo_name": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
@@ -22,6 +19,5 @@
   "timezone": "Europe/Rome",
   "author": "otto",
   "email": "logs@otto.srl",
-  "db_user": "{{ cookiecutter.repo_name }}",
-  "db_user_pwd": ""
+  "db_user": "{{ cookiecutter.repo_name }}"
 }
