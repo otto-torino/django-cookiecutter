@@ -36,7 +36,7 @@ services:
       - {{ cookiecutter.repo_name | replace('-', '_') }}_production_static:/app/static
 
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.28.3-alpine3.23
     container_name: {{ cookiecutter.repo_name }}_production_nginx
     restart: unless-stopped
     ports:

@@ -1,7 +1,9 @@
 # Multi-stage deploy image. The runtime bundles PostgreSQL following the
 # staging convention used by the self-hosted runner.
 
-FROM python:3.12-slim-bookworm AS builder
+FROM node:24.18.0-bookworm-slim AS node
+
+FROM python:3.12.13-slim-bookworm AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ={{ cookiecutter.timezone }} \
@@ -17,11 +19,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libffi-dev \
         libssl-dev \
         gettext \
-        curl \
         ca-certificates \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
@@ -46,7 +50,7 @@ RUN SECRET_KEY=docker-build \
     && python manage.py collectstatic --noinput \
     && python manage.py compilemessages
 
-FROM python:3.12-slim-bookworm
+FROM python:3.12.13-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ={{ cookiecutter.timezone }} \

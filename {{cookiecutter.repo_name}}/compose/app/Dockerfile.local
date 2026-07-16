@@ -1,4 +1,6 @@
-FROM python:3.12-slim-bookworm
+FROM node:24.18.0-bookworm-slim AS node
+
+FROM python:3.12.13-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ={{ cookiecutter.timezone }}
@@ -15,19 +17,15 @@ RUN apt-get update && \
         locales \
         postgresql-client \
         git \
-        wget \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 RUN localedef -f UTF-8 -i en_US en_US.utf8
 
-ENV NVM_DIR=/usr/local/nvm
-RUN mkdir -p $NVM_DIR
-RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
-ENV NODE_VERSION=v20.6.1
-RUN /bin/bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
-RUN /bin/bash -c "ln -s $NVM_DIR/versions/node/$NODE_VERSION/bin/node /usr/bin/node"
-RUN /bin/bash -c "ln -s $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules/npm/bin/npm-cli.js /usr/bin/npm"
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"

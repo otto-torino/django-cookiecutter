@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:latest
+    image: postgres:15.18-bookworm
     container_name: {{cookiecutter.repo_name}}_postgres
     restart: unless-stopped
     env_file:
@@ -19,7 +19,7 @@ services:
       retries: 10
 
   mailhog:
-    image: mailhog/mailhog
+    image: mailhog/mailhog:v1.0.1
     container_name: {{cookiecutter.repo_name}}_mailhog
     logging:
       driver: 'none'  # disable saving logs

@@ -149,7 +149,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # THEME
 TAILWIND_APP_NAME = 'theme'
-NPM_BIN_PATH = '/usr/bin/npm'
+NPM_BIN_PATH = '/usr/local/bin/npm'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
