@@ -127,6 +127,21 @@ container. An internal Nginx container serves shared static/media volumes and
 proxies dynamic requests to Gunicorn. Only internal Nginx binds to `127.0.0.1`;
 the host's Nginx proxies the public domain to that port and Certbot manages TLS.
 
+Before replacing an existing deployment, each workflow creates a PostgreSQL
+custom-format dump on the self-hosted runner. Backups are grouped by the
+repository slug and environment:
+
+```text
+~/backups/<repo_name>/staging/database_YYYYMMDDTHHMMSSZ.dump
+~/backups/<repo_name>/production/database_YYYYMMDDTHHMMSSZ.dump
+```
+
+Backups are retained for 30 days. Deployments wait for container health and an
+HTTP smoke test; on failure the previous application image is restored. The
+database is deliberately not restored automatically, avoiding accidental loss
+of writes made after the backup. The generated README contains the guarded
+manual restore procedure.
+
 Each GitHub Environment must define:
 
 - secrets: `SECRET_KEY`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`;

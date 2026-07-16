@@ -17,6 +17,7 @@ jobs:
   deploy:
     runs-on: [self-hosted, zoro]
     environment: staging
+    timeout-minutes: 30
     env:
       SECRET_KEY: {% raw %}${{ secrets.SECRET_KEY }}{% endraw %}
       DB_NAME: {% raw %}${{ secrets.DB_NAME }}{% endraw %}
@@ -25,6 +26,9 @@ jobs:
       ALLOWED_HOSTS: {% raw %}${{ vars.ALLOWED_HOSTS }}{% endraw %}
       CSRF_TRUSTED_ORIGINS: {% raw %}${{ vars.CSRF_TRUSTED_ORIGINS }}{% endraw %}
       APP_PORT: {% raw %}${{ vars.{% endraw %}{{ cookiecutter.repo_name | upper | replace('-', '_') }}_STAGING_PORT{% raw %} }}{% endraw %}
+      APP_CONTAINER: {{ cookiecutter.repo_name }}_staging
+      APP_IMAGE: {{ cookiecutter.repo_name }}_staging_app
+      COMPOSE_FILE: docker-compose.staging.yml
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,11 +55,77 @@ jobs:
             echo "APP_PORT=$APP_PORT"
           } > .env.deploy
 
+      - name: Preserve current image and back up database
+        run: |
+          if ! docker container inspect "$APP_CONTAINER" >/dev/null 2>&1; then
+            echo "No previous deployment found; skipping backup and rollback snapshot."
+            exit 0
+          fi
+
+          previous_image=$(docker container inspect \
+            --format '{% raw %}{{.Image}}{% endraw %}' "$APP_CONTAINER")
+          echo "PREVIOUS_IMAGE_ID=$previous_image" >> "$GITHUB_ENV"
+
+          if [ "$(docker container inspect --format '{% raw %}{{.State.Running}}{% endraw %}' "$APP_CONTAINER")" != "true" ]; then
+            echo "Previous container is not running; skipping database backup."
+            exit 0
+          fi
+
+          backup_dir="$HOME/backups/{{ cookiecutter.repo_name }}/staging"
+          backup_file="$backup_dir/database_$(date -u +%Y%m%dT%H%M%SZ).dump"
+          backup_tmp="$backup_file.tmp"
+          mkdir -p "$backup_dir"
+          chmod 700 "$backup_dir"
+
+          docker exec "$APP_CONTAINER" sh -c \
+            'PGPASSWORD="$DB_PASSWORD" pg_dump --host 127.0.0.1 --username "$DB_USER" --dbname "$DB_NAME" --format custom' \
+            > "$backup_tmp"
+          mv "$backup_tmp" "$backup_file"
+          chmod 600 "$backup_file"
+          find "$backup_dir" -type f -name '*.dump' -mtime +30 -delete
+          echo "Database backup created: $backup_file"
+
       - name: Deploy
         run: |
-          docker compose --env-file .env.deploy -f docker-compose.staging.yml up -d --build --force-recreate --remove-orphans
+          echo "DEPLOY_STARTED=1" >> "$GITHUB_ENV"
+          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" up \
+            -d --build --force-recreate --remove-orphans \
+            --wait --wait-timeout 180
+
+      - name: Smoke test
+        run: |
+          curl --fail --show-error --silent \
+            --retry 10 --retry-delay 3 --retry-all-errors \
+            --connect-timeout 5 --max-time 10 \
+            "http://127.0.0.1:$APP_PORT/" >/dev/null
+
+      - name: Deployment diagnostics
+        if: failure()
+        continue-on-error: true
+        run: |
+          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" ps
+          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" logs --tail 200
+
+      - name: Roll back application image
+        if: failure()
+        run: |
+          if [ "${DEPLOY_STARTED:-0}" != "1" ] || [ -z "${PREVIOUS_IMAGE_ID:-}" ]; then
+            echo "No previous image is available for rollback."
+            exit 0
+          fi
+
+          docker image tag "$PREVIOUS_IMAGE_ID" "$APP_IMAGE"
+          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" up \
+            -d --no-build --force-recreate --remove-orphans \
+            --wait --wait-timeout 180
+          curl --fail --show-error --silent \
+            --retry 10 --retry-delay 3 --retry-all-errors \
+            --connect-timeout 5 --max-time 10 \
+            "http://127.0.0.1:$APP_PORT/" >/dev/null
+          echo "Previous application image restored. Database backup was not restored automatically."
 
       - name: Cleanup images
+        if: success()
         run: docker image prune -f
 
       - name: Remove deploy env file

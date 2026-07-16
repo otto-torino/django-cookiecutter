@@ -3,6 +3,7 @@ name: {{ cookiecutter.repo_name }}-production
 services:
   app:
     container_name: {{ cookiecutter.repo_name }}_production
+    image: {{ cookiecutter.repo_name }}_production_app
     build:
       context: .
       dockerfile: compose/app/Dockerfile.production

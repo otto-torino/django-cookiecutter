@@ -174,8 +174,16 @@ In both environments:
 - Nginx starts only after the combined PostgreSQL/Gunicorn healthcheck passes;
 - the host's Nginx instance proxies the public domain to that loopback port;
 - Certbot on the host manages TLS;
+- workflows keep 30-day PostgreSQL backups under
+  `~/backups/{{ cookiecutter.repo_name }}/<environment>/` on the runner;
+- deployments wait for container health, run an HTTP smoke test and restore the
+  previous application image on failure;
 - the workflow creates `.env.deploy` from GitHub configuration and removes it
   after the deployment.
+
+Image rollback does not automatically restore PostgreSQL: migrations should be
+backward-compatible. Use the timestamped backup for a deliberate database
+restore when a migration itself must be reverted.
 
 ### GitHub configuration
 
@@ -254,6 +262,62 @@ After the public DNS points to the server, enable TLS:
 certbot --nginx -d example.com
 ```
 
+### Database backups and restore
+
+Before every update of an existing environment, its workflow stores a
+custom-format PostgreSQL dump on the self-hosted runner:
+
+```text
+~/backups/{{ cookiecutter.repo_name }}/staging/database_YYYYMMDDTHHMMSSZ.dump
+~/backups/{{ cookiecutter.repo_name }}/production/database_YYYYMMDDTHHMMSSZ.dump
+```
+
+The directory uses the repository slug (`repo_name`), not the human-readable
+project name. Dumps older than 30 days are removed after a successful new
+backup. List the available production backups with:
+
+```bash
+ls -lh ~/backups/{{ cookiecutter.repo_name }}/production/
+```
+
+Application rollback does not restore the database automatically. Restore a
+dump only after confirming that application and migration versions require it:
+the operation below replaces the current database contents.
+
+Select the environment and backup, validate the dump, and create an additional
+pre-restore snapshot:
+
+```bash
+ENVIRONMENT=production
+APP_CONTAINER="{{ cookiecutter.repo_name }}_${ENVIRONMENT}"
+NGINX_CONTAINER="{{ cookiecutter.repo_name }}_${ENVIRONMENT}_nginx"
+BACKUP="$HOME/backups/{{ cookiecutter.repo_name }}/${ENVIRONMENT}/database_TIMESTAMP.dump"
+BACKUP_DIR="$HOME/backups/{{ cookiecutter.repo_name }}/${ENVIRONMENT}"
+
+docker exec -i "$APP_CONTAINER" pg_restore --list < "$BACKUP" >/dev/null
+
+PRE_RESTORE="$BACKUP_DIR/pre_restore_$(date -u +%Y%m%dT%H%M%SZ).dump"
+docker exec "$APP_CONTAINER" sh -c \
+  'PGPASSWORD="$DB_PASSWORD" pg_dump --host 127.0.0.1 --username "$DB_USER" --dbname "$DB_NAME" --format custom' \
+  > "$PRE_RESTORE"
+chmod 600 "$PRE_RESTORE"
+```
+
+Stop public traffic, restore in a single transaction, verify container health,
+then restart Nginx:
+
+```bash
+docker stop "$NGINX_CONTAINER"
+docker exec -i "$APP_CONTAINER" sh -c \
+  'PGPASSWORD="$DB_PASSWORD" pg_restore --host 127.0.0.1 --username "$DB_USER" --dbname "$DB_NAME" --clean --if-exists --no-owner --single-transaction' \
+  < "$BACKUP"
+docker exec "$APP_CONTAINER" /healthcheck.sh
+docker start "$NGINX_CONTAINER"
+```
+
+If the restore or healthcheck fails, leave Nginx stopped and investigate before
+making the site public again. Use `ENVIRONMENT=staging` for staging.
+
 ### Manual deployment
 
 For a manual deployment, create `.env.deploy` in the repository root. The file
@@ -273,7 +337,8 @@ Deploy or restart production with:
 
 ```bash
 docker compose --env-file .env.deploy -f docker-compose.production.yml \
-  up -d --build --force-recreate --remove-orphans
+  up -d --build --force-recreate --remove-orphans \
+  --wait --wait-timeout 180
 ```
 
 Replace `PRODUCTION_PORT` with the value of
