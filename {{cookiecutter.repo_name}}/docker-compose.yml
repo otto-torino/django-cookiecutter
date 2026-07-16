@@ -37,10 +37,9 @@ services:
     working_dir: /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}}
     env_file:
       - ./{{ cookiecutter.repo_name }}/.env
-    command: bash -c "source ../../venv/bin/activate && pip install -r requirements/local.txt && python manage.py migrate && python -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py migrate && python -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/home/app/{{cookiecutter.repo_name}}
-      - virtualenv:/home/app/venv
     ports:
       - '127.0.0.1:5678:5678'
       - '127.0.0.1:8000:8000'
@@ -52,20 +51,16 @@ services:
   tailwind:
     image: {{cookiecutter.repo_name}}_app
     container_name: {{cookiecutter.repo_name}}_tailwind
-    build:
-      context: ./
-      dockerfile: ./compose/app/Dockerfile.local
     restart: unless-stopped
     working_dir: /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}}
     env_file:
       - ./{{cookiecutter.repo_name}}/.env
-    command: bash -c "source ../../venv/bin/activate && pip install -r requirements/local.txt && python manage.py tailwind install && python manage.py tailwind start"
+    command: bash -c "python manage.py tailwind install && python manage.py tailwind start"
     # Without tty, no stdin, and tailwind watcher aborts
     # https://github.com/tailwindlabs/tailwindcss/issues/5324
     tty: true
     volumes:
       - .:/home/app/{{cookiecutter.repo_name}}
-      - virtualenv:/home/app/venv
     depends_on:
       - app
 
@@ -73,9 +68,3 @@ volumes:
 
   db-data:
     driver: local
-  virtualenv:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./.virtualenv
-      o: bind

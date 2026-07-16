@@ -29,5 +29,11 @@ RUN /bin/bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
 RUN /bin/bash -c "ln -s $NVM_DIR/versions/node/$NODE_VERSION/bin/node /usr/bin/node"
 RUN /bin/bash -c "ln -s $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules/npm/bin/npm-cli.js /usr/bin/npm"
 
-COPY . ./home/app/{{cookiecutter.repo_name}}
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN python -m venv "$VIRTUAL_ENV"
+COPY {{cookiecutter.repo_name}}/requirements /tmp/requirements
+RUN pip install --no-cache-dir -r /tmp/requirements/local.txt
+
 WORKDIR /home/app/{{cookiecutter.repo_name}}

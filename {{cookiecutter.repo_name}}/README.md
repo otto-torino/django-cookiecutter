@@ -27,11 +27,10 @@ To set up an existing clone instead:
    cd {{ cookiecutter.repo_name }}
    ```
 
-2. Create the directories used by the bind-mounted virtual environment and
-   application logs:
+2. Create the application log directory:
 
    ```bash
-   mkdir -p .virtualenv logs
+   mkdir -p logs
    ```
 
 3. Create `{{ cookiecutter.repo_name }}/.env` with the local settings:
@@ -63,8 +62,10 @@ To set up an existing clone instead:
    make start
    ```
 
-The first start installs the Python and Tailwind dependencies and applies the
-database migrations. All published development ports listen only on
+The first start builds the local image with the Python dependencies, installs
+the Tailwind dependencies and applies the database migrations. Subsequent
+starts reuse Docker's build cache; changing a requirements file rebuilds the
+dependency layer. All published development ports listen only on
 `127.0.0.1`; they are not exposed to the local network. The services are:
 
 | Service | Address | Description |
@@ -85,7 +86,8 @@ Run these commands from the repository root:
 
 | Command | Description |
 |---|---|
-| `make start` | Start the development environment |
+| `make start` | Build if needed and start the development environment |
+| `make build` | Rebuild the local application image |
 | `make stop` | Stop the development environment |
 | `make clean` | Remove containers and volumes |
 | `make shell` | Open a shell in the app container |

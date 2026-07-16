@@ -1,4 +1,4 @@
-.PHONY: start stop clean shell createsuperuser manage reset-db
+.PHONY: start build stop clean shell createsuperuser manage reset-db
 
 ifeq (manage,$(firstword $(MAKECMDGOALS)))
 MANAGE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -9,7 +9,10 @@ $(MANAGE_ARGS):
 else
 
 start:
-	docker compose up
+	docker compose up --build
+
+build:
+	docker compose build app
 
 stop:
 	docker compose down

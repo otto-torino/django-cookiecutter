@@ -2,7 +2,6 @@
 *.pyc
 {{ cookiecutter.repo_name }}/.env
 .env.deploy
-.virtualenv
 {{ cookiecutter.repo_name }}/media
 {{ cookiecutter.repo_name }}/static
 {{ cookiecutter.repo_name }}/theme/static/css/dist/styles.css

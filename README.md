@@ -76,11 +76,10 @@ After rendering the template, the post-generation hook automatically:
 1. creates the ignored local `.env` with a random Django secret and the chosen
    database credentials, using file mode `0600`;
 2. removes optional modules that were not selected;
-3. builds the local Docker images;
-4. creates `.virtualenv` and installs the Python dependencies;
-5. creates the initial migrations;
-6. initializes the Tailwind app with daisyUI;
-7. starts the local stack in the background.
+3. builds the local application image with its Python dependencies;
+4. creates the initial migrations;
+5. initializes the Tailwind app with daisyUI;
+6. starts the local stack in the background.
 
 The application is then available at <http://localhost:8000> and the MailHog
 interface at <http://localhost:8025>.
@@ -95,7 +94,8 @@ Run these commands from the root of the generated project:
 
 | Command | Description |
 |---|---|
-| `make start` | Start the development environment |
+| `make start` | Build if needed and start the development environment |
+| `make build` | Rebuild the local application image |
 | `make stop` | Stop the development environment |
 | `make clean` | Remove containers and volumes |
 | `make shell` | Open a shell in the app container |
