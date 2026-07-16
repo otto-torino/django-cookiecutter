@@ -1,5 +1,13 @@
 .PHONY: start stop clean shell createsuperuser manage reset-db
 
+ifeq (manage,$(firstword $(MAKECMDGOALS)))
+MANAGE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+.PHONY: $(MANAGE_ARGS)
+$(MANAGE_ARGS):
+	@:
+
+else
+
 start:
 	docker compose up
 
@@ -15,10 +23,12 @@ shell:
 createsuperuser:
 	docker compose exec app python manage.py createsuperuser
 
-# usage: make manage cmd="migrate"
-manage:
-	docker compose exec app python manage.py $(cmd)
-
 # drops and recreates the local dev database
 reset-db:
 	docker compose exec -T app python manage.py dbshell < bin/drop_database.sql
+
+endif
+
+# usage: make manage -- migrate
+manage:
+	docker compose exec app python manage.py $(MANAGE_ARGS)

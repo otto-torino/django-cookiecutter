@@ -75,13 +75,13 @@ Run these commands from the repository root:
 | `make clean` | Remove containers and volumes |
 | `make shell` | Open a shell in the app container |
 | `make createsuperuser` | Create a Django superuser |
-| `make manage cmd="..."` | Run a Django management command |
+| `make manage -- <command> [args]` | Run a Django management command |
 | `make reset-db` | Drop and recreate all tables in the local database |
 
 For example:
 
 ```bash
-make manage cmd="migrate"
+make manage -- makemigrations pages
 ```
 
 ## Page access policy
