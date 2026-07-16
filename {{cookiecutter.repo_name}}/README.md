@@ -181,6 +181,10 @@ In both environments:
 - the workflow creates `.env.deploy` from GitHub configuration and removes it
   after the deployment.
 
+Docker excludes `.env*`, private keys, local databases and backup dumps from
+every build context. In particular, the transient `.env.deploy` is never sent
+to the Docker daemon or included in an image layer.
+
 Image rollback does not automatically restore PostgreSQL: migrations should be
 backward-compatible. Use the timestamped backup for a deliberate database
 restore when a migration itself must be reverted.
