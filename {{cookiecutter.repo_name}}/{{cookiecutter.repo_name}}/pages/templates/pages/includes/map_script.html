@@ -1,0 +1,126 @@
+{% raw %}{{ map_object.map_data|json_script:map_object.map_data_id }}
+<style>
+    .page-map-div-icon {
+        background: transparent;
+        border: 0;
+    }
+    .page-map-pin {
+        width: 2rem;
+        height: 2rem;
+        display: block;
+        position: relative;
+        left: -1rem;
+        top: -1rem;
+        border: 1px solid #fff;
+        border-radius: 2rem 2rem 0;
+        transform: rotate(45deg);
+    }
+</style>
+<script>
+    (function () {
+        const data = JSON.parse(
+            document.getElementById('{{ map_object.map_data_id|escapejs }}').textContent
+        );
+        const map = L.map('map{{ map_object.id }}'{% if map_fullscreen %}, {
+            fullscreenControl: {
+                pseudoFullscreen: false
+            }
+        }{% endif %}).setView([45, 7], data.zoom ?? 8);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const bounds = L.latLngBounds();
+
+        const popupContent = (item) => {
+            const wrapper = document.createElement('div');
+            const heading = document.createElement('strong');
+            heading.style.fontWeight = '700';
+
+            if (item.link) {
+                const link = document.createElement('a');
+                link.href = item.link;
+                link.rel = 'noopener noreferrer';
+                link.textContent = item.name;
+                heading.appendChild(link);
+            } else {
+                heading.textContent = item.name;
+            }
+
+            const caption = document.createElement('p');
+            caption.textContent = item.caption;
+            wrapper.append(heading, caption);
+            return wrapper;
+        };
+
+        data.items.forEach((item) => {
+            if (!item.coordinates) {
+                return;
+            }
+
+            let layer;
+            if (item.shape === 'POINT') {
+                const icon = L.divIcon({
+                    className: 'page-map-div-icon',
+                    iconAnchor: [0, 24],
+                    popupAnchor: [0, -40],
+                    html: '<span class="page-map-pin"></span>'
+                });
+                layer = L.marker(item.coordinates, {icon}).addTo(map);
+                layer.getElement().querySelector('.page-map-pin').style.backgroundColor = item.color;
+                bounds.extend(item.coordinates);
+            } else if (item.shape === 'POLYLINE') {
+                layer = L.polyline(item.coordinates, {
+                    color: item.color,
+                    weight: 3,
+                    opacity: 0.5,
+                    smoothFactor: 1
+                }).addTo(map);
+                bounds.extend(layer.getBounds());
+            } else if (item.shape === 'POLYGON') {
+                layer = L.polygon(item.coordinates, {
+                    color: item.color,
+                    weight: 3,
+                    opacity: 0.5,
+                    smoothFactor: 1
+                }).addTo(map);
+                bounds.extend(layer.getBounds());
+            } else if (item.shape === 'CIRCLE') {
+                layer = L.circle(
+                    [item.coordinates.lat, item.coordinates.lng],
+                    {
+                        radius: item.coordinates.radius,
+                        color: item.color,
+                        weight: 3,
+                        opacity: 0.5,
+                        smoothFactor: 1
+                    }
+                ).addTo(map);
+                bounds.extend(layer.getBounds());
+            }
+
+            if (layer) {
+                layer.bindPopup(popupContent(item));
+                if (item.openPopup) {
+                    layer.openPopup();
+                }
+            }
+        });
+
+        const fitMap = () => {
+            if (bounds.isValid()) {
+                map.fitBounds(bounds);
+                if (data.zoom !== null) {
+                    map.setZoom(data.zoom);
+                }
+            }
+        };
+        fitMap();
+
+        const resizeObserver = new ResizeObserver(() => {
+            map.invalidateSize();
+            fitMap();
+        });
+        resizeObserver.observe(document.getElementById('map{{ map_object.id }}'));
+    })();
+</script>{% endraw %}

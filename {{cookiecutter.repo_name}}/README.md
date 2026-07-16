@@ -121,6 +121,15 @@ The limits can be customized in Django settings:
 | `RSS_FEED_CACHE_TIMEOUT` | `300` | Successful response cache duration in seconds |
 | `RSS_FEED_MAX_REDIRECTS` | `3` | Maximum number of redirects |
 
+## Map content safety
+
+Map coordinates are stored as structured JSON and validated according to their
+shape, including geographic ranges and circle radius. Map data is transferred
+to JavaScript through Django's `json_script`; popup names and captions are
+assigned with `textContent`, and links accept only relative, HTTP or HTTPS URLs.
+Invalid legacy values are omitted from rendering instead of being interpreted
+as code.
+
 ## Deployments
 
 Staging and production use the same Docker architecture on the

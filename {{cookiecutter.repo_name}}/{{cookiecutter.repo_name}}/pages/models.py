@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 
 import logging
+import math
+import re
+from urllib.parse import urlsplit
 
 from colorfield.fields import ColorField
 from baton.fields import BatonAiImageField
@@ -10,6 +13,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import get_script_prefix, reverse_lazy
@@ -790,6 +794,17 @@ class PageContentMap(PageContent):
     def get_render_template(self):
         return "pages/page_content_map.html"
 
+    @property
+    def map_data_id(self):
+        return f"page-map-data-{self.pk}"
+
+    @property
+    def map_data(self):
+        return {
+            "zoom": self.zoom,
+            "items": [item.as_map_data() for item in self.items.all()],
+        }
+
 
 class PageContentMapItem(models.Model):
     class Shape(models.TextChoices):
@@ -806,7 +821,7 @@ class PageContentMapItem(models.Model):
         choices=Shape.choices,
         default=Shape.POINT,
     )
-    coordinates = models.TextField(_("coordinates"))
+    coordinates = models.JSONField(_("coordinates"))
     name = models.CharField(verbose_name=_("name"), max_length=255)
     caption = models.TextField(verbose_name=_("caption"), blank=True, null=True)
     open_popup = models.BooleanField(
@@ -822,9 +837,151 @@ class PageContentMapItem(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        super().clean()
+        try:
+            _validate_map_coordinates(self.shape, self.coordinates)
+        except ValidationError as exc:
+            raise ValidationError({"coordinates": exc.messages}) from exc
+        if self.link:
+            try:
+                _validate_map_link(self.link)
+            except ValidationError as exc:
+                raise ValidationError({"link": exc.messages}) from exc
+
+    def as_map_data(self):
+        try:
+            _validate_map_coordinates(self.shape, self.coordinates)
+            coordinates = self.coordinates
+        except ValidationError:
+            coordinates = None
+
+        try:
+            _validate_map_link(self.link)
+            link = self.link or ""
+        except ValidationError:
+            link = ""
+
+        color = str(self.color)
+        if not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
+            color = "#000000"
+
+        return {
+            "shape": self.shape,
+            "coordinates": coordinates,
+            "name": self.name,
+            "caption": self.caption or "",
+            "openPopup": self.open_popup,
+            "link": link,
+            "color": color,
+        }
+
     class Meta:
         verbose_name = _("Map item")
         verbose_name_plural = _("Map items")
+
+
+def _validate_map_number(value, *, minimum, maximum, label):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValidationError(
+            _("%(label)s must be a number."),
+            params={"label": label},
+        )
+    if not math.isfinite(value) or not minimum <= value <= maximum:
+        raise ValidationError(
+            _("%(label)s must be between %(minimum)s and %(maximum)s."),
+            params={"label": label, "minimum": minimum, "maximum": maximum},
+        )
+
+
+def _validate_map_point(value):
+    if not isinstance(value, list) or len(value) != 2:
+        raise ValidationError(_("A point must contain latitude and longitude."))
+    _validate_map_number(
+        value[0],
+        minimum=-90,
+        maximum=90,
+        label=_("Latitude"),
+    )
+    _validate_map_number(
+        value[1],
+        minimum=-180,
+        maximum=180,
+        label=_("Longitude"),
+    )
+
+
+def _validate_map_coordinates(shape, coordinates):
+    if shape == PageContentMapItem.Shape.POINT:
+        _validate_map_point(coordinates)
+        return
+
+    if shape in {
+        PageContentMapItem.Shape.POLYLINE,
+        PageContentMapItem.Shape.POLYGON,
+    }:
+        minimum_points = 2 if shape == PageContentMapItem.Shape.POLYLINE else 3
+        if not isinstance(coordinates, list) or len(coordinates) < minimum_points:
+            raise ValidationError(
+                _("This shape requires at least %(count)s points."),
+                params={"count": minimum_points},
+            )
+        for point in coordinates:
+            _validate_map_point(point)
+        return
+
+    if shape == PageContentMapItem.Shape.CIRCLE:
+        if not isinstance(coordinates, dict) or not {
+            "lat",
+            "lng",
+            "radius",
+        }.issubset(coordinates):
+            raise ValidationError(
+                _("A circle requires latitude, longitude and radius.")
+            )
+        _validate_map_number(
+            coordinates["lat"],
+            minimum=-90,
+            maximum=90,
+            label=_("Latitude"),
+        )
+        _validate_map_number(
+            coordinates["lng"],
+            minimum=-180,
+            maximum=180,
+            label=_("Longitude"),
+        )
+        _validate_map_number(
+            coordinates["radius"],
+            minimum=0.000001,
+            maximum=40_075_000,
+            label=_("Radius"),
+        )
+        return
+
+    raise ValidationError(_("Unknown map shape."))
+
+
+def _validate_map_link(link):
+    if not link:
+        return
+    if any(ord(character) < 32 for character in link):
+        raise ValidationError(_("The map link contains invalid characters."))
+    if link.startswith("/") and not link.startswith("//"):
+        return
+    try:
+        parsed = urlsplit(link)
+    except ValueError as exc:
+        raise ValidationError(_("Enter a valid map link.")) from exc
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+    ):
+        raise ValidationError(
+            _("Map links must be relative URLs or use HTTP or HTTPS.")
+        )
 
 
 class PageContentVideo(PageContent):
