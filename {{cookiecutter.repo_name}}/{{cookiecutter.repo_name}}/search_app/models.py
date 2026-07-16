@@ -17,6 +17,9 @@ class Searchable(models.Model):
         get_absolute_url(): Returns the canonical URL for an instance of the model.
                             This MUST be overridden by the child model to provide
                             a link to the object in the search results.
+        get_search_queryset(request): Returns only the objects discoverable by
+                                      the current request. This MUST be overridden
+                                      by the child model.
     """
     search_fields = []
 
@@ -43,3 +46,9 @@ class Searchable(models.Model):
             )
         return cls.search_fields
 
+    @classmethod
+    def get_search_queryset(cls, request):
+        """Return objects the current request is allowed to discover."""
+        raise ImproperlyConfigured(
+            f"{cls.__name__} must define a get_search_queryset(request) method."
+        )

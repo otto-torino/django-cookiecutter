@@ -42,17 +42,17 @@ def render_page(request, p):
     """
     Internal interface to the page view.
     """
-    # If registration is required for accessing this page, and the user isn't
-    # logged in, redirect to the login page.
-    if p.registration_required and not request.user.is_authenticated:
-        from django.contrib.auth.views import redirect_to_login
+    if not p.is_accessible_by(request.user):
+        if (
+            p.status == Page.PUBLISHED
+            and p.registration_required
+            and not request.user.is_authenticated
+        ):
+            from django.contrib.auth.views import redirect_to_login
 
-        return redirect_to_login(request.path)
-    
-    # If page is not pusblished and user does not have permission to edit, raise 404
-    if p.status != Page.PUBLISHED and not request.user.has_perm('pages.change_page'):
+            return redirect_to_login(request.path)
         raise Http404
-    
+
     if p.template_name:
         template = loader.select_template((p.template_name, DEFAULT_TEMPLATE))
     else:

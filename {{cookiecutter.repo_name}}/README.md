@@ -84,6 +84,26 @@ For example:
 make manage cmd="migrate"
 ```
 
+## Page access policy
+
+Page visibility is centralized and shared by page views, search, sitemaps and
+template tags:
+
+- published pages without access restrictions are public;
+- restricted pages without selected users or groups are available to any
+  authenticated user;
+- when users or groups are selected, access is granted to explicitly selected
+  users or members of an allowed group;
+- users with the `pages.change_page` permission can preview drafts and
+  restricted pages;
+- sitemaps contain only public pages for the current site.
+
+Every model inheriting from `Searchable` must explicitly implement
+`get_search_queryset(request)` and return only the objects the current request
+is allowed to discover. Search fails with `ImproperlyConfigured` when this
+policy is omitted, preventing a new searchable model from exposing all its
+records by default.
+
 ## Deployments
 
 Staging and production use the same Docker architecture on the

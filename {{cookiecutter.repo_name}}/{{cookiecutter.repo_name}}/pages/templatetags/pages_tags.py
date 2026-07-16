@@ -58,7 +58,7 @@ class PageNode(template.Node):
             site_pk = get_current_site(context['request']).pk
         else:
             site_pk = settings.SITE_ID
-        pages = Page.objects.filter(sites__id=site_pk)
+        pages = Page.objects.for_site(site_pk)
         # If a prefix was specified, add a filter
         if self.starts_with and not self.single:
             pages = pages.filter(
@@ -67,20 +67,16 @@ class PageNode(template.Node):
             pages = pages.filter(
                 url=self.starts_with.resolve(context))
 
-        if self.single:
-            context[self.context_name] = pages.filter(registration_required=False).first() # noqa
-            return ''
-
-        # If the provided user is not authenticated, or no user
-        # was provided, filter the list to only public pages.
         if self.user:
             user = self.user.resolve(context)
-            if not user.is_authenticated:
-                pages = pages.filter(registration_required=False)
+        elif self.single and "request" in context:
+            user = context["request"].user
         else:
-            pages = pages.filter(registration_required=False)
+            user = None
 
-        context[self.context_name] = pages
+        pages = pages.accessible_by(user)
+
+        context[self.context_name] = pages.first() if self.single else pages
         return ''
 
 
@@ -178,4 +174,3 @@ def random_uid(length=12):
     """Generate a random alphanumeric string of given length (default: 12)."""
     chars = string.ascii_letters + string.digits
     return "".join(random.choices(chars, k=length))
-

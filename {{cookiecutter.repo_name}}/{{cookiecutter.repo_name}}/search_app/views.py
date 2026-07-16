@@ -52,14 +52,14 @@ def search_view(request):
 
         for model in searchable_models:
             search_fields = model.get_search_fields()
-            search_vector = SearchVector(*search_fields)
+            search_vector = SearchVector(*search_fields, config=pg_search_config)
 
             headline_annotations = {
                 f'headline_{field}': SearchHeadline(field, search_query, config=pg_search_config, **headline_options)
                 for field in search_fields
             }
 
-            queryset = model.objects.annotate(
+            queryset = model.get_search_queryset(request).annotate(
                 search=search_vector,
                 rank=SearchRank(search_vector, search_query),
                 **headline_annotations

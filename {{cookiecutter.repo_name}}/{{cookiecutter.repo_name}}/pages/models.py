@@ -194,6 +194,16 @@ class Page(TimeStampedModel, Searchable):
     def __str__(self):
         return "%s -- %s" % (self.url, self.title)
 
+    def is_accessible_by(self, user):
+        if not self.pk:
+            return False
+        return type(self).objects.filter(pk=self.pk).accessible_by(user).exists()
+
+    @classmethod
+    def get_search_queryset(cls, request):
+        site = Site.objects.get_current(request)
+        return cls.objects.accessible_by(request.user, site=site)
+
     def get_absolute_url(self):
         # Handle script prefix manually because we bypass reverse()
         return iri_to_uri(
