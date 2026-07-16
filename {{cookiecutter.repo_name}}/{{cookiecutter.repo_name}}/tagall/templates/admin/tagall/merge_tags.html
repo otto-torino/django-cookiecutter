@@ -1,0 +1,39 @@
+{% raw %}{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block form_top %}
+  {{ block.super }}
+  <input type="hidden" name="action" value="merge_tags">
+  <input type="hidden" name="apply" value="1">
+  {% for tag in queryset %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ tag.pk }}">
+  {% endfor %}
+  {{ form.tags }}
+{% endblock %}
+
+{% block field_sets %}
+  <fieldset class="module aligned">
+    <h2>{% trans "Selected tags" %}</h2>
+    <div class="form-row">
+      <div>
+        <p>
+          {% trans "Choose which tag to keep. All relations from the other selected tags will be moved to it, then those tags will be deleted." %}
+        </p>
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        {% for tag in queryset %}
+          <p><strong>{{ tag.name }}</strong><br><code>{{ tag.slug }}</code></p>
+        {% endfor %}
+      </div>
+    </div>
+  </fieldset>
+  {{ block.super }}
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+  <div class="submit-row">
+    <input type="submit" value="{% trans 'Merge tags' %}" class="default" name="_merge_tags">
+  </div>
+{% endblock %}{% endraw %}

@@ -35,6 +35,7 @@ if context["use_translations"] != "y":
     files_to_remove = [
         f"./{repo_name}/pages/translation.py",
         f"./{repo_name}/cabinet/translation.py",
+        f"./{repo_name}/tagall/translation.py",
         f"./{repo_name}/{core_name}/translation.py",
     ]
     for f in files_to_remove:
@@ -59,7 +60,7 @@ docker_run(
 
 # 5. Create initial migrations
 print("Applying initial migrations...")
-migrate_apps = "core pages"
+migrate_apps = "core tagall pages"
 if context["use_cabinet"] == "y":
     migrate_apps += " cabinet"
 docker_run(f"source /home/app/venv/bin/activate && cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py makemigrations {migrate_apps}")

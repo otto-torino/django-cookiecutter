@@ -30,7 +30,8 @@ The generated project provides:
 - a custom user model, pages, search and an optional file cabinet app;
 - Editor.js, django-baton, django-compressor, django-cleanup,
   django-extensions, django-lineup, django-preferences-utils,
-  django-subject-imagefield, django-taggit and django-web-components;
+  django-subject-imagefield, django-web-components and the bundled `tagall`
+  tagging app;
 - optional django-modeltranslation and sorl-thumbnail integration;
 - a Makefile for common development tasks;
 - self-contained Docker deployments for staging and production, published only

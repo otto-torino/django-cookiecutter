@@ -8,6 +8,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -18,8 +19,6 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django_extensions.db.models import TimeStampedModel
 from editor_js.fields import EditorJSField
-from taggit.managers import ContentType
-from taggit_autosuggest.managers import TaggableManager
 from .managers import PageContentQuerySet, PageManager
 from search_app.models import Searchable
 
@@ -82,7 +81,12 @@ class Page(TimeStampedModel, Searchable):
     )
     alt_text = models.CharField(_("alt text"), max_length=200, blank=True)
     subject_location = models.CharField(max_length=7, default="50,50")
-    tags = TaggableManager(_("tags"), blank=True)
+    tags = models.ManyToManyField(
+        "tagall.Tag",
+        verbose_name=_("tags"),
+        related_name="pages",
+        blank=True,
+    )
     template_name = models.CharField(
         _("template name"),
         max_length=70,

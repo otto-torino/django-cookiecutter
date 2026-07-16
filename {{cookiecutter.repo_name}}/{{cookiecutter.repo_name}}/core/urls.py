@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
 from django.contrib.sitemaps.views import sitemap
 from pages.sitemap import PageSitemap
+from tagall.views import TagallCreateTagsView
 {% if cookiecutter.use_cabinet == 'y' %}
 from cabinet.views import editor_js_image_upload
 {% endif %}
@@ -52,13 +53,12 @@ translatable_urlpatterns = [
     path("__reload__/", include("django_browser_reload.urls")),
     # admin
     path('admin/', admin.site.urls),
+    path("baton/create-tags/", TagallCreateTagsView.as_view(), name="baton-create-tags"),
     path('baton/', include('baton.urls')),
     {% if cookiecutter.use_cabinet == 'y' %}
     path('editor-js/editor-js-image-upload/', editor_js_image_upload, name='editor_js_image_upload'),
     {% endif %}
     path('editor-js/', include('editor_js.urls')),
-    # taggit autosuggest
-    path("taggit_autosuggest/", include("taggit_autosuggest.urls")),
     {% if cookiecutter.use_cabinet == 'y' %}
     # cabinet
     path("cabinet/", include("cabinet.urls", namespace="cabinet")),

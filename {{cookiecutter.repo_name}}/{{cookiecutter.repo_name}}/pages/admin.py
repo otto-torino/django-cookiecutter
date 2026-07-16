@@ -39,8 +39,6 @@ from .models import (
     PageContentTextImage,
     PageContentVideo,
 )
-from taggit.models import TaggedItem
-
 logger = logging.getLogger(__name__)
 
 
@@ -104,10 +102,20 @@ class PageAdmin({% if cookiecutter.use_translations == "y" %}TranslationAdmin, {
         "status",
     )
     filter_horizontal = (
+        "tags",
         "users",
         "groups",
     )
     search_fields = ("url", "title")
+    baton_tag_suggestion_fields = {
+        "tags": {
+            "source_fields": ["title", "meta_title", "meta_description"],
+            "label_field": "name",
+            "max_suggestions": 8,
+            "existing_limit": 2000,
+            "allow_new": True,
+        },
+    }
 
     @admin.display(description=_("Contents"))
     def edit_contents(self, obj):

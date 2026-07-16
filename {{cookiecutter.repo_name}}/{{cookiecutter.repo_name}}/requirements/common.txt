@@ -7,8 +7,6 @@ dj-editor-js==0.3.0
 django-compressor==4.6.0
 django-cleanup==9.0.0
 django-extensions==4.1
-django-taggit==6.1.0
-django-taggit-autosuggest==0.4.2
 django-tailwind==4.5.0
 django-colorfield==0.14.0
 django-lineup==1.0.0
@@ -17,7 +15,7 @@ django-modeltranslation==0.20.3
 {% endif %}
 django-preferences-utils==0.1.0
 django-subject-imagefield==0.2.13
-django-baton==5.5.0
+django-baton==5.6.1
 {% if cookiecutter.use_sorl_thumbnail == 'y' %}
 sorl-thumbnail==13.0.0
 {% endif %}

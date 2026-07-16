@@ -63,6 +63,7 @@ AUTH_PASSWORD_VALIDATORS = [
 INSTALLED_APPS = (
     # Initial apps
     'core',
+    'tagall',
     {% if cookiecutter.use_translations == 'y' %}'modeltranslation',{% endif %}
     'baton',
 
@@ -89,7 +90,6 @@ INSTALLED_APPS = (
     {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'django_cleanup',
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}'sorl.thumbnail',{% endif %}
-    'taggit',
     'lineup',
 
     # Custom apps
@@ -217,8 +217,9 @@ BATON = {
         {'type': 'title', 'label': 'Navigation',  'apps': ('lineup', ), 'icon': 'menu', 'children': [
             {'type': 'model', 'app': 'lineup', 'name': 'menuitem', 'label': 'Menu',},
         ]},
-         {'type': 'title', 'label': 'Contents',  'apps': ('pages', ), 'icon': 'description', 'default_open': True, 'children': [
+         {'type': 'title', 'label': 'Contents',  'apps': ('pages', 'tagall', ), 'icon': 'description', 'default_open': True, 'children': [
             {'type': 'model', 'app': 'pages', 'name': 'page', 'label': 'Pages',},
+            {'type': 'model', 'app': 'tagall', 'name': 'tag', 'label': 'Tags',},
         ]},
     ),
     'COPYRIGHT': current_site_copyright(),
@@ -229,9 +230,6 @@ BATON = {
 {% if cookiecutter.use_cabinet == 'y' %}
 CABINET_FILE_MODEL = "cabinet.File"
 {% endif %}
-
-# TAGGIT
-TAGGIT_CASE_INSENSITIVE = True
 
 # EDITOR.JS
 EDITOR_JS = {
