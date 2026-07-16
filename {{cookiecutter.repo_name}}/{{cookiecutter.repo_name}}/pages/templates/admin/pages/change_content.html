@@ -7,18 +7,10 @@
     <link rel="stylesheet" href="{% static 'pages/src/css/changelist.css' %}">
 
     <!-- Swiper -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/swiper@11.2.10/swiper-bundle.min.css"
-          integrity="sha384-gAPqlBuTCdtVcYt9ocMOYWrnBZ4XSL6q+4eXqwNycOr4iFczhNKtnYhF3NEXJM51"
-          crossorigin="anonymous" />
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11.2.10/swiper-bundle.min.js"
-            integrity="sha384-2UI1PfnXFjVMQ7/ZDEF70CR943oH3v6uZrFQGGqJYlvhh4g6z6uVktxYbOlAczav"
-            crossorigin="anonymous"></script>
+    {% include 'includes/swiper_assets.html' %}
 
     <!-- Sortable -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"
-            integrity="sha384-DgmC6Xe2bSN2WjTDXzWYbUbxyhNP+NNkGDR/g78pCXV7E7rcVTGxVg0uIVCUUcBc"
-            crossorigin="anonymous"></script>
+    <script src="{% static 'core/src/vendor/sortablejs/Sortable.min.js' %}"></script>
 
     <!-- PhotoSwipe -->
     <script src="{% static 'core/src/vendor/photoswipe/photoswipe-lightbox.umd.min.js' %}"></script>
@@ -29,13 +21,8 @@
     <link rel="stylesheet" href="{% static 'core/src/vendor/photoswipe/photoswipe-dynamic-caption-plugin.css' %}"></link>
 
     <!-- Leaflet -->
-    <link rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H"
-          crossorigin="anonymous" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"
-            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'core/src/vendor/leaflet/leaflet.css' %}" />
+    <script src="{% static 'core/src/vendor/leaflet/leaflet.js' %}"></script>
 {% endblock %}
 
 {% if not is_popup %}

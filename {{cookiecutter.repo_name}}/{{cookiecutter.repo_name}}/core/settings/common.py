@@ -30,6 +30,10 @@ SITE_ID = 1
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
 
+# Optional cookie-consent widget. Empty by default, so no external asset or
+# placeholder URL is rendered until an environment provides a real code.
+COOKIERULEZ_WIDGET_CODE = getenv('COOKIERULEZ_WIDGET_CODE', '').strip()
+
 # REMOTE RSS FEEDS
 RSS_FEED_TIMEOUT = 5
 RSS_FEED_MAX_BYTES = 2 * 1024 * 1024
@@ -137,6 +141,7 @@ TEMPLATES = [
                 'preferences_utils.context_processors.preferences.pref',
                 'core.context_processors.debug',
                 'core.context_processors.absurl',
+                'core.context_processors.cookierulez',
             ],
             "builtins": [
                 "django_web_components.templatetags.components",

@@ -237,6 +237,11 @@ optional Environment variable `LOG_LEVEL` accepts `DEBUG`, `INFO`, `WARNING`,
 `ERROR` or `CRITICAL` and defaults to `INFO`. HTTP errors still use
 `mail_admins` in addition to the single stdout record.
 
+The Cookierulez widget is disabled by default. Define the optional Environment
+variable `COOKIERULEZ_WIDGET_CODE` to its real widget code to load the external
+cookie-consent CSS and script. When the variable is empty, no Cookierulez URL
+is rendered in public pages.
+
 The workflow validates every required value before building. The Compose files
 also declare those values as mandatory, so a deployment cannot silently start
 with fallback credentials or domains.
@@ -372,6 +377,7 @@ EMAIL_TIMEOUT=10
 DEFAULT_FROM_EMAIL={{ cookiecutter.email }}
 SERVER_EMAIL={{ cookiecutter.email }}
 LOG_LEVEL=INFO
+COOKIERULEZ_WIDGET_CODE=
 ```
 
 Deploy or restart production with:

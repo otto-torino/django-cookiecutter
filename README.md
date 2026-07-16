@@ -150,6 +150,8 @@ Each GitHub Environment must define:
 - optional SMTP variables and secrets; without `EMAIL_HOST`, messages are
   written to container stdout;
 - optional variable: `LOG_LEVEL` (defaults to `INFO`);
+- optional variable: `COOKIERULEZ_WIDGET_CODE`; the external widget is disabled
+  when empty;
 - optional secret: `WEBHOOK_KCHAT`, for deploy notifications.
 
 The GitHub organization must also expose the repository-specific Actions

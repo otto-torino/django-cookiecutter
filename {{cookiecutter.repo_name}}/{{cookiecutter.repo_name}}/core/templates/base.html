@@ -33,6 +33,7 @@
 
             <link rel="stylesheet" href="{% static 'core/src/vendor/photoswipe/photoswipe.css' %}" />
             <link rel="stylesheet" href="{% static 'core/src/vendor/photoswipe/photoswipe-dynamic-caption-plugin.css' %}" />
+            {% include 'includes/swiper_assets.html' %}
 
             {% block extra_css %}{% endblock extra_css %}
 
@@ -61,8 +62,10 @@
                 </div>
             </footer>
 
-            <!-- Cookierulez -->
-            <link href="https://cookierulez.sqrt64.it/static/widget/css/widget.css" rel="stylesheet" />
-            <script src="https://cookierulez.sqrt64.it/widget/[WRITE WIDGET CODE HERE]"></script>
+            {% if COOKIERULEZ_WIDGET_CODE %}
+                <!-- Cookierulez cookie-consent widget -->
+                <link href="https://cookierulez.sqrt64.it/static/widget/css/widget.css" rel="stylesheet" />
+                <script src="https://cookierulez.sqrt64.it/widget/{{ COOKIERULEZ_WIDGET_CODE|urlencode:'' }}"></script>
+            {% endif %}
         </body>
 </html>{% endraw %}

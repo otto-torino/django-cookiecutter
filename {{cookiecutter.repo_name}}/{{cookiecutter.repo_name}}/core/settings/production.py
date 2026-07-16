@@ -106,11 +106,11 @@ _security_middleware = 'django.middleware.security.SecurityMiddleware'
 _idx = list(MIDDLEWARE).index(_security_middleware) + 1
 MIDDLEWARE = MIDDLEWARE[:_idx] + ('whitenoise.middleware.WhiteNoiseMiddleware',) + MIDDLEWARE[_idx:]
 
-# Not the hashed/manifest variant: some vendored static assets (e.g. swiper)
-# reference sourcemaps that aren't shipped alongside them, and Django's hashed
-# storage rewrites (and hard-fails collectstatic over) such missing references.
-# Plain compression avoids that whole class of problem, at the cost of not having
-# content-hashed cache-busting filenames.
+# Not the hashed/manifest variant yet: the remaining legacy vendor inventory
+# still needs a dedicated reference audit. Current Swiper and Leaflet bundles
+# include their source maps and relative image assets. Plain compression avoids
+# deployment regressions while that cleanup is completed, at the cost of not
+# having content-hashed cache-busting filenames.
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",

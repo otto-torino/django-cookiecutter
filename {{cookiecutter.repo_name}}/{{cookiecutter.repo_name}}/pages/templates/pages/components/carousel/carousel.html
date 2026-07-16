@@ -40,24 +40,31 @@
     const hideBullets = {{ config.hide_bullets|yesno:"true,false" }};
     const hasNavButtons = {{ config.enable_nav_buttons|yesno:"true,false" }};
     const hasScrollbar = {{ config.enable_scrollbar|yesno:"true,false" }};
+    const root = document.getElementById('{{ attributes.id|escapejs }}');
 
-    const swiper = new Swiper('#{{ attributes.id }}', {
+    if (!root || typeof Swiper === 'undefined') return;
+
+    new Swiper(root, {
       slidesPerView: {{ config.slides_per_view }},
-      direction: '{{ config.direction }}',
-      effect: '{{ attributes.effect }}',
+      direction: '{{ config.direction|escapejs }}',
+      effect: '{{ config.effect|escapejs }}',
       loop: {{ config.loop|yesno:"true,false" }},
       // If we need pagination
-      ...(!hideBullets && { pagination: { el: '.swiper-pagination' } }),
+      ...(!hideBullets && {
+        pagination: { el: root.querySelector('.swiper-pagination') },
+      }),
 
       // Navigation arrows
-      /* ...(hasNavButtons && { */
+      ...(hasNavButtons && {
         navigation: {
-          nextEl: '.swiper-next',
-          prevEl: '.swiper-prev',
+          nextEl: root.querySelector('.swiper-next'),
+          prevEl: root.querySelector('.swiper-prev'),
         },
-      /* }), */
+      }),
       // And if we need scrollbar
-      ...(hasScrollbar && { scrollbar: { el: '.swiper-scrollbar' } }),
-    })
+      ...(hasScrollbar && {
+        scrollbar: { el: root.querySelector('.swiper-scrollbar') },
+      }),
+    });
   })()
 </script>{% endraw %}

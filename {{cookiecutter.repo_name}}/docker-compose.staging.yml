@@ -26,6 +26,7 @@ services:
       DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-{{ cookiecutter.email }}}
       SERVER_EMAIL: ${SERVER_EMAIL:-{{ cookiecutter.email }}}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      COOKIERULEZ_WIDGET_CODE: ${COOKIERULEZ_WIDGET_CODE:-}
       DB_HOST: 127.0.0.1
       DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME:?Set DB_NAME}
