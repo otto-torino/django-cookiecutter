@@ -40,6 +40,38 @@ SECURE_HSTS_SECONDS = int(getenv('SECURE_HSTS_SECONDS', '3600'))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 SECURE_HSTS_PRELOAD = False
 
+
+def _env_bool(name, default=False):
+    value = getenv(name)
+    if value is None or value == '':
+        return default
+    normalized = value.strip().lower()
+    if normalized not in {'1', 'true', 'yes', 'on', '0', 'false', 'no', 'off'}:
+        raise ValueError(f'{name} must be a boolean value')
+    return normalized in {'1', 'true', 'yes', 'on'}
+
+
+# Without an SMTP host, messages are written to container stdout instead of
+# attempting a connection to localhost. Defining EMAIL_HOST automatically
+# selects SMTP unless EMAIL_BACKEND explicitly chooses another backend.
+EMAIL_HOST = getenv('EMAIL_HOST', '').strip()
+EMAIL_BACKEND = getenv('EMAIL_BACKEND') or (
+    'django.core.mail.backends.smtp.EmailBackend'
+    if EMAIL_HOST
+    else 'django.core.mail.backends.console.EmailBackend'
+)
+EMAIL_PORT = int(getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = _env_bool('EMAIL_USE_TLS', default=True)
+EMAIL_USE_SSL = _env_bool('EMAIL_USE_SSL', default=False)
+EMAIL_TIMEOUT = int(getenv('EMAIL_TIMEOUT', '10'))
+DEFAULT_FROM_EMAIL = getenv('DEFAULT_FROM_EMAIL', '{{ cookiecutter.email }}')
+SERVER_EMAIL = getenv('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise ValueError('EMAIL_USE_TLS and EMAIL_USE_SSL are mutually exclusive')
+
 # Paths are container-absolute (see compose/app/Dockerfile.production's WORKDIR /app),
 # not host paths - the app never runs on bare metal in production.
 STATIC_ROOT = getenv('STATIC_ROOT', '/app/static')

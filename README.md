@@ -147,6 +147,8 @@ Each GitHub Environment must define:
 - secrets: `SECRET_KEY`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`;
 - variables: `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`;
 - optional variable: `SECURE_HSTS_SECONDS` (defaults to `3600`);
+- optional SMTP variables and secrets; without `EMAIL_HOST`, messages are
+  written to container stdout;
 - optional secret: `WEBHOOK_KCHAT`, for deploy notifications.
 
 The GitHub organization must also expose the repository-specific Actions

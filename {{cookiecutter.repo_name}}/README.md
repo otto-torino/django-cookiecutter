@@ -218,6 +218,20 @@ this repository.
 `WEBHOOK_KCHAT` is an optional Environment secret used for deployment
 notifications. The workflow skips the notification when it is empty.
 
+Email delivery is optional. Without `EMAIL_HOST`, production writes messages
+to container stdout instead of connecting to `localhost`. To enable SMTP, set
+these optional GitHub Environment values:
+
+- variables: `EMAIL_HOST`, `EMAIL_PORT` (default `587`), `EMAIL_USE_TLS`
+  (default `true`), `EMAIL_USE_SSL` (default `false`), `EMAIL_TIMEOUT` (default
+  `10`), `DEFAULT_FROM_EMAIL` and `SERVER_EMAIL`;
+- secrets: `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD`.
+
+Setting `EMAIL_HOST` selects Django's SMTP backend automatically. For a custom
+backend, also define `EMAIL_BACKEND`. TLS and SSL are mutually exclusive; for
+implicit TLS use port `465`, set `EMAIL_USE_TLS=false` and
+`EMAIL_USE_SSL=true`.
+
 The workflow validates every required value before building. The Compose files
 also declare those values as mandatory, so a deployment cannot silently start
 with fallback credentials or domains.
@@ -343,6 +357,15 @@ DB_USER={{ cookiecutter.db_user }}
 DB_PASSWORD=replace-with-a-database-password
 APP_PORT=PRODUCTION_PORT
 SECURE_HSTS_SECONDS=3600
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=replace-with-smtp-user
+EMAIL_HOST_PASSWORD=replace-with-smtp-password
+EMAIL_USE_TLS=true
+EMAIL_USE_SSL=false
+EMAIL_TIMEOUT=10
+DEFAULT_FROM_EMAIL={{ cookiecutter.email }}
+SERVER_EMAIL={{ cookiecutter.email }}
 ```
 
 Deploy or restart production with:

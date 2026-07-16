@@ -26,6 +26,16 @@ jobs:
       ALLOWED_HOSTS: {% raw %}${{ vars.ALLOWED_HOSTS }}{% endraw %}
       CSRF_TRUSTED_ORIGINS: {% raw %}${{ vars.CSRF_TRUSTED_ORIGINS }}{% endraw %}
       SECURE_HSTS_SECONDS: {% raw %}${{ vars.SECURE_HSTS_SECONDS }}{% endraw %}
+      EMAIL_BACKEND: {% raw %}${{ vars.EMAIL_BACKEND }}{% endraw %}
+      EMAIL_HOST: {% raw %}${{ vars.EMAIL_HOST }}{% endraw %}
+      EMAIL_PORT: {% raw %}${{ vars.EMAIL_PORT }}{% endraw %}
+      EMAIL_USE_TLS: {% raw %}${{ vars.EMAIL_USE_TLS }}{% endraw %}
+      EMAIL_USE_SSL: {% raw %}${{ vars.EMAIL_USE_SSL }}{% endraw %}
+      EMAIL_TIMEOUT: {% raw %}${{ vars.EMAIL_TIMEOUT }}{% endraw %}
+      DEFAULT_FROM_EMAIL: {% raw %}${{ vars.DEFAULT_FROM_EMAIL }}{% endraw %}
+      SERVER_EMAIL: {% raw %}${{ vars.SERVER_EMAIL }}{% endraw %}
+      EMAIL_HOST_USER: {% raw %}${{ secrets.EMAIL_HOST_USER }}{% endraw %}
+      EMAIL_HOST_PASSWORD: {% raw %}${{ secrets.EMAIL_HOST_PASSWORD }}{% endraw %}
       APP_PORT: {% raw %}${{ vars.{% endraw %}{{ cookiecutter.repo_name | upper | replace('-', '_') }}_STAGING_PORT{% raw %} }}{% endraw %}
       APP_CONTAINER: {{ cookiecutter.repo_name }}_staging
       APP_IMAGE: {{ cookiecutter.repo_name }}_staging_app
