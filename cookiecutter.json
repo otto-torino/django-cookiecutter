@@ -12,7 +12,6 @@
   "project_name": "My New Project",
   "project_description": "My New Project description",
   "repo_name": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
-  "core_name": "core",
   "use_cabinet": "n",
   "use_sorl_thumbnail": "y",
   "use_translations": "n",
@@ -22,8 +21,9 @@
   ],
   "timezone": "Europe/Rome",
   "author": "otto",
-  "email": "logs@otto.to.it",
-  "domain": "example.com",
+  "email": "logs@otto.srl",
+  "staging_port": "20000",
+  "production_port": "10000",
   "db_user": "{{ cookiecutter.repo_name }}",
   "db_user_pwd": ""
 }

@@ -1,0 +1,14 @@
+.git
+.github
+.virtualenv
+logs
+
+**/__pycache__/
+**/*.py[cod]
+**/.DS_Store
+**/node_modules/
+
+{{ cookiecutter.repo_name }}/.env
+{{ cookiecutter.repo_name }}/media/
+{{ cookiecutter.repo_name }}/static/
+{{ cookiecutter.repo_name }}/theme/static/css/dist/

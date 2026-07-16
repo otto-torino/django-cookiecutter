@@ -30,8 +30,8 @@ EMAIL_PORT = 1025
 
 # EDITOR.JS
 EDITOR_JS["CSS_FILES"] = [
-    "{{ cookiecutter.core_name }}/src/scss/styles.css",
-    "{{ cookiecutter.core_name }}/src/css/editor_js.css",
+    "core/src/scss/styles.css",
+    "core/src/css/editor_js.css",
 ]
 
 # DEBUG_TOOLBAR

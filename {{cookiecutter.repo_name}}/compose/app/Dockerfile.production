@@ -1,6 +1,5 @@
-# Multi-stage production image: everything (app, Tailwind build, collectstatic)
-# happens in the builder stage, the runtime stage only ships what's needed to run
-# gunicorn - no Node/build toolchain in the final image.
+# Multi-stage deploy image. The runtime bundles PostgreSQL following the
+# staging convention used by the self-hosted runner.
 
 FROM python:3.12-slim-bookworm AS builder
 
@@ -8,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ={{ cookiecutter.timezone }} \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    DJANGO_SETTINGS_MODULE={{ cookiecutter.core_name }}.settings.production
+    DJANGO_SETTINGS_MODULE=core.settings.production
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -36,9 +35,16 @@ COPY {{cookiecutter.repo_name}}/ .
 
 # Builds theme/static/css/dist/styles.css via npm (same command the old fabric
 # deploy task used), then bakes static assets into the image.
-RUN python manage.py tailwind install --no-input && python manage.py tailwind build
-RUN python manage.py collectstatic --noinput
-RUN python manage.py compilemessages
+RUN SECRET_KEY=docker-build \
+    DB_HOST=localhost \
+    DB_PORT=5432 \
+    DB_NAME=build \
+    DB_USER=build \
+    DB_PASSWORD=build \
+    python manage.py tailwind install --no-input \
+    && python manage.py tailwind build \
+    && python manage.py collectstatic --noinput \
+    && python manage.py compilemessages
 
 FROM python:3.12-slim-bookworm
 
@@ -46,22 +52,35 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ={{ cookiecutter.timezone }} \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    DJANGO_SETTINGS_MODULE={{ cookiecutter.core_name }}.settings.production \
-    PATH="/opt/venv/bin:$PATH"
+    DJANGO_SETTINGS_MODULE=core.settings.production \
+    PATH="/opt/venv/bin:/usr/lib/postgresql/15/bin:$PATH" \
+    STATIC_ROOT=/app/static \
+    MEDIA_ROOT=/app/media \
+    DB_HOST=127.0.0.1 \
+    DB_PORT=5432 \
+    POSTGRES_DATA_DIR=/var/lib/postgresql/data
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+        gosu \
+        gettext \
         libpq5 \
         libjpeg62-turbo \
+        media-types \
+        postgresql \
+        postgresql-client \
         zlib1g \
     && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /app/media
+    && mkdir -p /app/media /var/lib/postgresql/data
 
 WORKDIR /app
 
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /app /app
 COPY compose/app/entrypoint.production.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh \
+    && useradd --system --home /app --shell /usr/sbin/nologin django \
+    && chown -R django:django /app \
+    && chown -R postgres:postgres /var/lib/postgresql
 
 EXPOSE 8000
 ENTRYPOINT ["/entrypoint.sh"]

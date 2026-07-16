@@ -1,14 +1,14 @@
-name: {{ cookiecutter.repo_name }}-production
+name: {{ cookiecutter.repo_name }}-staging
 
 services:
   app:
-    container_name: {{ cookiecutter.repo_name }}_production
+    container_name: {{ cookiecutter.repo_name }}_staging
     build:
       context: .
       dockerfile: compose/app/Dockerfile.production
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${APP_PORT:-{{ cookiecutter.production_port }}}:8000"
+      - "127.0.0.1:${APP_PORT:-{{ cookiecutter.staging_port }}}:8000"
     environment:
       DJANGO_SETTINGS_MODULE: core.settings.production
       SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
@@ -24,9 +24,9 @@ services:
       MEDIA_ROOT: /app/media
       GUNICORN_WORKERS: ${GUNICORN_WORKERS:-4}
     volumes:
-      - {{ cookiecutter.repo_name | replace('-', '_') }}_production_db:/var/lib/postgresql/data
-      - {{ cookiecutter.repo_name | replace('-', '_') }}_production_media:/app/media
+      - {{ cookiecutter.repo_name | replace('-', '_') }}_staging_db:/var/lib/postgresql/data
+      - {{ cookiecutter.repo_name | replace('-', '_') }}_staging_media:/app/media
 
 volumes:
-  {{ cookiecutter.repo_name | replace('-', '_') }}_production_db:
-  {{ cookiecutter.repo_name | replace('-', '_') }}_production_media:
+  {{ cookiecutter.repo_name | replace('-', '_') }}_staging_db:
+  {{ cookiecutter.repo_name | replace('-', '_') }}_staging_media:

@@ -7,6 +7,7 @@ from datetime import datetime
 from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
+from django.utils.functional import lazy
 from django.utils.translation import gettext_lazy as _
 
 load_dotenv()
@@ -61,7 +62,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # APPLICATIONS
 INSTALLED_APPS = (
     # Initial apps
-    '{{ cookiecutter.core_name }}',
+    'core',
     {% if cookiecutter.use_translations == 'y' %}'modeltranslation',{% endif %}
     'baton',
 
@@ -112,7 +113,7 @@ MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = '{{ cookiecutter.core_name }}.urls'
+ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
@@ -128,8 +129,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'preferences_utils.context_processors.preferences.pref',
-                '{{ cookiecutter.core_name }}.context_processors.debug',
-                '{{ cookiecutter.core_name }}.context_processors.absurl',
+                'core.context_processors.debug',
+                'core.context_processors.absurl',
             ],
             "builtins": [
                 "django_web_components.templatetags.components",
@@ -138,7 +139,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = '{{ cookiecutter.core_name }}.wsgi.application'
+WSGI_APPLICATION = 'core.wsgi.application'
 
 # THEME
 TAILWIND_APP_NAME = 'theme'
@@ -176,7 +177,25 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 # ADMIN
 
-YEAR = datetime.now().year
+
+def _current_site_copyright():
+    """Build the admin copyright from the current Site (django.contrib.sites).
+
+    Evaluated lazily (at render time, not settings-import time) so it reads the
+    live Site row from the DB - this way the domain/name differs automatically
+    between environments (staging vs production) without baking it into settings.
+    Falls back to the project name if the sites table isn't available yet
+    (e.g. during collectstatic at image build, before migrations run).
+    """
+    try:
+        from django.contrib.sites.models import Site
+        name = Site.objects.get_current().name
+    except Exception:
+        name = '{{ cookiecutter.project_name }}'
+    return '© %d %s' % (datetime.now().year, name)
+
+
+current_site_copyright = lazy(_current_site_copyright, str)
 
 BATON = {
     'SITE_HEADER': '{{ cookiecutter.project_name }}',
@@ -202,9 +221,9 @@ BATON = {
             {'type': 'model', 'app': 'pages', 'name': 'page', 'label': 'Pages',},
         ]},
     ),
-    'COPYRIGHT': '© %d {{ cookiecutter.domain }}' % YEAR,
-    'SUPPORT_HREF': 'mailto:stefano.contini@otto.to.it',
-    'POWERED_BY': '<a href="https://www.otto.to.it">Otto</a>'
+    'COPYRIGHT': current_site_copyright(),
+    'SUPPORT_HREF': 'mailto:mail@otto.srl',
+    'POWERED_BY': '<a href="https://www.otto.srl">Otto</a>'
 }
 
 {% if cookiecutter.use_cabinet == 'y' %}
@@ -217,7 +236,7 @@ TAGGIT_CASE_INSENSITIVE = True
 # EDITOR.JS
 EDITOR_JS = {
     "CSS_FILES": [
-        "{{ cookiecutter.core_name }}/src/css/editor_js.css",
+        "core/src/css/editor_js.css",
     ],
 }
 
@@ -292,7 +311,7 @@ LOGGING = {
             'propagate': False,
             'level':'DEBUG',
         },
-        '{{ cookiecutter.core_name }}': LOGGING_DEFAULT,
+        'core': LOGGING_DEFAULT,
         '':                             LOGGING_DEFAULT,# root logger
     },
 }

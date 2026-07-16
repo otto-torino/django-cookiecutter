@@ -10,7 +10,7 @@ THEME_APP_NAME = "theme"
 theme_path_on_host = os.path.join(THEME_APP_NAME)
 context = {{cookiecutter}}
 repo_name = context["repo_name"]
-core_name = context["core_name"]
+core_name = "core"
 
 # --- Helper function for docker commands ---
 def docker_run(command, workdir=f"/home/app/{repo_name}"):

@@ -1,5 +1,5 @@
 '''This module sets the configuration for production, running fully inside Docker
-behind a Traefik reverse proxy that terminates TLS.
+behind the host's Nginx reverse proxy, which terminates TLS.
 
 '''
 from .common import *
@@ -7,17 +7,33 @@ from .common import *
 DEBUG = False
 THUMBNAIL_DEBUG = False
 
-ALLOWED_HOSTS = ['{{ cookiecutter.domain }}',]
+# ALLOWED_HOSTS / CSRF_TRUSTED_ORIGINS are supplied per-environment via the
+# GitHub Environment variables and are mandatory at deploy time: the Compose
+# files declare them as ${...:?} and the deploy workflow aborts if unset, so the
+# real domain always arrives via the env var. The 'example.com' default here is
+# only a harmless placeholder for build-time commands (collectstatic /
+# compilemessages) that run production settings without serving requests.
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in getenv('ALLOWED_HOSTS', 'example.com').split(',')
+    if host.strip()
+]
 
-# Traefik terminates TLS and proxies to the app container over plain HTTP.
-CSRF_TRUSTED_ORIGINS = ['https://{{ cookiecutter.domain }}']
+# The host's Nginx terminates TLS and proxies to the loopback-bound container.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in getenv(
+        'CSRF_TRUSTED_ORIGINS', 'https://example.com'
+    ).split(',')
+    if origin.strip()
+]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
 # Paths are container-absolute (see compose/app/Dockerfile.production's WORKDIR /app),
 # not host paths - the app never runs on bare metal in production.
-STATIC_ROOT = '/app/static'
-MEDIA_ROOT = '/app/media'
+STATIC_ROOT = getenv('STATIC_ROOT', '/app/static')
+MEDIA_ROOT = getenv('MEDIA_ROOT', '/app/media')
 
 # Log to stdout only: the container runtime (docker logs / CI) captures it, no
 # host log directory or rotation needed. Every logger below references the
@@ -48,5 +64,5 @@ STORAGES = {
 # EDITOR.JS
 EDITOR_JS["CSS_FILES"] = [
     "css/dist/styles.css",
-    "{{ cookiecutter.core_name }}/src/css/editor_js.css",
+    "core/src/css/editor_js.css",
 ]

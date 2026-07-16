@@ -16,7 +16,8 @@ Yet another django cookiecutter template.
 * Local environment running inside 4 docker containers, one for the app, one for the database, one for the mail service and one for tailwind.
 * Development ready django project with all packages installed and database created and ready to go.
 * Makefile with common dev tasks.
-* Fully Dockerized production stack (app + Postgres, fronted by Traefik) deployed via GitHub Actions on a self-hosted runner.
+* Fully Dockerized deployment (app with embedded Postgres), fronted by the
+  host's Nginx and deployed via GitHub Actions on a self-hosted runner.
 
 Project details:
 
@@ -111,13 +112,16 @@ Your new cool installation comes with a Makefile you can use to launch commands 
 
 > After the first start, uncomment the theme app inside the settings common file.
 
-## Production / Deploy
+## Staging deploy
 
-Production runs entirely in Docker (app + Postgres containers, fronted by a shared Traefik reverse proxy
-already running on the host) and deploys via the `.github/workflows/deploy.yml` GitHub Actions workflow,
-triggered on every push to `main` and running on a self-hosted runner with direct access to the target host.
-See the generated project's own README for the exact one-time host setup (a manually created `.env` and a
-pre-existing `traefik-public` Docker network) and manual deploy/log commands.
+Staging runs in Docker and is deployed by
+`.github/workflows/deploy_staging.yml` on pushes to `staging`. The workflow
+runs on the self-hosted `zoro` runner and publishes the application only on a
+project-specific `127.0.0.1:200xx` port.
+
+The host's Nginx proxies the public domain to that loopback port and Certbot
+manages TLS. See the generated project's README for GitHub Environment
+configuration, the one-time Nginx host setup and manual deploy/log commands.
 
 ## Starting from cloned project
 

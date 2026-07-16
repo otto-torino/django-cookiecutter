@@ -81,8 +81,8 @@ urlpatterns += translatable_urlpatterns
 {% endif %}
 
 
-# Serve media files from MEDIA_ROOT. There's no separate web server (e.g. nginx) in
-# front of the app in production - Traefik only reverse-proxies to it - so Django
+# Serve media files from MEDIA_ROOT. The host's Nginx only reverse-proxies to the
+# application port and cannot read the container volume directly, so Django
 # itself must serve MEDIA_URL in all environments, not just DEBUG.
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

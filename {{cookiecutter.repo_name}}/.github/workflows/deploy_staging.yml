@@ -1,0 +1,107 @@
+name: Deploy staging
+
+on:
+  push:
+    branches:
+      - "staging"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, zoro]
+    environment: staging
+    env:
+      SECRET_KEY: {% raw %}${{ secrets.SECRET_KEY }}{% endraw %}
+      DB_NAME: {% raw %}${{ secrets.DB_NAME }}{% endraw %}
+      DB_USER: {% raw %}${{ secrets.DB_USER }}{% endraw %}
+      DB_PASSWORD: {% raw %}${{ secrets.DB_PASSWORD }}{% endraw %}
+      ALLOWED_HOSTS: {% raw %}${{ vars.ALLOWED_HOSTS }}{% endraw %}
+      CSRF_TRUSTED_ORIGINS: {% raw %}${{ vars.CSRF_TRUSTED_ORIGINS }}{% endraw %}
+      APP_PORT: {{ cookiecutter.staging_port }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create deploy env file
+        run: |
+          for name in SECRET_KEY DB_NAME DB_USER DB_PASSWORD ALLOWED_HOSTS CSRF_TRUSTED_ORIGINS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing $name deploy value"
+              exit 1
+            fi
+          done
+
+          umask 077
+          {
+            echo "SECRET_KEY=$SECRET_KEY"
+            echo "ALLOWED_HOSTS=$ALLOWED_HOSTS"
+            echo "CSRF_TRUSTED_ORIGINS=$CSRF_TRUSTED_ORIGINS"
+            echo "DB_NAME=$DB_NAME"
+            echo "DB_USER=$DB_USER"
+            echo "DB_PASSWORD=$DB_PASSWORD"
+            echo "DB_HOST=127.0.0.1"
+            echo "DB_PORT=5432"
+            echo "APP_PORT=$APP_PORT"
+          } > .env.deploy
+
+      - name: Deploy
+        run: |
+          docker compose --env-file .env.deploy -f docker-compose.staging.yml up -d --build --force-recreate --remove-orphans
+
+      - name: Cleanup images
+        run: docker image prune -f
+
+      - name: Remove deploy env file
+        if: always()
+        run: rm -f .env.deploy
+
+      - name: Notify KChat
+        if: always()
+        continue-on-error: true
+        env:
+          WEBHOOK_KCHAT: {% raw %}${{ secrets.WEBHOOK_KCHAT }}{% endraw %}
+          JOB_STATUS: {% raw %}${{ job.status }}{% endraw %}
+          REPOSITORY: {% raw %}${{ github.repository }}{% endraw %}
+          BRANCH: {% raw %}${{ github.ref_name }}{% endraw %}
+          ACTOR: {% raw %}${{ github.actor }}{% endraw %}
+          SHA: {% raw %}${{ github.sha }}{% endraw %}
+          COMMIT_MESSAGE: {% raw %}${{ github.event.head_commit.message || github.sha }}{% endraw %}
+          COMMIT_URL: {% raw %}${{ github.event.head_commit.url || format('{0}/{1}/commit/{2}', github.server_url, github.repository, github.sha) }}{% endraw %}
+          RUN_URL: {% raw %}${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}{% endraw %}
+        run: |
+          if [ -z "$WEBHOOK_KCHAT" ]; then
+            echo "WEBHOOK_KCHAT not configured, skipping notification."
+            exit 0
+          fi
+
+          short_sha="${SHA::7}"
+          case "$JOB_STATUS" in
+            success)   header="Deploy staging completato" ;;
+            cancelled) header="Deploy staging annullato" ;;
+            *)         header="Deploy staging fallito" ;;
+          esac
+
+          message=$(printf '*%s*\nRepository: %s\nBranch: %s\nCommit: [%s](%s) (%s)\nAutore: %s' \
+            "$header" "$REPOSITORY" "$BRANCH" "$COMMIT_MESSAGE" \
+            "$COMMIT_URL" "$short_sha" "$ACTOR")
+
+          if [ "$JOB_STATUS" != "success" ]; then
+            message="$message"$'\n'"Log: $RUN_URL"
+          fi
+
+          if command -v jq >/dev/null 2>&1; then
+            payload=$(jq -n --arg text "$message" '{text: $text}')
+          else
+            payload=$(MESSAGE="$message" python3 -c 'import json, os; print(json.dumps({"text": os.environ["MESSAGE"]}))')
+          fi
+
+          curl -X POST "$WEBHOOK_KCHAT" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
