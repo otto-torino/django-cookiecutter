@@ -64,7 +64,8 @@ To set up an existing clone instead:
    ```
 
 The first start installs the Python and Tailwind dependencies and applies the
-database migrations. The local services are:
+database migrations. All published development ports listen only on
+`127.0.0.1`; they are not exposed to the local network. The services are:
 
 | Service | Address | Description |
 |---|---|---|
@@ -72,6 +73,11 @@ database migrations. The local services are:
 | MailHog | <http://localhost:8025> | Email web interface |
 | PostgreSQL | `127.0.0.1:5434` | Authenticated database access from the host |
 | debugpy | `localhost:5678` | Python debugger |
+
+The containers do not mount the host's SSH directory or private keys and run
+without additional tracing capabilities. If a project later needs private Git
+dependencies, use an explicit SSH agent or BuildKit SSH mount for that install
+step instead of mounting `~/.ssh` into a long-running container.
 
 ## Development commands
 
