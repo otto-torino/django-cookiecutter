@@ -1,5 +1,6 @@
 # Django Cookiecutter
 
+[![CI](https://github.com/otto-torino/django-cookiecutter/actions/workflows/ci.yml/badge.svg)](https://github.com/otto-torino/django-cookiecutter/actions/workflows/ci.yml)
 ![Django 6](https://img.shields.io/badge/Django-6.0-092E20?logo=django&logoColor=white)
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
