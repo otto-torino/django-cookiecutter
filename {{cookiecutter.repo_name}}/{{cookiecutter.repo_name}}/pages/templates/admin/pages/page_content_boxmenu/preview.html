@@ -1,4 +1,4 @@
-{% raw %}{% load sorl_thumbnail %}
+{% raw %}{% load {% endraw %}{% if cookiecutter.use_sorl_thumbnail == 'y' %}sorl_thumbnail{% else %}sorl_fallback{% endif %}{% raw %} %}
 <div class="{% if object.background_color %}p-2{% endif %}"
      style="background-color: {{ object.background_color }}">
     {% if object.show_name %}<h3 class="font-medium">{{ object.name }}</h3>{% endif %}

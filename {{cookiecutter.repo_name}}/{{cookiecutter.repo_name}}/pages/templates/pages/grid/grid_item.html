@@ -1,4 +1,4 @@
-{% raw %}{% load sorl_thumbnail %}
+{% raw %}{% load {% endraw %}{% if cookiecutter.use_sorl_thumbnail == 'y' %}sorl_thumbnail{% else %}sorl_fallback{% endif %}{% raw %} %}
 {% if content.crop %}
     {% thumbnail image content.crop_size crop=image.file.sorl as im %}
         <img src="{{ im.url }}"

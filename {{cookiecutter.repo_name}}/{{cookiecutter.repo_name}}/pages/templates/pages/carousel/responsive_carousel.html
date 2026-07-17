@@ -1,4 +1,4 @@
-{% raw %}{% load core components sorl_thumbnail %}
+{% raw %}{% load core components {% endraw %}{% if cookiecutter.use_sorl_thumbnail == 'y' %}sorl_thumbnail{% else %}sorl_fallback{% endif %}{% raw %} %}
 {% load pages_tags %}
 
 <div class="js-pswp-gallery">

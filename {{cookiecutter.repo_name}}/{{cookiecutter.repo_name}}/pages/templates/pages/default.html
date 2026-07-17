@@ -1,5 +1,5 @@
 {% raw %}{% extends 'page.html' %}
-{% load i18n static humanize core sorl_thumbnail search_tags %}
+{% load i18n static humanize core {% endraw %}{% if cookiecutter.use_sorl_thumbnail == 'y' %}sorl_thumbnail{% else %}sorl_fallback{% endif %}{% raw %} search_tags %}
 {% block title %}{{ page.title }} | {{ block.super }}{% endblock %}
 {% block meta_title %}{{ page.meta_title|default:page.title }}{% endblock %}
 {% block meta_og_title %}{{ page.meta_title|default:page.title }}{% endblock %}

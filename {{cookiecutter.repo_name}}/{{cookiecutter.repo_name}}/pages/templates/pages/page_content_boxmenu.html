@@ -1,5 +1,5 @@
 {% raw %}{% extends 'pages/page_content_base.html' %}
-{% load sorl_thumbnail components %}
+{% load {% endraw %}{% if cookiecutter.use_sorl_thumbnail == 'y' %}sorl_thumbnail{% else %}sorl_fallback{% endif %}{% raw %} components %}
 
 {% block inner_block %}
 <div class="flex flex-col justify-center md:flex-row md:align-top flex-wrap container">
