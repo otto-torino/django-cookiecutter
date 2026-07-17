@@ -6,7 +6,9 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
-from sorl.thumbnail import get_thumbnail
+{% if cookiecutter.use_sorl_thumbnail == 'y' %}from sorl.thumbnail import get_thumbnail{% else %}def get_thumbnail(file, geometry, **options):
+    """sorl-thumbnail is not installed; return the original file unchanged."""
+    return file{% endif %}
 from django.urls import reverse
 
 
