@@ -36,16 +36,8 @@ class PageForm(forms.ModelForm):
             )
         if (
             settings.APPEND_SLASH
-            and (
-                (
-                    settings.MIDDLEWARE
-                    and "django.middleware.common.CommonMiddleware"
-                    in settings.MIDDLEWARE
-                )
-                or "django.middleware.common.CommonMiddleware"  # noqa
-                in settings.MIDDLEWARE_CLASSES
-            )
-            and not url.endswith("/")  # noqa
+            and "django.middleware.common.CommonMiddleware" in settings.MIDDLEWARE
+            and not url.endswith("/")
         ):
             raise forms.ValidationError(
                 gettext("URL is missing a trailing slash."),

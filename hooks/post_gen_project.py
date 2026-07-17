@@ -9,10 +9,12 @@ from pathlib import Path
 
 # --- Definitions ---
 THEME_APP_NAME = "theme"
-theme_path_on_host = os.path.join(THEME_APP_NAME)
 context = {{cookiecutter}}
 repo_name = context["repo_name"]
 core_name = "core"
+# The theme app is created by `manage.py tailwind init`, which runs inside the
+# inner Django project dir, so on the host it lands at repo_name/theme.
+theme_path_on_host = os.path.join(repo_name, THEME_APP_NAME)
 
 
 def dotenv_value(value):

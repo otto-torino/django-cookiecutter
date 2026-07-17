@@ -157,7 +157,7 @@ TAILWIND_APP_NAME = 'theme'
 NPM_BIN_PATH = '/usr/local/bin/npm'
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.8/topics/i18n/
+# https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = '{{ cookiecutter.default_language}}'
 {% if cookiecutter.default_language == 'it' %}LANGUAGES = (
@@ -173,7 +173,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
+# https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -235,7 +235,7 @@ BATON = {
         ]},
     ),
     'COPYRIGHT': current_site_copyright(),
-    'SUPPORT_HREF': 'mailto:mail@otto.srl',
+    'SUPPORT_HREF': getenv('SUPPORT_HREF', 'mailto:mail@otto.srl'),
     'POWERED_BY': '<a href="https://www.otto.srl">Otto</a>'
 }
 

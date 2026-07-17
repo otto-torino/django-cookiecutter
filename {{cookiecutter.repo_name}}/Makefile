@@ -29,6 +29,7 @@ createsuperuser:
 # drops and recreates the local dev database
 reset-db:
 	docker compose exec -T app python manage.py dbshell < bin/drop_database.sql
+	docker compose exec app python manage.py migrate
 
 endif
 
