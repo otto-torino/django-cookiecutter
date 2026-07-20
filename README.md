@@ -82,6 +82,10 @@ After rendering the template, the post-generation hook automatically:
 5. initializes the Tailwind app with daisyUI;
 6. starts the local stack in the background.
 
+Before rendering begins, the generator checks that all local ports required by
+the development stack are available. If any port is already in use, generation
+stops immediately and reports the conflicting service.
+
 The application is then available at <http://localhost:8000> and the MailHog
 interface at <http://localhost:8025>.
 
