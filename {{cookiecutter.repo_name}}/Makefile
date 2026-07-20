@@ -1,4 +1,6 @@
-.PHONY: start build stop clean shell createsuperuser manage reset-db
+.DEFAULT_GOAL := help
+
+.PHONY: help start build stop clean shell createsuperuser manage reset-db
 
 ifeq (manage,$(firstword $(MAKECMDGOALS)))
 MANAGE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -7,6 +9,18 @@ $(MANAGE_ARGS):
 	@:
 
 else
+
+help:
+	@printf '%s\n' \
+		'Available commands:' \
+		'  make start                    Build and start the development environment' \
+		'  make build                    Rebuild the application image' \
+		'  make stop                     Stop the development environment' \
+		'  make clean                    Remove containers and volumes' \
+		'  make shell                    Open a shell in the app container' \
+		'  make createsuperuser          Create a Django superuser' \
+		'  make manage -- <command>      Run a Django management command' \
+		'  make reset-db                 Recreate the local development database'
 
 start:
 	docker compose up --build

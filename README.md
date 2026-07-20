@@ -95,6 +95,7 @@ Run these commands from the root of the generated project:
 
 | Command | Description |
 |---|---|
+| `make` / `make help` | Show the available development commands |
 | `make start` | Build if needed and start the development environment |
 | `make build` | Rebuild the local application image |
 | `make stop` | Stop the development environment |
