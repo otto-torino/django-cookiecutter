@@ -41,7 +41,7 @@ urlpatterns = [
         sitemap,
         {"sitemaps": sitemaps},
     ),
-    
+
     # robots
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots'),
 ]
@@ -57,6 +57,7 @@ translatable_urlpatterns = [
     path('editor-js/editor-js-image-upload/', editor_js_image_upload, name='editor_js_image_upload'),
     {% endif %}
     path('editor-js/', include('editor_js.urls')),
+    path("lineup/", include("lineup.urls")),
     {% if cookiecutter.use_cabinet == 'y' %}
     # cabinet
     path("cabinet/", include("cabinet.urls", namespace="cabinet")),

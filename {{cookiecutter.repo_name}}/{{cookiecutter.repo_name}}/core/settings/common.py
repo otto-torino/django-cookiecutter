@@ -100,7 +100,6 @@ INSTALLED_APPS = (
     {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'django_cleanup',
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}'sorl.thumbnail',{% endif %}
-    'mptt',
     'lineup',
 
     # Custom apps
