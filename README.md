@@ -66,7 +66,8 @@ The generator asks for the following values:
 | `use_cabinet` | `y` / `n` | Include the custom cabinet app |
 | `use_sorl_thumbnail` | `y` / `n` | Include sorl-thumbnail |
 | `use_translations` | `y` / `n` | Include django-modeltranslation |
-| `default_language` | `it` / `en` | Default Django language |
+| `languages` | Comma-separated language codes | Enabled languages when translations are included (for example `it,en,fr`) |
+| `default_language` | Language code | Default Django language; it must be included in `languages` when translations are enabled |
 | `timezone` | String | Django and container timezone |
 | `author` | String | Repository owner and Django admin name |
 | `email` | String | Address that receives Django error emails |

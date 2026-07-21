@@ -24,10 +24,8 @@
   "use_cabinet": ["n", "y"],
   "use_sorl_thumbnail": ["y", "n"],
   "use_translations": ["n", "y"],
-  "default_language": [
-    "it",
-    "en"
-  ],
+  "languages": "it,en",
+  "default_language": "it",
   "timezone": "Europe/Rome",
   "author": "otto",
   "email": "logs@otto.srl",

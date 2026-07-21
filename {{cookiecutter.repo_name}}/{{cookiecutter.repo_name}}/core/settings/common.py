@@ -7,6 +7,7 @@ from datetime import datetime
 from os import getenv
 from pathlib import Path
 from dotenv import load_dotenv
+from django.conf.locale import LANG_INFO
 from django.utils.functional import lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -159,13 +160,21 @@ NPM_BIN_PATH = '/usr/local/bin/npm'
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = '{{ cookiecutter.default_language}}'
-{% if cookiecutter.default_language == 'it' %}LANGUAGES = (
-    ("it", "italian"),
-){% else %}LANGUAGES = (
-    ("en", "english"),
-){% endif %}
-{% if cookiecutter.use_translations == 'y' %}MODELTRANSLATION_DEFAULT_LANGUAGE = "{{ cookiecutter.default_language}}"{% endif %}
+LANGUAGE_CODE = "{{ cookiecutter.default_language }}"
+{% if cookiecutter.use_translations == 'y' %}
+ENABLED_LANGUAGE_CODES = (
+{% for language in cookiecutter.languages.split(',') %}    "{{ language.strip() }}",
+{% endfor %})
+LANGUAGES = tuple(
+    (code, LANG_INFO.get(code, {}).get("name_local", code))
+    for code in ENABLED_LANGUAGE_CODES
+)
+MODELTRANSLATION_DEFAULT_LANGUAGE = "{{ cookiecutter.default_language }}"
+{% else %}
+LANGUAGES = (
+    (LANGUAGE_CODE, LANG_INFO.get(LANGUAGE_CODE, {}).get("name_local", LANGUAGE_CODE)),
+)
+{% endif %}
 
 TIME_ZONE = '{{ cookiecutter.timezone }}'
 USE_I18N = True
