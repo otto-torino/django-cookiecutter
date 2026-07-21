@@ -104,7 +104,7 @@ INSTALLED_APPS = (
 
     # Custom apps
     'pages',
-    #'theme',
+    'theme',
     'search_app',    
 
     'baton.autodiscover',

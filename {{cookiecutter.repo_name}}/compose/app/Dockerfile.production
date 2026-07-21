@@ -37,17 +37,17 @@ RUN pip install --no-cache-dir -r requirements/production.txt
 
 COPY {{cookiecutter.repo_name}}/ .
 
-# Builds theme/static/css/dist/styles.css via npm (same command the old fabric
-# deploy task used), then bakes static assets into the image.
-RUN SECRET_KEY=docker-build \
+# Install exactly the locked frontend dependencies, build the theme and then
+# bake all static assets into the image.
+RUN npm --prefix theme/static_src ci \
+    && npm --prefix theme/static_src run build \
+    && SECRET_KEY=docker-build \
     DB_HOST=localhost \
     DB_PORT=5432 \
     DB_NAME=build \
     DB_USER=build \
     DB_PASSWORD=build \
-    python manage.py tailwind install \
-    && python manage.py tailwind build \
-    && python manage.py collectstatic --noinput \
+    python manage.py collectstatic --noinput \
     && python manage.py compilemessages
 
 FROM python:3.12.13-slim-bookworm

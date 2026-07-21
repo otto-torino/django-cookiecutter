@@ -1,20 +1,13 @@
 #!/usr/bin/env python3
 
-import os
 import secrets
 import shutil
-import subprocess
-from collections import OrderedDict
+from collections import OrderedDict  # noqa: F401 - used by rendered context repr
 from pathlib import Path
 
-# --- Definitions ---
-THEME_APP_NAME = "theme"
 context = {{cookiecutter}}
 repo_name = context["repo_name"]
 core_name = "core"
-# The theme app is created by `manage.py tailwind init`, which runs inside the
-# inner Django project dir, so on the host it lands at repo_name/theme.
-theme_path_on_host = os.path.join(repo_name, THEME_APP_NAME)
 
 
 def dotenv_value(value):
@@ -53,79 +46,24 @@ def create_local_env():
 
 create_local_env()
 
-# --- Helper function for docker commands ---
-def docker_run(command, workdir=f"/home/app/{repo_name}"):
-    """
-    Runs a command inside the 'app' container.
-    Defaults the working directory to the project root where manage.py is.
-    """
-    # The command itself is now prefixed with 'cd' to ensure context
-    full_command = f"cd {workdir} && {command}"
-    base_cmd = [
-        "docker", "compose", "-f", "docker-compose.yml",
-        "run", "--rm", "app", "bash", "-c", full_command
-    ]
-    subprocess.run(base_cmd, check=True)
-
-# 1. Optional module cleanup
+# Optional module cleanup
 if context["use_cabinet"] != "y":
-    if os.path.exists(f"./{repo_name}/cabinet"):
-        shutil.rmtree(f"./{repo_name}/cabinet")
+    cabinet_path = Path(repo_name) / "cabinet"
+    if cabinet_path.exists():
+        shutil.rmtree(cabinet_path)
 
 if context["use_translations"] != "y":
     files_to_remove = [
-        f"./{repo_name}/pages/translation.py",
-        f"./{repo_name}/cabinet/translation.py",
-        f"./{repo_name}/tagall/translation.py",
-        f"./{repo_name}/{core_name}/translation.py",
+        Path(repo_name) / "pages" / "translation.py",
+        Path(repo_name) / "cabinet" / "translation.py",
+        Path(repo_name) / "tagall" / "translation.py",
+        Path(repo_name) / core_name / "translation.py",
     ]
-    for f in files_to_remove:
-        if os.path.exists(f):
-            os.remove(f)
+    for path in files_to_remove:
+        path.unlink(missing_ok=True)
 
-# 2. Move gitignore
+# Cookiecutter cannot render a file named .gitignore directly.
 shutil.move("gitignore", ".gitignore")
 
-# 3. Build Docker images
-print("📦 Building Docker images...")
-subprocess.run(
-    ["docker", "compose", "-f", "docker-compose.yml", "build", "app"],
-    check=True,
-)
-
-# 4. Create initial migrations
-print("Applying initial migrations...")
-migrate_apps = "core tagall pages"
-if context["use_cabinet"] == "y":
-    migrate_apps += " cabinet"
-docker_run(f"cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py makemigrations {migrate_apps}")
-
-# 5. Initialize Tailwind CSS and daisyUI
-if not os.path.exists(theme_path_on_host):
-    print(f"🎨 Initializing Tailwind app ('{THEME_APP_NAME}')...")
-    # Name the theme app
-    docker_run(
-        "cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && "
-        f"python manage.py tailwind init --no-input --tailwind-version 4 --app-name {THEME_APP_NAME} --include-daisy-ui"
-    )
-    
-    # Uncomment 'theme' in settings. This runs on the host system.
-    os.system(
-        f"sed -i \"s/^\\(\\s*\\)#'{THEME_APP_NAME}',/\\1'{THEME_APP_NAME}',/\" {repo_name}/{core_name}/settings/common.py"
-    )
-    
-    # Install npm dependencies (including daisyUI)
-    print("🌀 Installing npm dependencies (tailwindcss & daisyui)...")
-    docker_run("cd /home/app/{{cookiecutter.repo_name}}/{{cookiecutter.repo_name}} && python manage.py tailwind install")
-
-else:
-    print(f"🎨 Tailwind app '{THEME_APP_NAME}' already present, skipping creation.")
-
-
-# 6. Start services
-print("\n🚀 Starting Docker services...")
-# Use -d to run in detached mode and not block the terminal
-subprocess.run(["docker", "compose", "-f", "docker-compose.yml", "up", "-d"], check=True) 
-
-# 7. Final instructions
-print("\n✅ Done! The project is running in the background.")
+print("\n✅ Project generated without building images or starting services.")
+print("Run `make bootstrap` from the project root when you are ready to set it up.")

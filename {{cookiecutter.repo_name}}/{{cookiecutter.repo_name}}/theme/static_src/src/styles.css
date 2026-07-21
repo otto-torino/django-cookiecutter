@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Scan project templates, Python and JavaScript for Tailwind class names. */
+@source "../../../**/*.{html,py,js}";

@@ -14,9 +14,15 @@
 
 ## Local development
 
-When this project is created directly with Cookiecutter, the generation hook
-builds the images, initializes the Python virtual environment and Tailwind app,
-creates the initial migrations and starts the services automatically.
+Cookiecutter generation is intentionally quick and does not access the network,
+build images or start services. The generated project already includes the
+Tailwind app and its NPM lockfile. To build the development image, create the
+initial migrations, install the locked frontend dependencies and start the
+services, run:
+
+```bash
+make bootstrap
+```
 
 To set up an existing clone instead:
 
@@ -56,10 +62,12 @@ To set up an existing clone instead:
    chmod 600 {{ cookiecutter.repo_name }}/.env
    ```
 
-4. Build and start the development environment:
+4. Bootstrap a new project, or start an existing project whose migrations are
+   already committed:
 
    ```bash
-   make start
+   make bootstrap  # newly generated project
+   make start      # existing project
    ```
 
 The first start builds the local image with the Python dependencies, installs
@@ -87,12 +95,14 @@ Run these commands from the repository root:
 | Command | Description |
 |---|---|
 | `make` / `make help` | Show the available development commands |
+| `make bootstrap` | Build, create initial migrations and start a new project |
 | `make start` | Build if needed and start the development environment |
 | `make build` | Rebuild the local application image |
 | `make stop` | Stop the development environment |
 | `make clean` | Remove containers and volumes |
 | `make shell` | Open a shell in the app container |
 | `make createsuperuser` | Create a Django superuser |
+| `make test` | Run the Django test suite with the dedicated test settings |
 | `make manage -- <command> [args]` | Run a Django management command |
 | `make reset-db` | Drop and recreate all tables in the local database |
 

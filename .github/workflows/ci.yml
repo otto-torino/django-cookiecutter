@@ -178,13 +178,17 @@ jobs:
       - name: Install Cookiecutter
         run: python -m pip install cookiecutter==2.6.0
 
-      - name: Generate and bootstrap project
+      - name: Generate project
         run: >-
           cookiecutter "$GITHUB_WORKSPACE"
           --no-input
           --output-dir "$RUNNER_TEMP/rendered"
           project_name="CI Production"
           repo_name=ci-production
+
+      - name: Bootstrap project
+        working-directory: ${{ runner.temp }}/rendered/ci-production
+        run: make bootstrap
 
       - name: Stop development services
         if: always()
