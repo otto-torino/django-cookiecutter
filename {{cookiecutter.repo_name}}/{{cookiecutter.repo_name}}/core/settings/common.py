@@ -96,16 +96,17 @@ INSTALLED_APPS = (
     'subject_imagefield',
     "colorfield",
     'tailwind',
-    'django_web_components',    
+    'django_web_components',
     {% if cookiecutter.use_cabinet == 'y' %}'cabinet',{% endif %}
     'django_cleanup',
     {% if cookiecutter.use_sorl_thumbnail == 'y' %}'sorl.thumbnail',{% endif %}
+    'mptt',
     'lineup',
 
     # Custom apps
     'pages',
     'theme',
-    'search_app',    
+    'search_app',
 
     'baton.autodiscover',
 )
