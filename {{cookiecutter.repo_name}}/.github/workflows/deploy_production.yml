@@ -108,17 +108,51 @@ jobs:
 
       - name: Smoke test
         run: |
-          curl --fail --show-error --silent \
+          url="http://127.0.0.1:$APP_PORT/"
+          response_file="$RUNNER_TEMP/smoke-test-response.txt"
+
+          if http_code=$(curl --silent --show-error \
             --retry 10 --retry-delay 3 --retry-all-errors \
             --connect-timeout 5 --max-time 10 \
-            "http://127.0.0.1:$APP_PORT/" >/dev/null
+            --output "$response_file" \
+            --write-out "%{http_code}" \
+            "$url"); then
+            curl_status=0
+          else
+            curl_status=$?
+          fi
+
+          if [ "$curl_status" -ne 0 ] || [[ ! "$http_code" =~ ^[23] ]]; then
+            echo "::error title=Smoke test failed::URL $url returned HTTP ${http_code:-unknown}; curl exit code $curl_status"
+
+            if [ -s "$response_file" ]; then
+              echo "::group::HTTP response body"
+              head -c 10000 "$response_file" | sed 's/^/| /'
+              echo
+              echo "::endgroup::"
+            fi
+
+            exit 1
+          fi
+
+          echo "Smoke test passed: $url returned HTTP $http_code"
 
       - name: Deployment diagnostics
         if: failure()
         continue-on-error: true
         run: |
-          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" ps
-          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" logs --tail 200
+          echo "::error title=Deployment failed::Container status and application logs follow"
+
+          echo "::group::Container status"
+          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" ps || \
+            echo "Unable to read container status."
+          echo "::endgroup::"
+
+          echo "::group::Last 200 container log lines"
+          docker compose --env-file .env.deploy -f "$COMPOSE_FILE" logs \
+            --no-color --timestamps --tail 200 || \
+            echo "Unable to read container logs."
+          echo "::endgroup::"
 
       - name: Roll back application image
         if: failure()
@@ -132,10 +166,14 @@ jobs:
           docker compose --env-file .env.deploy -f "$COMPOSE_FILE" up \
             -d --no-build --force-recreate --remove-orphans \
             --wait --wait-timeout 180
-          curl --fail --show-error --silent \
+          rollback_url="http://127.0.0.1:$APP_PORT/"
+          if ! curl --fail --show-error --silent \
             --retry 10 --retry-delay 3 --retry-all-errors \
             --connect-timeout 5 --max-time 10 \
-            "http://127.0.0.1:$APP_PORT/" >/dev/null
+            "$rollback_url" >/dev/null; then
+            echo "::error title=Rollback smoke test failed::$rollback_url is not responding successfully"
+            exit 1
+          fi
           echo "Previous application image restored. Database backup was not restored automatically."
 
       - name: Cleanup images
