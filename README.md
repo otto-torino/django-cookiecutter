@@ -129,6 +129,9 @@ deployments:
 | Global GitHub port variable | `<REPO_NAME>_STAGING_PORT` | `<REPO_NAME>_PRODUCTION_PORT` |
 | GitHub Environment | `staging` | `production` |
 
+The two trigger workflows delegate the shared deployment implementation to
+`.github/workflows/_deploy.yml`.
+
 Each deployment runs Django, Gunicorn and PostgreSQL in the application
 container. An internal Nginx container serves shared static/media volumes and
 proxies dynamic requests to Gunicorn. Only internal Nginx binds to `127.0.0.1`;

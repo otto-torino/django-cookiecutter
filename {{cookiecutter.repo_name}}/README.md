@@ -172,6 +172,9 @@ GitHub Environment:
 | Global GitHub port variable | `{{ cookiecutter.repo_name | upper | replace('-', '_') }}_STAGING_PORT` | `{{ cookiecutter.repo_name | upper | replace('-', '_') }}_PRODUCTION_PORT` |
 | GitHub Environment | `staging` | `production` |
 
+The two trigger workflows delegate the shared deployment implementation to
+`.github/workflows/_deploy.yml`.
+
 In both environments:
 
 - the application image contains Gunicorn and PostgreSQL in one container;
