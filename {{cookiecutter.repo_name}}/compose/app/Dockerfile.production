@@ -68,6 +68,7 @@ ENV TZ={{ cookiecutter.timezone }} \
     POSTGRES_DATA_DIR=/var/lib/postgresql/data
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
         gosu \
         gettext \
         libpq5 \
